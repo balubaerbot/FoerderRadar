@@ -6,3 +6,4 @@ venv/
 *.sqlite
 *.db
 logs/
+dbdata/
