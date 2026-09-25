@@ -1,0 +1,12 @@
+{
+  "name": "TESTDATEN - Tischlerei Maier GmbH",
+  "typ": "betrieb",
+  "standort": "Steyr",
+  "region": "OÖ",
+  "branche": "Tischlerei/Handwerk",
+  "mitarbeiter": 8,
+  "wko_mitglied": true,
+  "vorhaben": ["digitalisierung", "investition", "schulung"],
+  "projektkosten": 25000,
+  "kontakt_kanal": "email"
+}

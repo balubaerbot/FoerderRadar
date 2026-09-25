@@ -1,0 +1,13 @@
+{
+  "name": "TESTDATEN - Familie Huber",
+  "typ": "privat",
+  "standort": "Steyr",
+  "region": "OÖ",
+  "wohnsituation": "eigenheim",
+  "haushaltsgroesse": 4,
+  "haushaltseinkommen": 42000,
+  "heizung": "gas",
+  "themen": ["heizungstausch", "pv", "sanierung"],
+  "pflegestufe": 0,
+  "kontakt_kanal": "email"
+}

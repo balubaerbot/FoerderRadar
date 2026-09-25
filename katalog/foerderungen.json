@@ -1,0 +1,211 @@
+{
+  "meta": {
+    "stand": "2026-09-25",
+    "hinweis": "TESTDATEN-Prototyp. Betraege/Fristen aus Live-Recherche, vor echtem Einsatz verifizieren.",
+    "quellen": [
+      "foerderungen.wko.at/ooe/digitalplus26",
+      "aws.at",
+      "land-oberoesterreich.gv.at",
+      "umweltfoerderung.at",
+      "eag-abwicklungsstelle.at"
+    ]
+  },
+  "foerderungen": [
+    {
+      "id": "digitalplus26",
+      "name": "DIGITAL.PLUS 26",
+      "stelle": "Land OÖ / WKOÖ",
+      "zielgruppe": "betrieb",
+      "region": "OÖ",
+      "betrag": "35 % der Kosten, max. 7.000 EUR",
+      "voraussetzungen": {
+        "wko_mitglied": true,
+        "projektkosten_min": 12000,
+        "themen": ["digitalisierung", "automatisierung", "ki", "cybersecurity"]
+      },
+      "frist": "Antrag 1.6.-2.11.2026",
+      "status": "offen",
+      "quelle": "https://foerderungen.wko.at/ooe/digitalplus26"
+    },
+    {
+      "id": "kmu_digital",
+      "name": "KMU.DIGITAL",
+      "stelle": "Bund / aws",
+      "zielgruppe": "betrieb",
+      "region": null,
+      "betrag": "Beratung bis 3.000 EUR, Umsetzung 30 % max. 6.000 EUR",
+      "voraussetzungen": {
+        "themen": ["digitalisierung", "beratung"],
+        "projektkosten_min": 2000
+      },
+      "frist": "aktuell kein Antrag (Budget ausgeschoepft)",
+      "status": "ausgeschoepft",
+      "quelle": "https://www.aws.at"
+    },
+    {
+      "id": "gruenderfonds_ooe",
+      "name": "Gruenderfonds fuer die ooe. Wirtschaft",
+      "stelle": "Land OÖ",
+      "zielgruppe": "betrieb",
+      "region": "OÖ",
+      "betrag": "stille Beteiligung bis 75.000 EUR + Anschlusskredit bis 75.000 EUR",
+      "voraussetzungen": {
+        "themen": ["investition", "modernisierung", "gruendung", "uebernahme"]
+      },
+      "frist": "laufend",
+      "status": "offen",
+      "quelle": "https://www.startmatch.dev/de-at/foerderungen/land-oberoesterreich/gruenderfonds-fuer-die-ooe-wirtschaft"
+    },
+    {
+      "id": "innovative_skills",
+      "name": "Innovative Skills fuer KMUs",
+      "stelle": "Land OÖ",
+      "zielgruppe": "betrieb",
+      "region": "OÖ",
+      "betrag": "30 % der Weiterbildungskosten, max. 1.000 EUR pro Person/Kurs",
+      "voraussetzungen": {
+        "wko_mitglied": true,
+        "themen": ["schulung", "weiterbildung"]
+      },
+      "frist": "laufend",
+      "status": "offen",
+      "quelle": "https://www.land-oberoesterreich.gv.at"
+    },
+    {
+      "id": "kpc_energieeffizienz",
+      "name": "Umweltfoerderung im Inland (Energieeffizienz)",
+      "stelle": "KPC / Klimafonds",
+      "zielgruppe": "betrieb",
+      "region": null,
+      "betrag": "je Ausschreibung (Betriebs-Energieeffizienz, PV)",
+      "voraussetzungen": {
+        "themen": ["energieeffizienz", "pv", "umwelt"]
+      },
+      "frist": "Ausschreibung Juli 2026",
+      "status": "offen",
+      "quelle": "https://www.umweltfoerderung.at/betriebe"
+    },
+    {
+      "id": "heizkostenzuschuss_ooe",
+      "name": "Heizkostenzuschuss OÖ",
+      "stelle": "Land OÖ",
+      "zielgruppe": "privat",
+      "region": "OÖ",
+      "betrag": "200 EUR pro Haushalt",
+      "voraussetzungen": {
+        "wohnsituation": ["eigenheim", "miete"],
+        "einkommen_max": 30913,
+        "hauptwohnsitz_seit": "2026-03-01"
+      },
+      "frist": "Antrag 16.3.-15.5.2026",
+      "status": "fenster_zu",
+      "quelle": "https://www.land-oberoesterreich.gv.at"
+    },
+    {
+      "id": "wohnbeihilfe_ooe",
+      "name": "Wohnbeihilfe OÖ",
+      "stelle": "Land OÖ",
+      "zielgruppe": "privat",
+      "region": "OÖ",
+      "betrag": "laufende Beihilfe (Einkommensgrenzen je Haushaltsgroesse)",
+      "voraussetzungen": {
+        "wohnsituation": ["miete"],
+        "einkommen_max": 2227
+      },
+      "frist": "laufend",
+      "status": "offen",
+      "quelle": "https://www.land-oberoesterreich.gv.at/wohnbeihilfe.htm"
+    },
+    {
+      "id": "raus_aus_oel_gas",
+      "name": "Raus aus Oel und Gas (Heizungstausch)",
+      "stelle": "Bund (Klimaministerium)",
+      "zielgruppe": "privat",
+      "region": null,
+      "betrag": "30 % Grundfoerderung + Boni (Klimageschwindigkeit 16 %, Einkommensbonus je Einkommen), max. 80 %, foerderfaehig bis 28.000 EUR",
+      "voraussetzungen": {
+        "heizung_alt": ["oel", "gas"],
+        "wohnsituation": ["eigenheim"]
+      },
+      "frist": "laufend, vorbehaltlich Budget",
+      "status": "offen",
+      "quelle": "https://www.sanierungsoffensive.gv.at"
+    },
+    {
+      "id": "ooe_heizungstausch",
+      "name": "OÖ Heizungstausch (Land + Bund)",
+      "stelle": "Land OÖ",
+      "zielgruppe": "privat",
+      "region": "OÖ",
+      "betrag": "bis 11.400 EUR gesamt",
+      "voraussetzungen": {
+        "heizung_alt": ["oel", "gas"],
+        "wohnsituation": ["eigenheim"],
+        "energieberatung": true
+      },
+      "frist": "laufend",
+      "status": "offen",
+      "quelle": "https://www.land-oberoesterreich.gv.at"
+    },
+    {
+      "id": "ooe_sanierung",
+      "name": "OÖ Sanierungsfoerderung",
+      "stelle": "Land OÖ",
+      "zielgruppe": "privat",
+      "region": "OÖ",
+      "betrag": "Zuschuss bis 2.250 EUR (Einzelbauteil) / bis 50.000 EUR (umfassend) + Oekoboni",
+      "voraussetzungen": {
+        "wohnsituation": ["eigenheim"],
+        "themen": ["sanierung", "daemmung", "fenster"]
+      },
+      "frist": "laufend",
+      "status": "offen",
+      "quelle": "https://www.land-oberoesterreich.gv.at"
+    },
+    {
+      "id": "handwerkerbonus",
+      "name": "Handwerkerbonus",
+      "stelle": "Bund",
+      "zielgruppe": "privat",
+      "region": null,
+      "betrag": "20 % der Arbeitskosten, max. 1.500 EUR",
+      "voraussetzungen": {
+        "wohnsituation": ["eigenheim", "miete"],
+        "nachweis": "Rechnung mit ausgewiesenen Arbeitskosten, oesterreichisches Gewerbe"
+      },
+      "frist": "Frist 28.2.2026 (fuer Leistungen 2025)",
+      "status": "fenster_zu",
+      "quelle": "https://www.handwerkerbonus.gv.at"
+    },
+    {
+      "id": "eag_pv",
+      "name": "EAG-Investitionszuschuss Photovoltaik",
+      "stelle": "EAG-Abwicklungsstelle / Klimaministerium",
+      "zielgruppe": "privat",
+      "region": null,
+      "betrag": "150 EUR/kWp (<=10 kWp) / 140 EUR/kWp (10-20 kWp); Speicher 150 EUR/kWh; max. 30 % der Kosten; +10 % Made-in-Europe",
+      "voraussetzungen": {
+        "themen": ["pv", "speicher"],
+        "wohnsituation": ["eigenheim"]
+      },
+      "frist": "Call-basiert (z. B. 9.10.-22.10.2026)",
+      "status": "call_angekuendigt",
+      "quelle": "https://www.eag-abwicklungsstelle.at"
+    },
+    {
+      "id": "ooe_barrierefrei_pflege",
+      "name": "OÖ Wohnraumanpassung bei Pflegebedarf",
+      "stelle": "Land OÖ",
+      "zielgruppe": "privat",
+      "region": "OÖ",
+      "betrag": "15 % der Kosten, max. 2.250 EUR je Wohnung",
+      "voraussetzungen": {
+        "wohnsituation": ["eigenheim", "miete"],
+        "pflegestufe_min": 1
+      },
+      "frist": "laufend",
+      "status": "offen",
+      "quelle": "https://www.ris.bka.gv.at"
+    }
+  ]
+}
