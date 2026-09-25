@@ -1,0 +1,38 @@
+services:
+  foerderradar-db:
+    image: postgres:16-alpine
+    container_name: foerderradar-db
+    env_file:
+      - ./.env
+    volumes:
+      - foerderradar_dbdata:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - openclaw_default
+    restart: unless-stopped
+
+  foerderradar-api:
+    build: .
+    container_name: foerderradar-api
+    ports:
+      - "127.0.0.1:8100:8000"
+    env_file:
+      - ./.env
+    volumes:
+      - ./:/app
+    working_dir: /app
+    depends_on:
+      - foerderradar-db
+    networks:
+      - openclaw_default
+    restart: unless-stopped
+
+volumes:
+  foerderradar_dbdata:
+
+networks:
+  # Externes Netzwerk des openclaw-jpva-Projekts: so erreicht der Agent
+  # die Container ueber ihren Namen, ohne dass FoerderRadar im openclaw-Stack haengt.
+  openclaw_default:
+    external: true
+    name: openclaw-jpva_default
