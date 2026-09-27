@@ -48,13 +48,17 @@ def pruefe(f, profil):
 
     # 5) Einkommensgrenze
     if "einkommen_max" in vor:
-        eink = profil.get("haushaltseinkommen", 0)
+        eink = profil.get("haushaltseinkommen")
         limit = vor["einkommen_max"]
         # Monats- vs. Jahresgrenze grob unterscheiden
         limit_jahr = limit if limit > 1000 else limit * 12
-        if eink > limit_jahr:
+        if eink is None:
+            knapp = True
+            gruende.append("Einkommen nicht angegeben - Grenze nicht pruefbar")
+        elif eink > limit_jahr:
             return "raus", [f"Einkommen {eink:,.0f} EUR > Grenze {limit_jahr:,.0f} EUR"]
-        gruende.append(f"Einkommen unter Grenze ({eink:,.0f} <= {limit_jahr:,.0f} EUR)")
+        else:
+            gruende.append(f"Einkommen unter Grenze ({eink:,.0f} <= {limit_jahr:,.0f} EUR)")
 
     # 6) Heizung alt
     if "heizung_alt" in vor:
@@ -63,8 +67,12 @@ def pruefe(f, profil):
 
     # 7) Pflegestufe
     if "pflegestufe_min" in vor:
-        if profil.get("pflegestufe", 0) < vor["pflegestufe_min"]:
-            return "raus", [f"Pflegestufe {profil.get('pflegestufe',0)} < {vor['pflegestufe_min']}"]
+        ps = profil.get("pflegestufe")
+        if ps is None:
+            knapp = True
+            gruende.append("Pflegestufe nicht angegeben - nicht pruefbar")
+        elif ps < vor["pflegestufe_min"]:
+            return "raus", [f"Pflegestufe {ps} < {vor['pflegestufe_min']}"]
 
     # 8) Projektkosten
     if "projektkosten_min" in vor:
