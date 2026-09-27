@@ -27,6 +27,26 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src import matching_service as ms  # noqa: E402
 from src import region as regionmod  # noqa: E402
 
+
+def _lade_env_datei():
+    """Fallback: Werte aus der gemounteten `.env` lesen, falls nicht als Env var gesetzt.
+
+    Grund: `docker restart` liest `env_file` NICHT neu (nur ein Recreate). So genuegt
+    ein normaler Neustart, damit neue Schluessel (z.B. FOERDER_ADMIN_TOKEN) ankommen.
+    """
+    pfad = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
+    if not os.path.exists(pfad):
+        return
+    for zeile in open(pfad, encoding="utf-8"):
+        zeile = zeile.strip()
+        if not zeile or zeile.startswith("#") or "=" not in zeile:
+            continue
+        k, v = zeile.split("=", 1)
+        os.environ.setdefault(k.strip(), v.strip())
+
+
+_lade_env_datei()
+
 app = FastAPI(title="FoerderRadar API", version="0.1.0")
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
 ADMIN_TOKEN = os.environ.get("FOERDER_ADMIN_TOKEN", "")
