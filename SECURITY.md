@@ -68,10 +68,10 @@ Ziel: kein Dienst kann mehr, als er braucht.
 
 ## 7. Umsetzungs-Checkliste
 
-- [ ] API-Auth + Default-Deny (Admin-Endpunkte)
+- [x] API-Auth + Default-Deny (Admin-Endpunkte) — Token via `FOERDER_ADMIN_TOKEN` (`.env`, gitignored)
 - [ ] DB-Rollen-Trennung (`app_web` / `app_agent` / `app_worker`)
-- [ ] Rate-Limit + Bot-Schutz auf `POST /profile`
+- [x] Rate-Limit auf `POST /profile` (5/Minute/IP) — Bot-Schutz (Honeypot/CAPTCHA) offen
 - [ ] TLS + Reverse-Proxy
 - [ ] Backups verschluesseln
-- [ ] Consent-Flow (Checkbox + Nachweis)
+- [x] Consent-Flow: `einwilligung` Pflichtfeld in `POST /profile` (Nachweis-Text noch offen)
 - [ ] Loesch-Job fuer `loeschdatum`

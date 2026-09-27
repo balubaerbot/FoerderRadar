@@ -1,13 +1,24 @@
 """FoerderRadar API - Phase 1 (Skelett).
 
+Sicherheit: Default-Deny. Oeffentlich ist NUR:
+  - GET  /            (Info)
+  - GET  /health      (Monitoring, nur intern erreichbar)
+  - POST /profile     (Website; Consent Pflicht + Rate-Limit)
+Alle anderen Endpunkte (Lesen/Matching) erfordern den Admin-Token:
+  Header:  Authorization: Bearer <FOERDER_ADMIN_TOKEN>
+
 Trennung: `profil` = pseudonym (Agent darf lesen), `kontakt` = Klartext
 (nur Versand-Worker). Der Agent sieht Kontaktdaten NIE.
 """
+import hmac
 import os
 import sys
+import time
+from collections import defaultdict, deque
 
 import psycopg
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Optional
 
@@ -18,10 +29,48 @@ from src import region as regionmod  # noqa: E402
 
 app = FastAPI(title="FoerderRadar API", version="0.1.0")
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
+ADMIN_TOKEN = os.environ.get("FOERDER_ADMIN_TOKEN", "")
+
+# Oeffentliche Routen. Alles andere ist default-deny -> Token noetig.
+PUBLIC = {("GET", "/"), ("GET", "/health"), ("POST", "/profile")}
+
+# Rate-Limit fuer den oeffentlichen Schreibpfad: max N pro IP pro Fenster.
+RATE_LIMIT = 5
+RATE_WINDOW = 60.0
+_hits = defaultdict(deque)
 
 
 def db():
     return psycopg.connect(DATABASE_URL, connect_timeout=5)
+
+
+def _client_ip(request):
+    xff = request.headers.get("x-forwarded-for")
+    if xff:
+        return xff.split(",")[0].strip()
+    return request.client.host if request.client else "?"
+
+
+@app.middleware("http")
+async def guard(request: Request, call_next):
+    key = (request.method, request.url.path)
+    if key not in PUBLIC:
+        # Default-Deny: Admin-Token erforderlich.
+        auth = request.headers.get("authorization", "")
+        token = auth[7:] if auth.lower().startswith("bearer ") else ""
+        if not ADMIN_TOKEN or not token or not hmac.compare_digest(token, ADMIN_TOKEN):
+            return JSONResponse({"detail": "nicht autorisiert"}, status_code=401)
+    elif key == ("POST", "/profile"):
+        # Rate-Limit nur auf dem oeffentlichen Schreibpfad.
+        ip = _client_ip(request)
+        now = time.monotonic()
+        q = _hits[ip]
+        while q and now - q[0] > RATE_WINDOW:
+            q.popleft()
+        if len(q) >= RATE_LIMIT:
+            return JSONResponse({"detail": "zu viele Anfragen"}, status_code=429)
+        q.append(now)
+    return await call_next(request)
 
 
 @app.get("/")
@@ -59,10 +108,19 @@ class ProfilIn(BaseModel):
     email: Optional[str] = None
     telefon: Optional[str] = None
     kanal: Optional[str] = None  # email | sms
+    # Einwilligung zur Datenverarbeitung (Pflicht)
+    einwilligung: bool = False
 
 
 @app.post("/profile")
 def create_profile(p: ProfilIn):
+    if p.typ not in ("betrieb", "privat"):
+        raise HTTPException(status_code=400, detail="typ muss 'betrieb' oder 'privat' sein")
+    if not p.einwilligung:
+        raise HTTPException(status_code=400, detail="Einwilligung erforderlich")
+    if p.kanal not in (None, "email", "sms"):
+        raise HTTPException(status_code=400, detail="kanal muss 'email' oder 'sms' sein")
+
     with db() as conn, conn.cursor() as cur:
         cur.execute(
             """
@@ -86,12 +144,13 @@ def create_profile(p: ProfilIn):
             (kunde_id, p.name, p.email, p.telefon, p.kanal),
         )
         conn.commit()
+    # Antwort enthaelt nur die kunde_id - keine Kontaktdaten.
     return {"kunde_id": str(kunde_id)}
 
 
 @app.get("/profiles")
 def list_profiles_agent_view():
-    """Pseudonyme Sicht - genau das, was der Agent/Dienst lesen darf."""
+    """Pseudonyme Sicht - genau das, was der Agent/Dienst lesen darf. (Admin)"""
     with db() as conn, conn.cursor() as cur:
         cur.execute("SELECT kunde_id, typ, region_grob, vorhaben FROM profil_agent")
         rows = cur.fetchall()
@@ -104,7 +163,7 @@ def list_profiles_agent_view():
 @app.post("/match/{kunde_id}")
 def match_profile(kunde_id: str):
     """Bewertet das pseudonyme Profil gegen den Katalog und friert Treffer
-    (kategorie top/pruefenswert) in `match` ein. Idempotent wiederholbar."""
+    (kategorie top/pruefenswert) in `match` ein. Idempotent wiederholbar. (Admin)"""
     try:
         with db() as conn:
             ergebnis = ms.run_match(conn, kunde_id)
@@ -123,7 +182,7 @@ def match_profile(kunde_id: str):
 
 @app.get("/match/{kunde_id}")
 def get_match(kunde_id: str):
-    """Liefert die eingefrorenen Match-Eintraege eines Kunden."""
+    """Liefert die eingefrorenen Match-Eintraege eines Kunden. (Admin)"""
     with db() as conn:
         rows = ms.get_matches(conn, kunde_id)
     return {"kunde_id": kunde_id, "anzahl": len(rows), "matches": rows}
