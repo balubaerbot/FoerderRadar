@@ -42,6 +42,24 @@ CREATE TABLE IF NOT EXISTS match (
     eingefroren_am TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- Versand-Queue: Textentwuerfe + Sendeprotokoll.
+-- Der Agent schreibt den Text (ohne Kontaktdaten); der Worker liest `kontakt`
+-- selbst und verschickt. So bleibt die Klartext-Trennung gewahrt.
+CREATE TABLE IF NOT EXISTS versand (
+    id          BIGSERIAL PRIMARY KEY,
+    kunde_id    UUID NOT NULL REFERENCES profil(kunde_id) ON DELETE CASCADE,
+    kanal       TEXT CHECK (kanal IN ('email','sms')),
+    betreff     TEXT,
+    body        TEXT NOT NULL,
+    status      TEXT NOT NULL DEFAULT 'entwurf' CHECK (status IN ('entwurf','gesendet','fehler')),
+    fehler_text TEXT,
+    erstellt_am TIMESTAMPTZ NOT NULL DEFAULT now(),
+    gesendet_am TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS versand_status_idx ON versand (status);
+CREATE INDEX IF NOT EXISTS match_status_idx ON match (status);
+
 -- Pseudonyme Sicht: genau das, was der Agent/Dienst lesen darf (keine Kontaktdaten!)
 CREATE OR REPLACE VIEW profil_agent AS
 SELECT kunde_id, typ, region_grob, branche, mitarbeiterklasse, wko_mitglied,
