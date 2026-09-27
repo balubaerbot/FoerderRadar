@@ -1,0 +1,56 @@
+# FoerderRadar — Katalog-Recherche (Auftrag fuer den woechentlichen Job)
+
+Ziel: `katalog/foerderungen.json` aktuell halten, damit Kunden mit echten,
+aktuellen Foerderungen und Fristen informiert werden koennen.
+
+## Ablauf
+
+1. **Bestand lesen**: `katalog/foerderungen.json` inkl. `meta.stand`.
+2. **Bestandspruefung**: Fuer jede Foerderung die `quelle` (URL) oeffnen und pruefen,
+   ob `betrag`, `frist` und `status` noch stimmen.
+   Status-Vokabular: `offen` | `ausgeschoepft` | `fenster_zu` | `angekuendigt`.
+3. **Neuentdeckung**: Web-Suche nach neuen Foerderungen (Oesterreich / OOE) fuer die
+   Zielgruppen `betrieb` und `privat`, sowie nach neuen Calls/Fristen bekannter Programme.
+4. **Aenderungen nur belegt anwenden** (siehe Regeln).
+5. **meta.stand** auf das heutige Datum setzen; neue Quellen in `meta.quellen` aufnehmen.
+6. **Validieren**: `python3 tools/validate_katalog.py`
+   → bei Fehlern die Aenderungen zuruecknehmen und den Fehler berichten.
+7. **Commit auf `develop`** (Commit-Nachricht mit den belegenden Quellen).
+8. **Kurzer Bericht** (Telegram): was neu / geaendert / abgelaufen / unsicher.
+   Wenn **nichts** geaendert wurde → **keine** Meldung.
+
+## Regeln (hart)
+
+- **Nichts erfinden.** Keine geratenen Betraege, Fristen, Einkommensgrenzen oder Status.
+- **Jede Aenderung braucht eine Quelle** (URL). Ohne Quelle keine Aenderung.
+- **Unklares nicht ueberschreiben**: lieber unveraendert lassen und im Bericht
+  unter "pruefen" auflisten, als falsch aktualisieren.
+- **Neue Foerderung nur aufnehmen**, wenn die Quelle `stelle`, `zielgruppe`, `betrag`,
+  `frist` und `status` belegt. `voraussetzungen` **nicht raten** — nur eintragen,
+  was die Quelle klar sagt; im Zweifel weglassen.
+- **Feldtrennung einhalten**:
+  - `voraussetzungen` = **nur maschinell geprueffte** Schluessel:
+    `wko_mitglied`, `projektkosten_min`, `themen`, `wohnsituation`,
+    `einkommen_max`, `heizung_alt`, `pflegestufe_min`.
+  - Zusatzbedingungen (verpflichtende Beratung, Nachweise usw.) → `hinweise`
+    (Liste von Texten, wird nur angezeigt, nicht geprueft).
+- **Nicht auf `main` mergen.** Entwicklungsbranch ist `develop`.
+- Kein Push auf `main`.
+
+## Feldschema (Kurz)
+
+```jsonc
+{
+  "id": "eindeutig-kurz",
+  "name": "Anzeigename",
+  "stelle": "Foerdergeber",
+  "zielgruppe": "betrieb" | "privat",
+  "region": "OÖ" | null,            // null = bundesweit
+  "betrag": "Text mit Betraegen",
+  "voraussetzungen": { /* nur die 7 erlaubten Keys */ },
+  "hinweise": ["nur Anzeige, nicht geprueft"],
+  "frist": "Text",
+  "status": "offen" | "ausgeschoepft" | "fenster_zu" | "angekuendigt",
+  "quelle": "https://..."
+}
+```

@@ -82,11 +82,19 @@ def pruefe(f, profil):
             gruende.append("Thema passt: " + ", ".join(sorted(gemeinsam)))
 
     # 10) Status
-    if f.get("status") == "ausgeschoepft":
+    st = f.get("status")
+    if st == "ausgeschoepft":
         return "raus", ["Programm ausgeschoepft"]
-    if f.get("status") == "fenster_zu":
+    if st == "fenster_zu":
         knapp = True
         gruende.append("Antragsfenster aktuell geschlossen")
+    if st == "angekuendigt":
+        knapp = True
+        gruende.append("Call angekuendigt - noch nicht offen")
+
+    # 11) Zusaetzliche Bedingungen (nur Anzeige, NICHT maschinell geprueft)
+    for h in f.get("hinweise", []):
+        gruende.append("Hinweis: " + h)
 
     return ("knapp" if knapp else "treffer"), gruende
 

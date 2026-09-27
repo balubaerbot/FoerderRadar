@@ -94,9 +94,9 @@
       "betrag": "200 EUR pro Haushalt",
       "voraussetzungen": {
         "wohnsituation": ["eigenheim", "miete"],
-        "einkommen_max": 30913,
-        "hauptwohnsitz_seit": "2026-03-01"
+        "einkommen_max": 30913
       },
+      "hinweise": ["Hauptwohnsitz in OÖ seit mind. 01.03.2026"],
       "frist": "Antrag 16.3.-15.5.2026",
       "status": "fenster_zu",
       "quelle": "https://www.land-oberoesterreich.gv.at"
@@ -140,9 +140,9 @@
       "betrag": "bis 11.400 EUR gesamt",
       "voraussetzungen": {
         "heizung_alt": ["oel", "gas"],
-        "wohnsituation": ["eigenheim"],
-        "energieberatung": true
+        "wohnsituation": ["eigenheim"]
       },
+      "hinweise": ["Verpflichtende Energieberatung vor Antragstellung"],
       "frist": "laufend",
       "status": "offen",
       "quelle": "https://www.land-oberoesterreich.gv.at"
@@ -170,9 +170,9 @@
       "region": null,
       "betrag": "20 % der Arbeitskosten, max. 1.500 EUR",
       "voraussetzungen": {
-        "wohnsituation": ["eigenheim", "miete"],
-        "nachweis": "Rechnung mit ausgewiesenen Arbeitskosten, oesterreichisches Gewerbe"
+        "wohnsituation": ["eigenheim", "miete"]
       },
+      "hinweise": ["Rechnung mit ausgewiesenen Arbeitskosten, oesterreichisches Gewerbe"],
       "frist": "Frist 28.2.2026 (fuer Leistungen 2025)",
       "status": "fenster_zu",
       "quelle": "https://www.handwerkerbonus.gv.at"
@@ -189,7 +189,7 @@
         "wohnsituation": ["eigenheim"]
       },
       "frist": "Call-basiert (z. B. 9.10.-22.10.2026)",
-      "status": "call_angekuendigt",
+      "status": "angekuendigt",
       "quelle": "https://www.eag-abwicklungsstelle.at"
     },
     {
