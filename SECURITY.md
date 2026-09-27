@@ -69,7 +69,7 @@ Ziel: kein Dienst kann mehr, als er braucht.
 ## 7. Umsetzungs-Checkliste
 
 - [x] API-Auth + Default-Deny (Admin-Endpunkte) — Token via `FOERDER_ADMIN_TOKEN` (`.env`, gitignored)
-- [ ] DB-Rollen-Trennung (`app_web` / `app_agent` / `app_worker`)
+- [x] DB-Rollen-Trennung: `app_web` (kein SELECT auf `kontakt`) + `app_worker` (Versand). Setup: `tools/setup_db_roles.py`
 - [x] Rate-Limit auf `POST /profile` (5/Minute/IP) — Bot-Schutz (Honeypot/CAPTCHA) offen
 - [ ] TLS + Reverse-Proxy
 - [ ] Backups verschluesseln

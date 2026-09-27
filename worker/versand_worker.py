@@ -25,16 +25,26 @@ from src import versand_service as vs   # noqa: E402
 
 
 def laden_env():
-    """DATABASE_URL aus .env, falls nicht in der Umgebung."""
-    url = os.environ.get("DATABASE_URL")
-    if url:
-        return url
-    pfad = os.path.join(BASE, ".env")
-    if os.path.exists(pfad):
-        for zeile in open(pfad, encoding="utf-8"):
-            if zeile.startswith("DATABASE_URL="):
-                return zeile.split("=", 1)[1].strip()
-    raise SystemExit("DATABASE_URL nicht gefunden (.env oder Umgebung)")
+    """DB-URL fuer den Versand-Worker.
+
+    Nutzt bevorzugt DATABASE_URL_WORKER (Rolle app_worker darf `kontakt` lesen).
+    Fallback DATABASE_URL (nur fuer Umgebungen ohne getrennte Rollen).
+    """
+    def aus_datei(schluessel):
+        pfad = os.path.join(BASE, ".env")
+        if os.path.exists(pfad):
+            for zeile in open(pfad, encoding="utf-8"):
+                if zeile.startswith(schluessel + "="):
+                    return zeile.split("=", 1)[1].strip()
+        return None
+
+    return (
+        os.environ.get("DATABASE_URL_WORKER")
+        or aus_datei("DATABASE_URL_WORKER")
+        or os.environ.get("DATABASE_URL")
+        or aus_datei("DATABASE_URL")
+        or (_ for _ in ()).throw(SystemExit("DATABASE_URL_WORKER/DATABASE_URL nicht gefunden"))
+    )
 
 
 def entwuerfe_anlegen(conn, katalog, nur_kunde=None):

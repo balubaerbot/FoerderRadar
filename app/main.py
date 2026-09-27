@@ -29,10 +29,11 @@ from src import region as regionmod  # noqa: E402
 
 
 def _lade_env_datei():
-    """Fallback: Werte aus der gemounteten `.env` lesen, falls nicht als Env var gesetzt.
+    """Laedt die gemountete `.env` und setzt sie als massgeblich (overrides Env).
 
-    Grund: `docker restart` liest `env_file` NICHT neu (nur ein Recreate). So genuegt
-    ein normaler Neustart, damit neue Schluessel (z.B. FOERDER_ADMIN_TOKEN) ankommen.
+    Grund: `docker restart` liest `env_file` NICHT neu. Damit neu gesetzte Werte
+    (z.B. das eingeschraenkte `DATABASE_URL` = app_web) nach einem normalen Neustart
+    ankommen, gilt fuer dieses Projekt die `.env` als Quelle der Wahrheit.
     """
     pfad = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
     if not os.path.exists(pfad):
@@ -42,7 +43,7 @@ def _lade_env_datei():
         if not zeile or zeile.startswith("#") or "=" not in zeile:
             continue
         k, v = zeile.split("=", 1)
-        os.environ.setdefault(k.strip(), v.strip())
+        os.environ[k.strip()] = v.strip()
 
 
 _lade_env_datei()
