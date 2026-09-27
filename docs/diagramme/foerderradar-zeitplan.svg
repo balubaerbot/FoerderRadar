@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 600" width="1100" height="600" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+  </defs>
+  <style>
+    text{fill:#172033}
+    .title{font-size:21px;font-weight:700}
+    .sub{font-size:12px;fill:#5b6475}
+    .tag{font-size:12px;font-weight:700;fill:#334155}
+    .label{font-size:13px;font-weight:600}
+    .small{font-size:11px;fill:#5b6475}
+    .tiny{font-size:10.5px;fill:#5b6475}
+    .node{stroke:#64748b;stroke-width:1}
+    .input{fill:#bfdbfe}
+    .process{fill:#c7d2fe}
+    .external{fill:#fde68a}
+    .neutral{fill:#e2e8f0}
+    .edge{stroke:#64748b;stroke-width:1.6;fill:none}
+    .dash{stroke-dasharray:6 4}
+  </style>
+
+  <text class="title" x="40" y="38">FoerderRadar — wann läuft was</text>
+  <text class="sub" x="40" y="58">Funktionen nach Auslöser &amp; Frequenz · Zeiten in Europe/Berlin · Stand 27.09.2026</text>
+
+  <!-- ================= Zeile 1: pro Kunde ================= -->
+  <rect class="node input" x="40" y="110" width="150" height="58" rx="8"/>
+  <text class="tag" x="115" y="135" text-anchor="middle">PRO KUNDE</text>
+  <text class="tiny" x="115" y="153" text-anchor="middle">Erfassung sofort</text>
+
+  <path class="edge" d="M 390 139 H 434" marker-end="url(#a)"/>
+  <path class="edge" d="M 590 139 H 634" marker-end="url(#a)"/>
+  <path class="edge" d="M 780 139 H 824" marker-end="url(#a)"/>
+
+  <rect class="node process" x="220" y="110" width="170" height="58" rx="8"/>
+  <text class="label" x="305" y="135" text-anchor="middle">POST /profile</text>
+  <text class="tiny" x="305" y="153" text-anchor="middle">sofort · app_web</text>
+
+  <rect class="node process" x="440" y="110" width="150" height="58" rx="8"/>
+  <text class="label" x="515" y="135" text-anchor="middle">Matching</text>
+  <text class="tiny" x="515" y="153" text-anchor="middle">bei Lauf</text>
+
+  <rect class="node process" x="640" y="110" width="140" height="58" rx="8"/>
+  <text class="label" x="710" y="135" text-anchor="middle">Entwurf</text>
+  <text class="tiny" x="710" y="153" text-anchor="middle">bei Lauf</text>
+
+  <rect class="node process" x="830" y="110" width="200" height="58" rx="8"/>
+  <text class="label" x="930" y="135" text-anchor="middle">Versand · Mail/SMS</text>
+  <text class="tiny" x="930" y="153" text-anchor="middle">app_worker · bei Lauf</text>
+
+  <text class="tiny" x="220" y="188">Erfassung passiert sofort · Matching/Entwurf/Versand laufen beim Worker-/API-Lauf</text>
+
+  <!-- ================= Zeile 2: monatlich ================= -->
+  <rect class="node process" x="40" y="225" width="150" height="58" rx="8"/>
+  <text class="tag" x="115" y="250" text-anchor="middle">MONATLICH</text>
+  <text class="tiny" x="115" y="268" text-anchor="middle">Testphase</text>
+
+  <rect class="node process" x="220" y="225" width="380" height="58" rx="8"/>
+  <text class="label" x="240" y="250">Katalog-Job · 1. @ 09:00</text>
+  <text class="tiny" x="240" y="268">Web-Recherche → Quality Gate → develop</text>
+
+  <!-- ================= Zeile 3: woechentlich (geplant) ================= -->
+  <rect class="node process dash" x="40" y="340" width="150" height="58" rx="8"/>
+  <text class="tag" x="115" y="365" text-anchor="middle">WÖCHENTLICH</text>
+  <text class="tiny" x="115" y="383" text-anchor="middle">Live (geplant)</text>
+
+  <rect class="node process dash" x="220" y="340" width="380" height="58" rx="8"/>
+  <text class="label" x="240" y="365">Katalog-Job · Mo @ 09:00</text>
+  <text class="tiny" x="240" y="383">geplant für den Echtbetrieb</text>
+
+  <!-- ================= Zeile 4: nach Bedarf ================= -->
+  <rect class="node external" x="40" y="455" width="150" height="58" rx="8"/>
+  <text class="tag" x="115" y="480" text-anchor="middle">NACH BEDARF</text>
+  <text class="tiny" x="115" y="498" text-anchor="middle">manuell</text>
+
+  <rect class="node neutral" x="220" y="455" width="200" height="58" rx="8"/>
+  <text class="label" x="320" y="480" text-anchor="middle">Admin · Token</text>
+  <text class="tiny" x="320" y="498" text-anchor="middle">/profiles · /match</text>
+
+  <rect class="node neutral" x="450" y="455" width="260" height="58" rx="8"/>
+  <text class="label" x="580" y="480" text-anchor="middle">Worker-Lauf (--test / --send)</text>
+  <text class="tiny" x="580" y="498" text-anchor="middle">noch nicht automatisiert</text>
+
+  <rect class="node neutral" x="740" y="455" width="150" height="58" rx="8"/>
+  <text class="label" x="815" y="480" text-anchor="middle">Tests (dev)</text>
+  <text class="tiny" x="815" y="498" text-anchor="middle">API/Match</text>
+
+  <!-- ================= Fussnote ================= -->
+  <text class="tiny" x="40" y="562">Cron: 0 9 1 * * (monatlich) · Live-Umstellung auf wöchentlich geplant · Versand-Worker wird derzeit manuell gestartet</text>
+</svg>
