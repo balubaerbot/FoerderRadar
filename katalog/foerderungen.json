@@ -1,13 +1,15 @@
 {
   "meta": {
-    "stand": "2026-09-25",
+    "stand": "2026-09-27",
     "hinweis": "TESTDATEN-Prototyp. Betraege/Fristen aus Live-Recherche, vor echtem Einsatz verifizieren.",
     "quellen": [
       "foerderungen.wko.at/ooe/digitalplus26",
       "aws.at",
       "land-oberoesterreich.gv.at",
       "umweltfoerderung.at",
-      "eag-abwicklungsstelle.at"
+      "eag-abwicklungsstelle.at",
+      "sanierungsoffensive.gv.at",
+      "foerderungen.wko.at/ooe/erfolgplus"
     ]
   },
   "foerderungen": [
@@ -72,6 +74,22 @@
       "quelle": "https://www.land-oberoesterreich.gv.at"
     },
     {
+      "id": "erfolgplus26",
+      "name": "ERFOLG.PLUS 26",
+      "stelle": "WKOÖ",
+      "zielgruppe": "betrieb",
+      "region": "OÖ",
+      "betrag": "50 % des Beratungshonorars (netto), max. 750 EUR",
+      "voraussetzungen": {
+        "wko_mitglied": true,
+        "themen": ["beratung", "innovation", "ki", "cybersecurity"]
+      },
+      "hinweise": ["Ausschoepfungsgrad 98 % (Stand 25.9.2026)"],
+      "frist": "Antrag 1.2.-15.12.2026",
+      "status": "offen",
+      "quelle": "https://foerderungen.wko.at/ooe/erfolgplus"
+    },
+    {
       "id": "kpc_energieeffizienz",
       "name": "Umweltfoerderung im Inland (Energieeffizienz)",
       "stelle": "KPC / Klimafonds",
@@ -81,7 +99,7 @@
       "voraussetzungen": {
         "themen": ["energieeffizienz", "pv", "umwelt"]
       },
-      "frist": "Ausschreibung Juli 2026",
+      "frist": "Ausschreibung 1.7.-12.10.2026",
       "status": "offen",
       "quelle": "https://www.umweltfoerderung.at/betriebe"
     },
@@ -127,8 +145,8 @@
         "heizung_alt": ["oel", "gas"],
         "wohnsituation": ["eigenheim"]
       },
-      "frist": "laufend, vorbehaltlich Budget",
-      "status": "offen",
+      "frist": "Registrierung 2026 beendet (Budget ausgeschoepft)",
+      "status": "ausgeschoepft",
       "quelle": "https://www.sanierungsoffensive.gv.at"
     },
     {
@@ -188,7 +206,7 @@
         "themen": ["pv", "speicher"],
         "wohnsituation": ["eigenheim"]
       },
-      "frist": "Call-basiert (z. B. 9.10.-22.10.2026)",
+      "frist": "Call-basiert (3. Call: 8.10.-22.10.2026)",
       "status": "angekuendigt",
       "quelle": "https://www.eag-abwicklungsstelle.at"
     },
