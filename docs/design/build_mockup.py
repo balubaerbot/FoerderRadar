@@ -56,6 +56,23 @@ input:focus,select:focus{outline:0;border-color:var(--p2)}
       border-radius:12px;padding:14px 16px;font-size:14px}
 .tick{width:76px;height:76px;border-radius:50%;background:var(--p3);display:grid;place-items:center;margin:0 auto 22px}
 .center{text-align:center}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--p3);color:var(--p);
+  border:1px solid #a7f3d0;border-radius:999px;padding:7px 15px;font-size:13.5px;font-weight:650;margin-bottom:20px}
+.sec-title{font-size:30px;letter-spacing:-.02em;margin:58px 0 6px}
+.sec-sub{color:var(--mut);margin:0 0 26px;font-size:16.5px;max-width:640px}
+.usp{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.usp .card{display:flex;gap:15px;align-items:flex-start}
+.ico{width:42px;height:42px;border-radius:12px;background:var(--p3);display:grid;place-items:center;flex:0 0 auto}
+.aibox{background:#0f172a;border-radius:18px;padding:34px 36px;margin:22px 0 70px;display:grid;
+  grid-template-columns:1.15fr .85fr;gap:34px;align-items:center}
+.aibox h2{color:#fff;font-size:25px;letter-spacing:-.015em}
+.aibox p{color:#94a3b8;margin:10px 0 0;font-size:15.5px}
+.aibox .row{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.tag{border:1px solid #334155;border-radius:999px;padding:7px 14px;font-size:13px;color:#cbd5e1}
+.tag b{color:#5eead4;font-weight:650}
+.flow{display:flex;flex-direction:column;gap:10px}
+.flow div{background:#1e293b;border-radius:11px;padding:12px 16px;font-size:14px;color:#e2e8f0}
+.flow span{color:#5eead4;font-weight:700;margin-right:8px}
 """
 
 LOGO = ('<div class="logo"><span class="mark">'
@@ -81,6 +98,7 @@ def screen(titel, body):
 start = screen("Fördora — Startseite", HEAD + f"""
 <main class="wrap">
   <section class="hero">
+    <div class="eyebrow">✦ KI-gestützt · nur amtliche Quellen</div>
     <h1>Finden Sie heraus, welche<br>Förderungen Ihnen zustehen.</h1>
     <p class="lead">Fördora gleicht Ihr Profil automatisch mit allen Förderprogrammen
        für Österreich ab – und meldet sich, sobald eine Frist naht.</p>
@@ -101,6 +119,60 @@ start = screen("Fördora — Startseite", HEAD + f"""
       <p class="small">Wir prüfen Ihren Fall gegen alle aktuellen Programme – belegt aus den Originalquellen.</p></div>
     <div class="card"><div class="step-n">3</div><h2 style="font-size:19px">Treffer erhalten</h2>
       <p class="small">Sie bekommen die passenden Förderungen per E-Mail – und einen Hinweis, wenn eine Frist läuft.</p></div>
+  </section>
+
+  <h2 class="sec-title">Das macht Fördora anders</h2>
+  <p class="sec-sub">Andere Seiten sind Kataloge zum Selbst-Durchsuchen.
+     Fördora arbeitet für Sie – automatisch und nachvollziehbar.</p>
+  <section class="usp">
+    <div class="card"><div class="ico">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round"><path d="M22 6 12 13 2 6"/>
+        <rect x="2" y="4" width="20" height="16" rx="2"/></svg></div>
+      <div><h2 style="font-size:19px">Push statt Suchen</h2>
+      <p class="small">Wir warten nicht, bis Sie suchen. Fördora meldet passende Treffer aktiv –
+      und erinnert, bevor eine Frist abläuft.</p></div></div>
+
+    <div class="card"><div class="ico">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <div><h2 style="font-size:19px">Nachweisbar, keine Blackbox</h2>
+      <p class="small">Jede Zusage kommt aus einer belegten Regel, nicht aus einer KI-Vermutung.
+      Wir zeigen, welche Bedingung erfüllt ist.</p></div></div>
+
+    <div class="card"><div class="ico">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div><h2 style="font-size:19px">Datenschutz ohne Konto</h2>
+      <p class="small">Keine Registrierung, kein Passwort. Kontaktdaten bleiben getrennt
+      von der Auswertung – EU-Hosting.</p></div></div>
+
+    <div class="card"><div class="ico">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V6a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/>
+        <path d="M8 8h8M8 12h6"/></svg></div>
+      <div><h2 style="font-size:19px">Nur geprüfte Quellen</h2>
+      <p class="small">Jede Förderung stammt aus amtlichen Originalquellen und ist verlinkt.
+      Keine Quelle, keine Aufnahme.</p></div></div>
+  </section>
+
+  <section class="aibox">
+    <div>
+      <h2>Intelligenz, die nur beim Verstehen hilft.</h2>
+      <p>Unsere KI liest Förderrichtlinien, versteht Ihr Vorhaben in normaler Sprache und
+         formuliert die Treffer verständlich. Ob eine Förderung wirklich passt, entscheidet
+         jedoch eine nachvollziehbare Regel – nicht die KI. So bleibt jede Zusage überprüfbar.</p>
+      <div class="row">
+        <div class="tag"><b>KI</b> versteht Ihre Angaben</div>
+        <div class="tag"><b>Code</b> prüft die Bedingungen</div>
+        <div class="tag">Jede Quelle <b>verlinkt</b></div>
+      </div>
+    </div>
+    <div class="flow">
+      <div><span>1</span>KI versteht, was Sie vorhaben</div>
+      <div><span>2</span>Regeln prüfen jede Förderung</div>
+      <div><span>3</span>Sie erhalten Treffer – mit Quelle</div>
+    </div>
   </section>
 </main>""" + FOOT)
 
