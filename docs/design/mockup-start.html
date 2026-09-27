@@ -1,0 +1,80 @@
+<!doctype html><meta charset="utf-8"><title>Fördora — Startseite</title><style>
+:root{--p:#0f766e;--p2:#14b8a6;--p3:#ecfdf5;--ink:#0f172a;--mut:#5b6475;
+      --bg:#f8fafc;--card:#fff;--line:#e2e8f0;--warn:#b45309}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+header{display:flex;align-items:center;justify-content:space-between;
+       padding:18px 40px;background:#fff;border-bottom:1px solid var(--line)}
+.logo{display:flex;align-items:center;gap:10px;font-weight:750;font-size:20px;letter-spacing:-.02em}
+.mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--p),var(--p2));
+      display:grid;place-items:center}
+nav{display:flex;gap:26px;align-items:center}
+nav a{color:var(--mut);text-decoration:none;font-size:14.5px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 40px}
+.btn{display:inline-block;border:0;border-radius:12px;padding:14px 24px;font-size:16px;
+     font-weight:650;cursor:pointer;text-decoration:none}
+.btn-p{background:var(--p);color:#fff}
+.btn-o{background:#fff;color:var(--p);border:1.5px solid var(--p)}
+h1{font-size:44px;line-height:1.15;letter-spacing:-.025em;margin:0 0 16px}
+h2{font-size:26px;margin:0 0 10px;letter-spacing:-.01em}
+.lead{font-size:19px;color:var(--mut);margin:0 0 28px;max-width:620px}
+.small{font-size:13.5px;color:var(--mut)}
+.hero{padding:76px 0 56px}
+.cta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.trust{display:flex;gap:26px;flex-wrap:wrap;margin-top:8px}
+.trust span{font-size:14px;color:var(--mut)}
+.trust b{color:var(--p)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:16px 0 64px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px}
+.step-n{width:34px;height:34px;border-radius:50%;background:var(--p3);color:var(--p);
+        display:grid;place-items:center;font-weight:750;margin-bottom:14px}
+footer{background:#fff;border-top:1px solid var(--line);padding:22px 40px;color:var(--mut);font-size:14px}
+footer a{color:var(--mut);text-decoration:none;margin-right:18px}
+label{display:block;font-size:14px;font-weight:600;margin:0 0 6px}
+input,select{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;
+             font-size:15.5px;background:#fff;font-family:inherit}
+input:focus,select:focus{outline:0;border-color:var(--p2)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.field{margin-bottom:18px}
+.tabs{display:flex;gap:10px;margin-bottom:24px}
+.tab{flex:1;text-align:center;padding:14px;border:1.5px solid var(--line);border-radius:12px;
+     font-weight:650;cursor:pointer;background:#fff;color:var(--mut)}
+.tab.on{border-color:var(--p);background:var(--p3);color:var(--p)}
+.chips{display:flex;gap:10px;flex-wrap:wrap}
+.chip{border:1.5px solid var(--line);border-radius:999px;padding:9px 16px;font-size:14.5px;background:#fff}
+.chip.on{border-color:var(--p);background:var(--p3);color:var(--p);font-weight:600}
+.consent{display:flex;gap:12px;align-items:flex-start;background:var(--p3);
+         border:1px solid #a7f3d0;border-radius:12px;padding:16px;margin:22px 0}
+.consent input{width:20px;height:20px;flex:0 0 auto;margin-top:2px;accent-color:var(--p)}
+.note{background:#fffbeb;border:1px solid #fde68a;color:var(--warn);
+      border-radius:12px;padding:14px 16px;font-size:14px}
+.tick{width:76px;height:76px;border-radius:50%;background:var(--p3);display:grid;place-items:center;margin:0 auto 22px}
+.center{text-align:center}
+</style><header><div class="logo"><span class="mark"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.4" fill="#fff" stroke="none"/></svg></span>Fördora</div><nav>
+<a href="#">Wie es funktioniert</a><a href="#">Förderungen</a><a href="#">Kontakt</a>
+<a class="btn btn-p" style="padding:11px 20px;font-size:15px" href="#">Jetzt starten</a>
+</nav></header>
+<main class="wrap">
+  <section class="hero">
+    <h1>Finden Sie heraus, welche<br>Förderungen Ihnen zustehen.</h1>
+    <p class="lead">Fördora gleicht Ihr Profil automatisch mit allen Förderprogrammen
+       für Österreich ab – und meldet sich, sobald eine Frist naht.</p>
+    <div class="cta">
+      <a class="btn btn-p" href="#">Für Betriebe</a>
+      <a class="btn btn-o" href="#">Für Privatpersonen</a>
+    </div>
+    <div class="trust">
+      <span><b>✓</b> Kostenlos &amp; unverbindlich</span>
+      <span><b>✓</b> Nur amtliche Quellen</span>
+      <span><b>✓</b> Ohne Registrierung</span>
+    </div>
+  </section>
+  <section class="steps">
+    <div class="card"><div class="step-n">1</div><h2 style="font-size:19px">Angaben machen</h2>
+      <p class="small">In 2 Minuten: ein paar Eckdaten zu Ihrem Vorhaben. Kein Papierkram.</p></div>
+    <div class="card"><div class="step-n">2</div><h2 style="font-size:19px">Automatisch abgleichen</h2>
+      <p class="small">Wir prüfen Ihren Fall gegen alle aktuellen Programme – belegt aus den Originalquellen.</p></div>
+    <div class="card"><div class="step-n">3</div><h2 style="font-size:19px">Treffer erhalten</h2>
+      <p class="small">Sie bekommen die passenden Förderungen per E-Mail – und einen Hinweis, wenn eine Frist läuft.</p></div>
+  </section>
+</main><footer><a href="#">Impressum</a><a href="#">Datenschutz</a><a href="#">Kontakt</a><span style="float:right">© 2026 Fördora</span></footer>
