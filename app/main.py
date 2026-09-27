@@ -14,6 +14,7 @@ from typing import Optional
 # Projekt-Root auf den Importpfad, damit `src.*` importierbar ist
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src import matching_service as ms  # noqa: E402
+from src import region as regionmod  # noqa: E402
 
 app = FastAPI(title="FoerderRadar API", version="0.1.0")
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
@@ -71,7 +72,8 @@ def create_profile(p: ProfilIn):
             VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
             RETURNING kunde_id
             """,
-            (p.typ, p.region_grob, p.branche, p.mitarbeiterklasse, p.wko_mitglied,
+            (p.typ, regionmod.normalisiere_region(p.region_grob) or p.region_grob,
+             p.branche, p.mitarbeiterklasse, p.wko_mitglied,
              p.wohnsituation, p.haushaltsgroesse, p.einkommen_spanne, p.heizung,
              p.pflegestufe, p.familienstand, p.kinder_im_haushalt, p.vorhaben),
         )

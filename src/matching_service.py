@@ -11,6 +11,7 @@ import re
 from typing import Optional
 
 from src import match as matchmod
+from src import region as regionmod
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 KATALOG_PFAD = os.path.join(BASE, "katalog", "foerderungen.json")
@@ -40,7 +41,7 @@ def profil_row_to_dict(row: dict) -> dict:
     vorhaben = list(d.get("vorhaben") or [])
     return {
         "typ": d.get("typ"),
-        "region": d.get("region_grob"),
+        "region": regionmod.normalisiere_region(d.get("region_grob")),
         "branche": d.get("branche"),
         "mitarbeiterklasse": d.get("mitarbeiterklasse"),
         "wko_mitglied": d.get("wko_mitglied"),
