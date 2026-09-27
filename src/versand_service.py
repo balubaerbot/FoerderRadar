@@ -15,6 +15,12 @@ Ablauf:
 """
 import os
 import re
+import subprocess
+from email.message import EmailMessage
+
+# Absender (Testphase: baluopenclaw@gmail.com; wird beim Livegang umgestellt).
+ABSENDER = os.environ.get("FOERDER_FROM", "baluopenclaw@gmail.com")
+HIMALAYA_ACCOUNT = os.environ.get("HIMALAYA_ACCOUNT", "gmail")
 
 
 def maskiere_email(adresse):
@@ -165,16 +171,31 @@ def offene_entwuerfe(conn):
 # --------------------------------------------------------------------------
 # Versand (Phase 3: echte Zustellung)
 # --------------------------------------------------------------------------
-def _senden_email(kontakt, betreff, body):
-    raise NotImplementedError("Echter E-Mail-Versand kommt in Phase 3 (SMTP).")
+def _senden_email(to_addr, betreff, body):
+    """Echter Versand ueber die himalaya-CLI (nutzt deren Auth; kein Passwort hier)."""
+    msg = EmailMessage()
+    msg["From"] = ABSENDER
+    msg["To"] = to_addr
+    msg["Subject"] = betreff
+    msg.set_content(body)
+
+    cmd = ["himalaya", "--account", HIMALAYA_ACCOUNT, "message", "send", "--save", "sent"]
+    p = subprocess.run(cmd, input=msg.as_string(), capture_output=True, text=True, timeout=60)
+    if p.returncode != 0:
+        raise RuntimeError(f"himalaya send fehlgeschlagen: {(p.stderr or p.stdout).strip()[:250]}")
+    return True
 
 
 def _senden_sms(kontakt, body):
     raise NotImplementedError("SMS-Versand kommt spaeter.")
 
 
-def versenden(conn, versand_id, dry_run=True):
+def versenden(conn, versand_id, dry_run=True, test_recipient=None):
     """Sendet einen Entwurf (oder Dry-Run) und protokolliert.
+
+    test_recipient gesetzt -> echter Versand, aber an DIESE Adresse umgeleitet
+    (Prototyp: eigenes Postfach). Dann wird `match` NICHT auf 'gemeldet' gesetzt,
+    damit spaeter der echte Kundenversand moeglich bleibt.
 
     Rueckgabe enthaelt NUR maskierte Kontaktdaten.
     """
@@ -207,9 +228,19 @@ def versenden(conn, versand_id, dry_run=True):
             "body": body,
         }
 
+    # Zieladresse bestimmen (Testphase: umleiten aufs Testpostfach)
+    if test_recipient:
+        to_addr = test_recipient
+    elif kanal == "email":
+        to_addr = kontakt.get("email")
+    else:
+        to_addr = kontakt.get("telefon")
+    if not to_addr:
+        return {"ok": False, "fehler": f"keine Zieladresse fuer Kanal '{kanal}'", "ziel": ziel}
+
     try:
         if kanal == "email":
-            _senden_email(kontakt, betreff, body)
+            _senden_email(to_addr, betreff, body)
         else:
             _senden_sms(kontakt, body)
     except Exception as e:  # noqa: BLE001
@@ -220,6 +251,17 @@ def versenden(conn, versand_id, dry_run=True):
             )
         conn.commit()
         return {"ok": False, "fehler": str(e)[:200], "ziel": ziel}
+
+    ziel_tatsaechlich = maskiere_email(to_addr) if kanal == "email" else maskiere_telefon(to_addr)
+    if test_recipient:
+        with conn.cursor() as cur:
+            cur.execute(
+                "UPDATE versand SET status='gesendet', gesendet_am=now(), fehler_text=%s WHERE id=%s",
+                (f"TEST -> {ziel_tatsaechlich} (kein Kundenversand)", versand_id),
+            )
+        conn.commit()
+        return {"ok": True, "dry_run": False, "test": True, "versand_id": versand_id,
+                "ziel": ziel_tatsaechlich, "empfaenger_kunde": ziel}
 
     with conn.cursor() as cur:
         cur.execute(

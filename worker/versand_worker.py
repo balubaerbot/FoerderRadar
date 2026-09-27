@@ -63,10 +63,14 @@ def entwuerfe_anlegen(conn, katalog, nur_kunde=None):
 
 def main():
     ap = argparse.ArgumentParser(description="FoerderRadar Versand-Worker")
-    ap.add_argument("--send", action="store_true", help="ECHT versenden (Phase 3, noch nicht aktiv)")
+    ap.add_argument("--send", action="store_true", help="ECHT versenden")
+    ap.add_argument("--test", action="store_true", help="ECHT versenden, aber alles an das TEST-Postfach umleiten")
     ap.add_argument("--status", action="store_true", help="nur Queue-Status anzeigen")
     ap.add_argument("--kunde", help="nur diesen kunde_id bearbeiten")
     args = ap.parse_args()
+
+    if args.test:
+        args.send = True
 
     url = laden_env()
     katalog = ms.load_katalog()
@@ -91,11 +95,12 @@ def main():
         if args.kunde:
             entwuerfe = [e for e in entwuerfe if str(e["kunde_id"]) == str(args.kunde)]
 
-        modus = "SENDEN" if args.send else "DRY-RUN"
+        modus = "TEST -> " + vs.maskiere_email(vs.ABSENDER) if args.test else ("SENDEN" if args.send else "DRY-RUN")
         print(f"\n=== Versand ({modus}) - {len(entwuerfe)} Entwurf/Entwuerfe ===")
         ergebnisse = []
+        test_recipient = vs.ABSENDER if args.test else None
         for e in entwuerfe:
-            r = vs.versenden(conn, e["id"], dry_run=not args.send)
+            r = vs.versenden(conn, e["id"], dry_run=not args.send, test_recipient=test_recipient)
             ergebnisse.append(r)
             if not r.get("ok"):
                 print(f"  #{e['id']}  FEHLER: {r.get('fehler')}")
@@ -106,6 +111,8 @@ def main():
                 for zeile in r["body"].splitlines():
                     print(f"     | {zeile}")
                 print("     ----------------------------")
+            elif r.get("test"):
+                print(f"  #{e['id']}  TEST-GESENDET -> {r['ziel']}  (Kunde waere {r['empfaenger_kunde']})")
             else:
                 print(f"  #{e['id']}  GESENDET -> {r['ziel']}")
 
