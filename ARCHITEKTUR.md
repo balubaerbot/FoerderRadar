@@ -1,5 +1,8 @@
 # FoerderRadar — Architektur & Entscheidungen
 
+> **Produktname:** Fördora · **Domain:** `foerdora.cloud` (gewählt 27.09.2026)
+> Der Repo-/Arbeitsname „FoerderRadar" bleibt vorerst bestehen.
+
 ## Pipeline (Soll)
 
 1. **Erfassung** — Webseite: Kunde erfasst Daten → `POST /profile` → DB.
