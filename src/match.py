@@ -126,6 +126,35 @@ def report(profil, katalog):
     return len(treffer), len(knapp), len(raus)
 
 
+def bewerte(profil, katalog):
+    """Strukturierte Bewertung OHNE Ausgabe - fuer Dienst/API.
+
+    Rueckgabe: {"top": [...], "pruefenswert": [...], "raus": [...]}
+    Jeder Eintrag enthaelt die Katalogfelder + kategorie + gruende.
+    """
+    top, pruefen, raus = [], [], []
+    for f in katalog["foerderungen"]:
+        kat, gruende = pruefe(f, profil)
+        eintrag = {
+            "id": f.get("id"),
+            "name": f.get("name"),
+            "stelle": f.get("stelle"),
+            "betrag": f.get("betrag"),
+            "frist": f.get("frist"),
+            "status": f.get("status"),
+            "quelle": f.get("quelle"),
+            "kategorie": {"treffer": "top", "knapp": "pruefenswert", "raus": "raus"}[kat],
+            "gruende": gruende,
+        }
+        if kat == "treffer":
+            top.append(eintrag)
+        elif kat == "knapp":
+            pruefen.append(eintrag)
+        else:
+            raus.append(eintrag)
+    return {"top": top, "pruefenswert": pruefen, "raus": raus}
+
+
 if __name__ == "__main__":
     katalog = load(os.path.join(BASE, "katalog", "foerderungen.json"))
     profil_pfad = sys.argv[1] if len(sys.argv) > 1 else os.path.join(BASE, "profiles", "test_betrieb.json")

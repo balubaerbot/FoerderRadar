@@ -4,11 +4,16 @@ Trennung: `profil` = pseudonym (Agent darf lesen), `kontakt` = Klartext
 (nur Versand-Worker). Der Agent sieht Kontaktdaten NIE.
 """
 import os
+import sys
 
 import psycopg
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Optional
+
+# Projekt-Root auf den Importpfad, damit `src.*` importierbar ist
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from src import matching_service as ms  # noqa: E402
 
 app = FastAPI(title="FoerderRadar API", version="0.1.0")
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
@@ -92,3 +97,31 @@ def list_profiles_agent_view():
         {"kunde_id": str(r[0]), "typ": r[1], "region_grob": r[2], "vorhaben": r[3]}
         for r in rows
     ]
+
+
+@app.post("/match/{kunde_id}")
+def match_profile(kunde_id: str):
+    """Bewertet das pseudonyme Profil gegen den Katalog und friert Treffer
+    (kategorie top/pruefenswert) in `match` ein. Idempotent wiederholbar."""
+    try:
+        with db() as conn:
+            ergebnis = ms.run_match(conn, kunde_id)
+    except psycopg.errors.InvalidTextRepresentation:
+        raise HTTPException(status_code=400, detail="kunde_id ist keine gueltige UUID")
+    if ergebnis is None:
+        raise HTTPException(status_code=404, detail="kunde_id nicht gefunden")
+    return {
+        "kunde_id": kunde_id,
+        "top": len(ergebnis["top"]),
+        "pruefenswert": len(ergebnis["pruefenswert"]),
+        "ausgeschlossen": len(ergebnis["raus"]),
+        "ergebnisse": ergebnis["top"] + ergebnis["pruefenswert"],
+    }
+
+
+@app.get("/match/{kunde_id}")
+def get_match(kunde_id: str):
+    """Liefert die eingefrorenen Match-Eintraege eines Kunden."""
+    with db() as conn:
+        rows = ms.get_matches(conn, kunde_id)
+    return {"kunde_id": kunde_id, "anzahl": len(rows), "matches": rows}
