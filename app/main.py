@@ -105,7 +105,9 @@ def health():
         with db() as conn, conn.cursor() as cur:
             cur.execute("SELECT 1")
             ok = cur.fetchone()[0] == 1
-        return {"status": "ok", "db": ok}
+            cur.execute("SELECT current_user")
+            rolle = cur.fetchone()[0]
+        return {"status": "ok", "db": ok, "role": rolle}
     except Exception as e:  # noqa: BLE001
         return {"status": "degraded", "db": False, "error": str(e)[:200]}
 
