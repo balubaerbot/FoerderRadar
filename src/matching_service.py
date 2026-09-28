@@ -5,6 +5,7 @@ bewertet es gegen den Foerderkatalog und friert das Ergebnis in `match` ein.
 
 Wichtig: Der Agent/Dienst sieht hier nie Klartext-Kontaktdaten.
 """
+import importlib.util
 import json
 import os
 import re
@@ -18,7 +19,31 @@ BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 KATALOG_PFAD = os.path.join(BASE, "katalog", "foerderungen.json")
 
 
+_VALIDATOR = None
+
+
+def _schema_validator():
+    """Laedt tools/validate_katalog.py als Gate-Modul (einmalig gecacht).
+
+    Bewusst DERSELBE Code wie das CLI-Gate: eine zweite, driftende Regelkopie
+    war die Ursache der Regression aus 3a588ff (Gate OK, Laufzeit strenger).
+    """
+    global _VALIDATOR
+    if _VALIDATOR is None:
+        pfad = os.path.join(BASE, "tools", "validate_katalog.py")
+        spec = importlib.util.spec_from_file_location("katalog_validator", pfad)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        _VALIDATOR = mod
+    return _VALIDATOR
+
+
 def load_katalog(pfad: str = KATALOG_PFAD) -> dict:
+    # Fail loud: ein fehlerhafter Katalog darf nicht still ins Matching laufen
+    # (doppelte IDs, fehlende Quelle, unbekannte voraussetzungen-Keys ...).
+    fehler, _ = _schema_validator().validate(pfad)
+    if fehler:
+        raise ValueError("Katalog-Schema verletzt: " + "; ".join(fehler))
     with open(pfad, encoding="utf-8") as f:
         kat = json.load(f)
     validiere_katalog(kat)
