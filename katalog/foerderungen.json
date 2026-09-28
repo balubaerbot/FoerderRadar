@@ -1,6 +1,6 @@
 {
   "meta": {
-    "stand": "2026-09-27",
+    "stand": "2026-09-28",
     "hinweis": "TESTDATEN-Prototyp. Betraege/Fristen aus Live-Recherche, vor echtem Einsatz verifizieren.",
     "quellen": [
       "foerderungen.wko.at/ooe/digitalplus26",
@@ -112,10 +112,9 @@
       "betrag": "200 EUR pro Haushalt",
       "voraussetzungen": {
         "wohnsituation": ["eigenheim", "miete"],
-        "einkommen_max": 30913,
-        "einkommen_einheit": "jahr"
+        "einkommen_max": 30913
       },
-      "hinweise": ["Hauptwohnsitz in OÖ seit mind. 01.03.2026"],
+      "hinweise": ["Hauptwohnsitz in OÖ seit mind. 01.03.2026", "Einkommensgrenze bezieht sich auf Jahreseinkommen"],
       "frist": "Antrag 16.3.-15.5.2026",
       "status": "fenster_zu",
       "quelle": "https://www.land-oberoesterreich.gv.at"
@@ -129,9 +128,9 @@
       "betrag": "laufende Beihilfe (Einkommensgrenzen je Haushaltsgroesse)",
       "voraussetzungen": {
         "wohnsituation": ["miete"],
-        "einkommen_max": 2227,
-        "einkommen_einheit": "monat"
+        "einkommen_max": 2227
       },
+      "hinweise": ["Einkommensgrenze bezieht sich auf Monatseinkommen, gestaffelt nach Haushaltsgroesse"],
       "frist": "laufend",
       "status": "offen",
       "quelle": "https://www.land-oberoesterreich.gv.at/wohnbeihilfe.htm"
