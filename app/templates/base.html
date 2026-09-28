@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Fördora{% endblock %}</title>
+  <meta name="description" content="Fördora gleicht Ihr Profil automatisch mit Förderprogrammen für Österreich ab – belegt aus amtlichen Quellen.">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <a class="logo" href="/">
+    <span class="mark">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff"
+           stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/>
+      <circle cx="12" cy="12" r="3.4" fill="#fff" stroke="none"/></svg>
+    </span>Fördora
+  </a>
+  <nav>
+    <a href="/#wie">Wie es funktioniert</a>
+    <a href="/#vorteile">Vorteile</a>
+    <a href="/datenschutz">Datenschutz</a>
+    <a class="btn btn-p" style="padding:11px 20px;font-size:15px" href="/formular">Jetzt starten</a>
+  </nav>
+</header>
+
+{% block content %}{% endblock %}
+
+<footer>
+  <a href="/impressum">Impressum</a>
+  <a href="/datenschutz">Datenschutz</a>
+  <a href="/formular">Kontakt</a>
+  <span style="float:right">© 2026 Fördora</span>
+</footer>
+</body>
+</html>

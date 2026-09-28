@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block title %}Fördora — Ihre Angaben{% endblock %}
+{% block content %}
+<main class="wrap" style="max-width:820px;padding-top:40px">
+  <p class="small" style="margin-bottom:6px">Schritt 1 von 1 · dauert ca. 2 Minuten</p>
+  <h1 style="font-size:32px">Ihre Angaben</h1>
+  <p class="lead" style="font-size:16.5px;margin-bottom:26px">Je genauer, desto besser die Treffer.
+     Pflichtfelder sind mit * markiert.</p>
+
+  {% if fehler %}
+  <div class="err">{{ fehler }}</div>
+  {% endif %}
+
+  <form method="post" action="/formular" novalidate>
+    <div class="tabs">
+      <label class="tab"><input type="radio" name="typ" value="betrieb"
+        {% if typ != "privat" %}checked{% endif %}>Betrieb</label>
+      <label class="tab"><input type="radio" name="typ" value="privat"
+        {% if typ == "privat" %}checked{% endif %}>Privatperson</label>
+    </div>
+
+    <div class="card">
+      <!-- ---------------- Betrieb ---------------- -->
+      <div class="nur-betrieb">
+        <div class="grid2">
+          <div class="field"><label for="bundesland_b">Bundesland *</label>
+            <select id="bundesland_b" name="region_grob">
+              {% for b in bundeslaender %}
+              <option value="{{ b }}" {% if b == werte.region_grob %}selected{% endif %}>{{ b }}</option>
+              {% endfor %}
+            </select></div>
+          <div class="field"><label for="branche">Branche</label>
+            <select id="branche" name="branche">
+              <option value="">– bitte wählen –</option>
+              {% for x in branchen %}
+              <option value="{{ x }}" {% if x == werte.branche %}selected{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label for="mitarbeiter">Mitarbeiter</label>
+            <select id="mitarbeiter" name="mitarbeiterklasse">
+              <option value="">– bitte wählen –</option>
+              {% for x in mitarbeiterklassen %}
+              <option value="{{ x }}" {% if x == werte.mitarbeiterklasse %}selected{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select></div>
+          <div class="field"><label for="wko">WKO-Mitglied?</label>
+            <select id="wko" name="wko_mitglied">
+              <option value="">– bitte wählen –</option>
+              <option value="ja" {% if werte.wko_mitglied == "ja" %}selected{% endif %}>Ja</option>
+              <option value="nein" {% if werte.wko_mitglied == "nein" %}selected{% endif %}>Nein</option>
+            </select></div>
+        </div>
+      </div>
+
+      <!-- ---------------- Privatperson ---------------- -->
+      <div class="nur-privat">
+        <div class="grid2">
+          <div class="field"><label for="bundesland_p">Bundesland *</label>
+            <select id="bundesland_p" name="region_grob_p">
+              {% for b in bundeslaender %}
+              <option value="{{ b }}" {% if b == werte.region_grob %}selected{% endif %}>{{ b }}</option>
+              {% endfor %}
+            </select></div>
+          <div class="field"><label for="wohnsituation">Wohnsituation</label>
+            <select id="wohnsituation" name="wohnsituation">
+              <option value="">– bitte wählen –</option>
+              {% for x in wohnsituationen %}
+              <option value="{{ x }}" {% if x == werte.wohnsituation %}selected{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label for="haushaltsgroesse">Haushaltsgröße</label>
+            <select id="haushaltsgroesse" name="haushaltsgroesse">
+              <option value="">– bitte wählen –</option>
+              {% for x in haushaltsgroessen %}
+              <option value="{{ x }}" {% if x == werte.haushaltsgroesse %}selected{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select></div>
+          <div class="field"><label for="einkommen">Einkommen (netto/Monat)</label>
+            <select id="einkommen" name="einkommen_spanne">
+              <option value="">– bitte wählen –</option>
+              {% for x in einkommensspannen %}
+              <option value="{{ x }}" {% if x == werte.einkommen_spanne %}selected{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label for="heizung">Heizung</label>
+            <select id="heizung" name="heizung">
+              <option value="">– bitte wählen –</option>
+              {% for x in heizungen %}
+              <option value="{{ x }}" {% if x == werte.heizung %}selected{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select></div>
+          <div class="field"><label for="pflegestufe">Pflegestufe</label>
+            <select id="pflegestufe" name="pflegestufe">
+              <option value="">– keine –</option>
+              <option value="0" {% if werte.pflegestufe == "0" %}selected{% endif %}>Keine</option>
+              {% for n in [1,2,3,4,5,6,7] %}
+              <option value="{{ n }}" {% if werte.pflegestufe == n|string %}selected{% endif %}>Stufe {{ n }}</option>
+              {% endfor %}
+            </select></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label for="familienstand">Familienstand</label>
+            <select id="familienstand" name="familienstand">
+              <option value="">– bitte wählen –</option>
+              {% for x in familienstaende %}
+              <option value="{{ x }}" {% if x == werte.familienstand %}selected{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select></div>
+          <div class="field"><label for="kinder">Kinder im Haushalt?</label>
+            <select id="kinder" name="kinder_im_haushalt">
+              <option value="">– bitte wählen –</option>
+              <option value="ja" {% if werte.kinder_im_haushalt == "ja" %}selected{% endif %}>Ja</option>
+              <option value="nein" {% if werte.kinder_im_haushalt == "nein" %}selected{% endif %}>Nein</option>
+            </select></div>
+        </div>
+      </div>
+
+      <div class="field"><label>Ihr Vorhaben (Mehrfachauswahl)</label>
+        <div class="chips">
+          {% for v in vorhaben_optionen %}
+          <label class="chip"><input type="checkbox" name="vorhaben" value="{{ v }}"
+            {% if v in werte.vorhaben %}checked{% endif %}>{{ v }}</label>
+          {% endfor %}
+        </div></div>
+
+      <hr style="border:0;border-top:1px solid var(--line);margin:24px 0">
+
+      <h2 style="font-size:17px;margin-bottom:14px">Kontakt</h2>
+      <div class="grid2">
+        <div class="field"><label for="name">Name *</label>
+          <input id="name" name="name" value="{{ werte.name }}" autocomplete="name"></div>
+        <div class="field"><label for="email">E-Mail *</label>
+          <input id="email" name="email" type="email" value="{{ werte.email }}" autocomplete="email"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label for="telefon">Telefon (optional, für SMS)</label>
+          <input id="telefon" name="telefon" value="{{ werte.telefon }}" autocomplete="tel"></div>
+        <div class="field"><label for="kanal">Kontaktweg</label>
+          <select id="kanal" name="kanal">
+            <option value="email" {% if werte.kanal != "sms" %}selected{% endif %}>E-Mail</option>
+            <option value="sms" {% if werte.kanal == "sms" %}selected{% endif %}>SMS</option>
+          </select></div>
+      </div>
+
+      <div class="consent">
+        <input id="einwilligung" type="checkbox" name="einwilligung" value="ja"
+          {% if werte.einwilligung %}checked{% endif %} required>
+        <label for="einwilligung" class="small" style="color:#134e4a;margin:0">
+          Ich willige ein, dass Fördora meine Angaben zur Prüfung möglicher Förderungen
+          verarbeitet und mich per E-Mail/SMS kontaktiert. Diese Einwilligung kann ich
+          jederzeit widerrufen. *</label>
+      </div>
+
+      <button class="btn btn-p" type="submit" style="width:100%;padding:16px;font-size:17px">
+        Förderungen finden</button>
+      <p class="small center" style="margin-top:14px">Keine Registrierung. Ihre Daten werden nur zur
+        Prüfung verwendet.</p>
+    </div>
+  </form>
+  <div style="height:40px"></div>
+</main>
+{% endblock %}

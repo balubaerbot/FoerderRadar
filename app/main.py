@@ -16,9 +16,13 @@ import sys
 import time
 from collections import defaultdict, deque
 
+from urllib.parse import urlencode
+
 import psycopg
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Optional
 
@@ -49,16 +53,63 @@ def _lade_env_datei():
 _lade_env_datei()
 
 app = FastAPI(title="FoerderRadar API", version="0.1.0")
+
+BASIS = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+templates = Jinja2Templates(directory=os.path.join(BASIS, "app", "templates"))
+app.mount("/static", StaticFiles(directory=os.path.join(BASIS, "app", "static")), name="static")
+
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
 ADMIN_TOKEN = os.environ.get("FOERDER_ADMIN_TOKEN", "")
 
 # Oeffentliche Routen. Alles andere ist default-deny -> Token noetig.
-PUBLIC = {("GET", "/"), ("GET", "/health"), ("POST", "/profile")}
+PUBLIC = {
+    ("GET", "/"), ("GET", "/info"), ("GET", "/health"), ("POST", "/profile"),
+    ("GET", "/formular"), ("POST", "/formular"), ("GET", "/danke"),
+    ("GET", "/impressum"), ("GET", "/datenschutz"),
+}
+# Oeffentliche Schreibpfade: nur diese bekommen das Rate-Limit.
+OEFFENTLICH_SCHREIBEN = {("POST", "/profile"), ("POST", "/formular")}
 
 # Rate-Limit fuer den oeffentlichen Schreibpfad: max N pro IP pro Fenster.
 RATE_LIMIT = 5
 RATE_WINDOW = 60.0
 _hits = defaultdict(deque)
+
+# Auswahl-Listen fuer das Web-Formular
+BUNDESLAENDER = ["Burgenland", "K\u00e4rnten", "Nieder\u00f6sterreich", "Ober\u00f6sterreich",
+                 "Salzburg", "Steiermark", "Tirol", "Vorarlberg", "Wien"]
+BRANCHEN = ["Handwerk / Gewerbe", "IT / Digitalisierung", "Handel", "Produktion",
+            "Tourismus / Gastronomie", "Sonstiges"]
+MITARBEITERKLASSEN = ["1\u20134", "5\u20139", "10\u201349", "50\u2013249", "250+"]
+WOHNSITUATIONEN = ["Eigentum", "Miete", "Genossenschaft", "bei Angeh\u00f6rigen"]
+HAUSHALTSGROESSEN = ["1", "2", "3", "4", "5+"]
+EINKOMMENSSPANNEN = ["unter 1.000 \u20ac", "1.000\u20132.000 \u20ac", "2.000\u20133.000 \u20ac",
+                     "3.000\u20134.000 \u20ac", "\u00fcber 4.000 \u20ac"]
+HEIZUNGEN = ["Fernw\u00e4rme", "Gas", "\u00d6l", "Pellets / Holz", "W\u00e4rmepumpe", "Strom", "Sonstiges"]
+FAMILIENSTAENDE = ["ledig", "verheiratet / Partnerschaft", "geschieden", "verwitwet"]
+VORHABEN_OPTIONEN = ["Digitalisierung", "Investition", "Schulung", "Energieeffizienz",
+                     "Photovoltaik", "Gr\u00fcndung", "Sanierung", "Weiterbildung", "Mobilit\u00e4t"]
+
+
+def _render(request, name, ctx=None, status_code=200):
+    """Rendert ein Template - kompatibel mit alter und neuer Starlette-Signatur."""
+    ctx = dict(ctx or {})
+    try:
+        return templates.TemplateResponse(request, name, ctx, status_code=status_code)
+    except TypeError:
+        ctx["request"] = request
+        return templates.TemplateResponse(name, ctx, status_code=status_code)
+
+
+def _formular_kontext(werte=None, fehler=None, typ="betrieb"):
+    return {
+        "typ": typ, "werte": werte or {}, "fehler": fehler,
+        "bundeslaender": BUNDESLAENDER, "branchen": BRANCHEN,
+        "mitarbeiterklassen": MITARBEITERKLASSEN, "wohnsituationen": WOHNSITUATIONEN,
+        "haushaltsgroessen": HAUSHALTSGROESSEN, "einkommensspannen": EINKOMMENSSPANNEN,
+        "heizungen": HEIZUNGEN, "familienstaende": FAMILIENSTAENDE,
+        "vorhaben_optionen": VORHABEN_OPTIONEN,
+    }
 
 
 def db():
@@ -74,15 +125,18 @@ def _client_ip(request):
 
 @app.middleware("http")
 async def guard(request: Request, call_next):
-    key = (request.method, request.url.path)
+    pfad = request.url.path
+    if pfad.startswith("/static/"):
+        return await call_next(request)
+    key = (request.method, pfad)
     if key not in PUBLIC:
         # Default-Deny: Admin-Token erforderlich.
         auth = request.headers.get("authorization", "")
         token = auth[7:] if auth.lower().startswith("bearer ") else ""
         if not ADMIN_TOKEN or not token or not hmac.compare_digest(token, ADMIN_TOKEN):
             return JSONResponse({"detail": "nicht autorisiert"}, status_code=401)
-    elif key == ("POST", "/profile"):
-        # Rate-Limit nur auf dem oeffentlichen Schreibpfad.
+    elif key in OEFFENTLICH_SCHREIBEN:
+        # Rate-Limit nur auf den oeffentlichen Schreibpfaden.
         ip = _client_ip(request)
         now = time.monotonic()
         q = _hits[ip]
@@ -94,9 +148,14 @@ async def guard(request: Request, call_next):
     return await call_next(request)
 
 
-@app.get("/")
-def root():
+@app.get("/info")
+def info():
     return {"message": "FoerderRadar API v0.1.0"}
+
+
+@app.get("/")
+def startseite(request: Request):
+    return _render(request, "start.html")
 
 
 @app.get("/health")
@@ -135,8 +194,8 @@ class ProfilIn(BaseModel):
     einwilligung: bool = False
 
 
-@app.post("/profile")
-def create_profile(p: ProfilIn):
+def _speichere_profil(p: ProfilIn) -> str:
+    """Validiert und speichert ein Profil (pseudonym + Kontakt getrennt)."""
     if p.typ not in ("betrieb", "privat"):
         raise HTTPException(status_code=400, detail="typ muss 'betrieb' oder 'privat' sein")
     if not p.einwilligung:
@@ -167,8 +226,14 @@ def create_profile(p: ProfilIn):
             (kunde_id, p.name, p.email, p.telefon, p.kanal),
         )
         conn.commit()
+    # Rueckgabe enthaelt nur die kunde_id - keine Kontaktdaten.
+    return str(kunde_id)
+
+
+@app.post("/profile")
+def create_profile(p: ProfilIn):
     # Antwort enthaelt nur die kunde_id - keine Kontaktdaten.
-    return {"kunde_id": str(kunde_id)}
+    return {"kunde_id": _speichere_profil(p)}
 
 
 @app.get("/profiles")
@@ -209,3 +274,103 @@ def get_match(kunde_id: str):
     with db() as conn:
         rows = ms.get_matches(conn, kunde_id)
     return {"kunde_id": kunde_id, "anzahl": len(rows), "matches": rows}
+
+
+# ---------------------------------------------------------------- Website
+
+def _ja_nein(wert):
+    w = (wert or "").strip().lower()
+    if w in ("ja", "true", "1", "on"):
+        return True
+    if w in ("nein", "false", "0"):
+        return False
+    return None
+
+
+def _maske_email(email):
+    """max@beispiel.at -> m**@beispiel.at (nur Maskierung fuer die Anzeige)."""
+    if not email or "@" not in email:
+        return ""
+    lokal, _, domain = email.partition("@")
+    if not lokal:
+        return email
+    return lokal[0] + "*" * (len(lokal) - 1) + "@" + domain
+
+
+def _profil_aus_formular(form) -> ProfilIn:
+    typ = (form.get("typ") or "betrieb").strip()
+    privat = typ == "privat"
+    region = form.get("region_grob_p") if privat else form.get("region_grob")
+    pf = (form.get("pflegestufe") or "").strip()
+    return ProfilIn(
+        typ=typ,
+        region_grob=(region or None),
+        branche=None if privat else (form.get("branche") or None),
+        mitarbeiterklasse=None if privat else (form.get("mitarbeiterklasse") or None),
+        wko_mitglied=None if privat else _ja_nein(form.get("wko_mitglied")),
+        wohnsituation=(form.get("wohnsituation") or None) if privat else None,
+        haushaltsgroesse=(form.get("haushaltsgroesse") or None) if privat else None,
+        einkommen_spanne=(form.get("einkommen_spanne") or None) if privat else None,
+        heizung=(form.get("heizung") or None) if privat else None,
+        pflegestufe=(int(pf) if pf.isdigit() else None) if privat else None,
+        familienstand=(form.get("familienstand") or None) if privat else None,
+        kinder_im_haushalt=_ja_nein(form.get("kinder_im_haushalt")) if privat else None,
+        vorhaben=list(form.getlist("vorhaben")),
+        name=(form.get("name") or "").strip() or None,
+        email=(form.get("email") or "").strip() or None,
+        telefon=(form.get("telefon") or "").strip() or None,
+        kanal=(form.get("kanal") or None),
+        einwilligung=(form.get("einwilligung") == "ja"),
+    )
+
+
+def _werte_aus_formular(form):
+    werte = dict(form)
+    werte["vorhaben"] = list(form.getlist("vorhaben"))
+    return werte
+
+
+@app.get("/formular")
+def formular(request: Request, typ: str = "betrieb"):
+    return _render(request, "formular.html",
+                   _formular_kontext(typ=("privat" if typ == "privat" else "betrieb")))
+
+
+@app.post("/formular")
+async def formular_post(request: Request):
+    form = await request.form()
+    p = _profil_aus_formular(form)
+    werte = _werte_aus_formular(form)
+
+    def _zurueck(fehler):
+        return _render(request, "formular.html",
+                       _formular_kontext(werte=werte, fehler=fehler, typ=p.typ),
+                       status_code=400)
+
+    if not p.name or not p.email:
+        return _zurueck("Bitte Name und E-Mail angeben.")
+    if not p.einwilligung:
+        return _zurueck("Ohne Einwilligung koennen wir Ihre Angaben nicht verarbeiten.")
+    try:
+        _speichere_profil(p)
+    except HTTPException as e:
+        return _zurueck(str(e.detail))
+
+    vorname = (p.name or "").split(" ")[0]
+    ziel = "/danke?" + urlencode({"n": vorname, "e": _maske_email(p.email)})
+    return RedirectResponse(ziel, status_code=303)
+
+
+@app.get("/danke")
+def danke(request: Request, n: str = "", e: str = ""):
+    return _render(request, "danke.html", {"vorname": n, "email_maskiert": e})
+
+
+@app.get("/impressum")
+def impressum(request: Request):
+    return _render(request, "impressum.html")
+
+
+@app.get("/datenschutz")
+def datenschutz(request: Request):
+    return _render(request, "datenschutz.html")

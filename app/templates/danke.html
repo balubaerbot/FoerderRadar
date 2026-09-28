@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Fördora — Danke{% endblock %}
+{% block content %}
+<main class="wrap" style="max-width:640px;padding-top:64px">
+  <div class="card center" style="padding:44px 34px">
+    <div class="tick">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0f766e"
+           stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 6 9 17l-5-5"/></svg>
+    </div>
+    <h1 style="font-size:30px">Danke{% if vorname %}, {{ vorname }}{% endif %}!</h1>
+    <p class="lead" style="margin:0 auto 22px;font-size:16.5px">Wir prüfen Ihre Angaben jetzt gegen
+      alle aktuellen Förderprogramme für Österreich.</p>
+    {% if email_maskiert %}
+    <div style="background:var(--p3);border:1px solid #a7f3d0;border-radius:12px;
+                padding:16px;text-align:left;margin-bottom:22px">
+      <p class="small" style="margin:0;color:#134e4a"><b>Ihre Treffer kommen per E-Mail an</b><br>
+      {{ email_maskiert }}</p>
+    </div>
+    {% endif %}
+    <p class="small" style="text-align:left"><b>Wie es weitergeht:</b></p>
+    <ul class="small" style="text-align:left;line-height:1.9;margin:6px 0 20px;padding-left:20px">
+      <li>Wir gleichen Ihr Profil mit dem Katalog ab</li>
+      <li>Sie erhalten die passenden Förderungen mit Betrag, Frist und Link</li>
+      <li>Läuft eine Frist ab, melden wir uns rechtzeitig</li>
+    </ul>
+    <div class="note" style="text-align:left">Diese Zusammenstellung ersetzt keine Förder-,
+      Rechts- oder Steuerberatung.</div>
+  </div>
+</main>
+{% endblock %}
