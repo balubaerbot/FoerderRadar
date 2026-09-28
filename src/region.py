@@ -53,7 +53,7 @@ def normalisiere_region(text):
         return None
     for kanon, aliase in _ALIASE.items():
         for a in aliase:
-            if f == a or f.startswith(a + "-") or f.startswith(a + " ") or f.startswith(a):
+            if re.match(rf"^{re.escape(a)}([\s\-]|$)", f):
                 return kanon
     return None
 

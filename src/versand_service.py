@@ -144,7 +144,7 @@ def entwurf_speichern(conn, kunde_id, betreff, body, kanal):
     Serialisiert parallele Worker pro Kunde ueber einen transaktionsgebundenen
     Advisory-Lock. Bewusst KEIN `FOR UPDATE` auf profil: die Rolle app_worker hat
     darauf keine Leserechte (Least Privilege, siehe tools/setup_db_roles.py) - nur
-    auf die pseudonyme View profil_agent. Existiert bereits ein offener/erledigter
+    auf die pseudonyme View profil_agent. Existiert bereits ein offener
     Versand, wird None zurueckgegeben und nichts eingefuegt.
     """
     with conn.cursor() as cur:
@@ -156,7 +156,7 @@ def entwurf_speichern(conn, kunde_id, betreff, body, kanal):
             return None
         cur.execute(
             "SELECT 1 FROM versand WHERE kunde_id = %s "
-            "AND status IN ('entwurf','sendet','gesendet') LIMIT 1",
+            "AND status IN ('entwurf','sendet') LIMIT 1",
             (kunde_id,),
         )
         if cur.fetchone() is not None:
@@ -183,11 +183,11 @@ def hat_offenen_entwurf(conn, kunde_id):
 
 
 def offener_entwurf(conn, kunde_id):
-    """Letzter offener/abgeschlossener Versand zu einem Kunden (oder None)."""
+    """Letzter offener Versand zu einem Kunden (oder None)."""
     with conn.cursor() as cur:
         cur.execute(
             "SELECT id, status, betreff, body FROM versand WHERE kunde_id = %s "
-            "AND status IN ('entwurf','sendet','gesendet') ORDER BY id DESC LIMIT 1",
+            "AND status IN ('entwurf','sendet') ORDER BY id DESC LIMIT 1",
             (kunde_id,),
         )
         r = cur.fetchone()
