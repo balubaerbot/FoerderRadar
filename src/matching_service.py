@@ -12,6 +12,7 @@ from typing import Optional
 
 from src import match as matchmod
 from src import region as regionmod
+from src import vokabular as vok
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 KATALOG_PFAD = os.path.join(BASE, "katalog", "foerderungen.json")
@@ -36,19 +37,24 @@ def einkommen_obergrenze(spanne: Optional[str]) -> Optional[float]:
 
 
 def profil_row_to_dict(row: dict) -> dict:
-    """Adapter: Zeile aus `profil_agent` -> Profil-Dict fuer die Match-Logik."""
+    """Adapter: Zeile aus `profil_agent` -> Profil-Dict fuer die Match-Logik.
+
+    Normalisiert hier defensiv auch Wohnsituation/Heizung/Vorhaben auf die
+    kanonischen Katalog-Slugs. So matchen auch Altdaten, die noch Anzeige-Labels
+    enthalten ('Eigentum', 'Photovoltaik') - die Normalisierung ist idempotent.
+    """
     d = dict(row)
-    vorhaben = list(d.get("vorhaben") or [])
+    vorhaben = vok.normalisiere_vorhaben(list(d.get("vorhaben") or []))
     return {
         "typ": d.get("typ"),
         "region": regionmod.normalisiere_region(d.get("region_grob")),
         "branche": d.get("branche"),
         "mitarbeiterklasse": d.get("mitarbeiterklasse"),
         "wko_mitglied": d.get("wko_mitglied"),
-        "wohnsituation": d.get("wohnsituation"),
+        "wohnsituation": vok.normalisiere_wohnsituation(d.get("wohnsituation")),
         "haushaltsgroesse": d.get("haushaltsgroesse"),
         "haushaltseinkommen": einkommen_obergrenze(d.get("einkommen_spanne")),
-        "heizung": d.get("heizung"),
+        "heizung": vok.normalisiere_heizung(d.get("heizung")),
         "pflegestufe": d.get("pflegestufe"),
         "familienstand": d.get("familienstand"),
         "kinder_im_haushalt": d.get("kinder_im_haushalt"),
@@ -66,6 +72,18 @@ def lade_profil(conn, kunde_id):
         cols = [c.name for c in cur.description]
         row = cur.fetchone()
     return dict(zip(cols, row)) if row else None
+
+
+def alle_kunde_ids(conn):
+    """Alle kunde_ids aus der pseudonymen Sicht (`profil_agent`).
+
+    Grundlage fuer einen vollen Matching-Lauf: der Versand-Worker bewertet
+    damit JEDES Profil gegen den aktuellen Katalog - auch frisch erfasste,
+    die noch keine `match`-Zeilen haben (sonst Henne-Ei-Problem).
+    """
+    with conn.cursor() as cur:
+        cur.execute("SELECT kunde_id FROM profil_agent ORDER BY kunde_id")
+        return [r[0] for r in cur.fetchall()]
 
 
 def run_match(conn, kunde_id):

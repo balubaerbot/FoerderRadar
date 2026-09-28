@@ -30,6 +30,7 @@ from typing import Optional
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src import matching_service as ms  # noqa: E402
 from src import region as regionmod  # noqa: E402
+from src import vokabular as vok  # noqa: E402
 
 
 def _lade_env_datei():
@@ -214,8 +215,11 @@ def _speichere_profil(p: ProfilIn) -> str:
             """,
             (p.typ, regionmod.normalisiere_region(p.region_grob) or p.region_grob,
              p.branche, p.mitarbeiterklasse, p.wko_mitglied,
-             p.wohnsituation, p.haushaltsgroesse, p.einkommen_spanne, p.heizung,
-             p.pflegestufe, p.familienstand, p.kinder_im_haushalt, p.vorhaben),
+             # Anzeige-Labels -> kanonische Katalog-Slugs (sonst kein Treffer)
+             vok.normalisiere_wohnsituation(p.wohnsituation), p.haushaltsgroesse,
+             p.einkommen_spanne, vok.normalisiere_heizung(p.heizung),
+             p.pflegestufe, p.familienstand, p.kinder_im_haushalt,
+             vok.normalisiere_vorhaben(p.vorhaben)),
         )
         kunde_id = cur.fetchone()[0]
         cur.execute(

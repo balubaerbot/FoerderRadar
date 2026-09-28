@@ -47,8 +47,27 @@ def laden_env():
     )
 
 
+def matching_lauf(conn, nur_kunde=None):
+    """Stufe 1: ALLE Profile gegen den aktuellen Katalog bewerten.
+
+    Ohne diese Stufe hat ein frisch erfasstes Profil keine `match`-Zeilen und
+    wird von `offene_kunden()` nie gefunden (Henne-Ei-Problem). `run_match`
+    ist idempotent: bereits gemeldete Treffer bleiben unangetastet, offene
+    werden gegen den aktuellen Katalog neu gesetzt.
+    """
+    anzahl = 0
+    for kunde_id in ms.alle_kunde_ids(conn):
+        if nur_kunde and str(kunde_id) != str(nur_kunde):
+            continue
+        ms.run_match(conn, kunde_id)
+        anzahl += 1
+    return anzahl
+
+
 def entwuerfe_anlegen(conn, katalog, nur_kunde=None):
-    """Fuer jeden offenen Kunden ohne bestehenden Entwurf einen anlegen."""
+    """Stufe 2: Fuer jeden offenen Kunden ohne bestehenden Entwurf einen anlegen."""
+    gematcht = matching_lauf(conn, nur_kunde)
+
     neu = []
     for kunde_id in vs.offene_kunden(conn):
         if nur_kunde and str(kunde_id) != str(nur_kunde):
@@ -58,9 +77,7 @@ def entwuerfe_anlegen(conn, katalog, nur_kunde=None):
         profil = vs.profil_pseudonym(conn, kunde_id)
         if not profil:
             continue
-        # WICHTIG: Gegen den AKTUELLEN Katalog neu bewerten, damit eingefrorene
-        # Treffer (z.B. inzwischen ausgeschoepft) nicht veraltet beim Kunden landen.
-        ms.run_match(conn, kunde_id)
+        # Treffer stammen aus dem Matching-Lauf oben (aktueller Katalog).
         treffer = vs.treffer_fuer(conn, kunde_id)
         if not treffer:
             continue
@@ -68,7 +85,7 @@ def entwuerfe_anlegen(conn, katalog, nur_kunde=None):
         betreff, body = vs.nachricht_bauen(profil, treffer, katalog)
         vid = vs.entwurf_speichern(conn, kunde_id, betreff, body, kanal)
         neu.append({"versand_id": vid, "kunde_id": str(kunde_id), "anzahl_treffer": len(treffer)})
-    return neu
+    return gematcht, neu
 
 
 def main():
@@ -95,7 +112,8 @@ def main():
                 print(f"  #{e['id']}  {e['kanal']:<5} -> {ziel}  | {e['betreff']}")
             return 0
 
-        neu = entwuerfe_anlegen(conn, katalog, args.kunde)
+        gematcht, neu = entwuerfe_anlegen(conn, katalog, args.kunde)
+        print(f"Profile gegen Katalog bewertet: {gematcht}")
         if neu:
             print(f"Neue Entwuerfe angelegt: {len(neu)}")
             for n in neu:
