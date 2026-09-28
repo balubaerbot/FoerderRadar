@@ -4,7 +4,7 @@
 Trennung pseudonyme Daten ↔ Klartext-Kontaktdaten wird **technisch erzwungen**,
 nicht nur per Konvention.
 
-Stand: 2026-09-27 (Entwurf)
+Stand: 2026-09-28 (Entwurf)
 
 ---
 
@@ -14,8 +14,8 @@ Stand: 2026-09-27 (Entwurf)
 |---|---|
 | API von außen erreichbar? | **Nein** — nur `127.0.0.1:8100` ✅ |
 | DB veröffentlicht? | **Nein** — nur im Docker-Netz ✅ |
-| Auth in der API? | **Keine** — 6 Endpunkte offen ⚠️ |
-| DB-Rolle `foerderradar` | **Superuser**, kann `kontakt` lesen ⚠️ |
+| Auth in der API? | **Ja — Default-Deny** — 9 Routen öffentlich (Info, Website, Formular, `POST /profile`), alle Admin-/Lese-Endpunkte Token-pflichtig (timing-safe via `hmac.compare_digest`) ✅ |
+| DB-Rolle `foerderradar` | **Superuser**, kann `kontakt` lesen ⚠️ — bewusst nur für Migrationen (`DATABASE_URL_ADMIN`); API/Worker laufen als `app_web`/`app_worker` |
 
 ---
 
@@ -31,6 +31,8 @@ Stand: 2026-09-27 (Entwurf)
 
 - `POST /profile` — öffentlich, aber mit **Rate-Limit + Validierung + Bot-Schutz**.
 - **Admin-Endpunkte** (`/profiles`, `/match`, …) — **Token** (SecretRef), nur intern.
+  Umgesetzt als Default-Deny-Middleware: nur die 9 Einträge in `PUBLIC` sind offen,
+  alles andere verlangt `Authorization: Bearer <FOERDER_ADMIN_TOKEN>` (timing-safe).
 - Jede Route explizit freigeben (Default-Deny).
 
 ## 3. Datenbank-Rollen (erzwungene Trennung)

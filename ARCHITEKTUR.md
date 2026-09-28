@@ -9,7 +9,8 @@
    - `profil` (pseudonym, Agent-lesbar ueber View `profil_agent`)
    - `kontakt` (Klartext: name/email/telefon — nur Versand-Worker)
 2. **Matching** — aktueller Katalog × Profil → relevante Foerderungen.
-3. **Versand** — passende Mail/SMS an den Kunden *(geplant)*.
+3. **Versand** — passende **E-Mail** an den Kunden *(in Arbeit)*. SMS-Kanal
+   ist vorgesehen, aber **noch nicht implementiert** (`_senden_sms` = Platzhalter).
 
 ## Entscheidung: Hybrid (Variante A)
 
@@ -18,7 +19,8 @@
 - **Agent/LLM uebernimmt:**
   - Katalog pflegen (Web-Recherche → strukturierte Bedingungen)
   - Profile interpretieren, wenn Kundenangaben unscharf sind
-  - Kundentext (Mail/SMS) schreiben — aus der *verifizierten* Trefferliste
+  - Kundentext (E-Mail) schreiben — aus der *verifizierten* Trefferliste
+    (SMS-Kanal geplant, siehe Pipeline-Punkt 3)
   - Grenz-/„pruefen"-Faelle bewerten (widerspruechliche Quellen)
 - **Code (`src/match.py`) uebernimmt:**
   - Anwendung der strukturierten Katalog-Bedingungen auf ein Profil
