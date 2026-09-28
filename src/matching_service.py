@@ -36,6 +36,17 @@ def einkommen_obergrenze(spanne: Optional[str]) -> Optional[float]:
     return max(zahlen) if zahlen else None
 
 
+def einkommen_jahr_obergrenze(spanne: Optional[str]) -> Optional[float]:
+    """Formular erhebt MONATSNETTO -> konservative Jahresschaetzung (x12).
+
+    Das Matching vergleicht gegen Jahresgrenzen (`einkommen_max` +
+    `einkommen_einheit`). Die Obergrenze der Monatsspanne x12 ist bewusst
+    konservativ (eher zu hoch -> eher Ausschluss).
+    """
+    monat = einkommen_obergrenze(spanne)
+    return None if monat is None else monat * 12
+
+
 def profil_row_to_dict(row: dict) -> dict:
     """Adapter: Zeile aus `profil_agent` -> Profil-Dict fuer die Match-Logik.
 
@@ -53,7 +64,7 @@ def profil_row_to_dict(row: dict) -> dict:
         "wko_mitglied": d.get("wko_mitglied"),
         "wohnsituation": vok.normalisiere_wohnsituation(d.get("wohnsituation")),
         "haushaltsgroesse": d.get("haushaltsgroesse"),
-        "haushaltseinkommen": einkommen_obergrenze(d.get("einkommen_spanne")),
+        "haushaltseinkommen": einkommen_jahr_obergrenze(d.get("einkommen_spanne")),
         "heizung": vok.normalisiere_heizung(d.get("heizung")),
         "pflegestufe": d.get("pflegestufe"),
         "familienstand": d.get("familienstand"),

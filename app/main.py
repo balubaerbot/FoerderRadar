@@ -118,9 +118,16 @@ def db():
 
 
 def _client_ip(request):
-    xff = request.headers.get("x-forwarded-for")
-    if xff:
-        return xff.split(",")[0].strip()
+    """Client-IP fuer das Rate-Limit.
+
+    X-Forwarded-For NUR auswerten, wenn ein vertrauenswuerdiger Proxy
+    konfiguriert ist (FOERDER_TRUST_PROXY=1). Sonst koennte jeder das Limit
+    mit einem gefaelschten Header umgehen.
+    """
+    if os.environ.get("FOERDER_TRUST_PROXY") == "1":
+        xff = request.headers.get("x-forwarded-for")
+        if xff:
+            return xff.split(",")[0].strip()
     return request.client.host if request.client else "?"
 
 

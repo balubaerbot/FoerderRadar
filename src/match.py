@@ -47,18 +47,22 @@ def pruefe(f, profil):
             return "raus", [f"Wohnsituation '{profil.get('wohnsituation')}' nicht foerderfaehig"]
 
     # 5) Einkommensgrenze
+    #    Die Einheit ist explizit: der Katalog sagt ueber `einkommen_einheit`,
+    #    ob der Grenzwert ein Monats- oder Jahresnetto ist. Das Profil fuehrt
+    #    `haushaltseinkommen` IMMER als Jahresschaetzung. Verglichen wird in
+    #    Jahreseinheiten - keine Ratevermutung ueber die Groessenordnung mehr.
     if "einkommen_max" in vor:
-        eink = profil.get("haushaltseinkommen")
+        eink = profil.get("haushaltseinkommen")  # Jahresnetto
         limit = vor["einkommen_max"]
-        # Monats- vs. Jahresgrenze grob unterscheiden
-        limit_jahr = limit if limit > 1000 else limit * 12
+        einheit = vor.get("einkommen_einheit", "jahr")
+        limit_jahr = limit * 12 if einheit == "monat" else limit
         if eink is None:
             knapp = True
             gruende.append("Einkommen nicht angegeben - Grenze nicht pruefbar")
         elif eink > limit_jahr:
-            return "raus", [f"Einkommen {eink:,.0f} EUR > Grenze {limit_jahr:,.0f} EUR"]
+            return "raus", [f"Einkommen {eink:,.0f} EUR/Jahr > Grenze {limit_jahr:,.0f} EUR/Jahr"]
         else:
-            gruende.append(f"Einkommen unter Grenze ({eink:,.0f} <= {limit_jahr:,.0f} EUR)")
+            gruende.append(f"Einkommen unter Grenze ({eink:,.0f} <= {limit_jahr:,.0f} EUR/Jahr)")
 
     # 6) Heizung alt
     if "heizung_alt" in vor:

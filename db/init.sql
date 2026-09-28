@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS versand (
     kanal       TEXT CHECK (kanal IN ('email','sms')),
     betreff     TEXT,
     body        TEXT NOT NULL,
-    status      TEXT NOT NULL DEFAULT 'entwurf' CHECK (status IN ('entwurf','gesendet','fehler')),
+    status      TEXT NOT NULL DEFAULT 'entwurf' CHECK (status IN ('entwurf','sendet','gesendet','fehler')),
     fehler_text TEXT,
     erstellt_am TIMESTAMPTZ NOT NULL DEFAULT now(),
     gesendet_am TIMESTAMPTZ
@@ -59,6 +59,9 @@ CREATE TABLE IF NOT EXISTS versand (
 
 CREATE INDEX IF NOT EXISTS versand_status_idx ON versand (status);
 CREATE INDEX IF NOT EXISTS match_status_idx ON match (status);
+-- Hoechstens EIN offener (nicht abgeschlossener) Versand pro Kunde -> kein Doppelversand.
+CREATE UNIQUE INDEX IF NOT EXISTS versand_ein_offener ON versand (kunde_id)
+    WHERE status IN ('entwurf','sendet');
 
 -- Pseudonyme Sicht: genau das, was der Agent/Dienst lesen darf (keine Kontaktdaten!)
 CREATE OR REPLACE VIEW profil_agent AS

@@ -13,6 +13,7 @@ Ablauf:
   offene_entwuerfe()   -> Entwuerfe im Status 'entwurf'
   versenden()          -> sendet (oder Dry-Run) + protokolliert, markiert match 'gemeldet'
 """
+import datetime
 import os
 import re
 import subprocess
@@ -138,7 +139,25 @@ def nachricht_bauen(profil, treffer, katalog):
 # Queue
 # --------------------------------------------------------------------------
 def entwurf_speichern(conn, kunde_id, betreff, body, kanal):
+    """Legt einen Entwurf an - idempotent pro Kunde und atomar.
+
+    Sperrt die Profil-Zeile (`FOR UPDATE`), damit zwei parallele Worker nicht
+    gleichzeitig einen Entwurf anlegen. Existiert bereits einer (entwurf/sendet/
+    gesendet), wird None zurueckgegeben und nichts eingefuegt.
+    """
     with conn.cursor() as cur:
+        cur.execute("SELECT 1 FROM profil WHERE kunde_id = %s FOR UPDATE", (kunde_id,))
+        if cur.fetchone() is None:
+            conn.commit()
+            return None
+        cur.execute(
+            "SELECT 1 FROM versand WHERE kunde_id = %s "
+            "AND status IN ('entwurf','sendet','gesendet') LIMIT 1",
+            (kunde_id,),
+        )
+        if cur.fetchone() is not None:
+            conn.commit()
+            return None
         cur.execute(
             """INSERT INTO versand (kunde_id, kanal, betreff, body, status)
                VALUES (%s, %s, %s, %s, 'entwurf') RETURNING id""",
@@ -152,10 +171,40 @@ def entwurf_speichern(conn, kunde_id, betreff, body, kanal):
 def hat_offenen_entwurf(conn, kunde_id):
     with conn.cursor() as cur:
         cur.execute(
-            "SELECT 1 FROM versand WHERE kunde_id = %s AND status IN ('entwurf','gesendet') LIMIT 1",
+            "SELECT 1 FROM versand WHERE kunde_id = %s "
+            "AND status IN ('entwurf','sendet','gesendet') LIMIT 1",
             (kunde_id,),
         )
         return cur.fetchone() is not None
+
+
+def offener_entwurf(conn, kunde_id):
+    """Letzter offener/abgeschlossener Versand zu einem Kunden (oder None)."""
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT id, status, betreff, body FROM versand WHERE kunde_id = %s "
+            "AND status IN ('entwurf','sendet','gesendet') ORDER BY id DESC LIMIT 1",
+            (kunde_id,),
+        )
+        r = cur.fetchone()
+    return {"id": r[0], "status": r[1], "betreff": r[2], "body": r[3]} if r else None
+
+
+def entwurf_aktualisieren(conn, versand_id, betreff, body):
+    """Ersetzt den Text eines noch offenen Entwurfs (nur Status 'entwurf').
+
+    Noetig, weil sich Treffer aendern koennen (Katalog/Fristen), der gespeicherte
+    Entwurfstext aber sonst veraltet bliebe. Bereits 'sendet'/'gesendet' werden
+    NICHT angetastet.
+    """
+    with conn.cursor() as cur:
+        cur.execute(
+            "UPDATE versand SET betreff=%s, body=%s WHERE id=%s AND status='entwurf'",
+            (betreff, body, versand_id),
+        )
+        geaendert = cur.rowcount
+    conn.commit()
+    return geaendert
 
 
 def offene_entwuerfe(conn):
@@ -190,12 +239,85 @@ def _senden_sms(kontakt, body):
     raise NotImplementedError("SMS-Versand kommt spaeter.")
 
 
+# --------------------------------------------------------------------------
+# Schutz vor veralteten/doppelten Sendungen
+# --------------------------------------------------------------------------
+def _redigiere(text, kontakt):
+    """Entfernt Klartext-Kontaktdaten aus beliebigem Text (Logs/Fehlermeldungen).
+
+    Fehlertexte der Mail-CLI koennen die Empfaengeradresse enthalten - solche
+    Rohfehler duerfen NIE gespeichert oder ausgegeben werden.
+    """
+    if not text:
+        return text
+    s = str(text)
+    if kontakt:
+        for wert in (kontakt.get("email"), kontakt.get("telefon")):
+            if wert:
+                ersatz = maskiere_email(wert) if "@" in wert else maskiere_telefon(wert)
+                s = s.replace(wert, ersatz)
+    return s
+
+
+def _status_setzen(conn, versand_id, status, fehler_text):
+    with conn.cursor() as cur:
+        cur.execute(
+            "UPDATE versand SET status=%s, fehler_text=%s WHERE id=%s",
+            (status, fehler_text, versand_id),
+        )
+    conn.commit()
+
+
+def _kontakt_status(conn, kunde_id):
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT einwilligung_am, loeschdatum, kanal FROM kontakt WHERE kunde_id = %s",
+            (kunde_id,),
+        )
+        return cur.fetchone()
+
+
+def _hat_offene_treffer(conn, kunde_id):
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT 1 FROM match WHERE kunde_id = %s AND status = 'identifiziert' LIMIT 1",
+            (kunde_id,),
+        )
+        return cur.fetchone() is not None
+
+
+def _versandblocker(conn, kunde_id):
+    """Prueft die Versandbedingungen ERNEUT unmittelbar vor dem Senden.
+
+    Ein Entwurf kann veralten: Einwilligung widerrufen, Loeschfrist abgelaufen,
+    Kanal entzogen oder keine offenen Treffer mehr. Rueckgabe: Grund (str) oder None.
+    """
+    info = _kontakt_status(conn, kunde_id)
+    if not info:
+        return "kein Kontakt vorhanden"
+    einwilligung_am, loeschdatum, kanal = info
+    if einwilligung_am is None:
+        return "Einwilligung fehlt"
+    if loeschdatum is not None and loeschdatum <= datetime.date.today():
+        return "Loeschfrist abgelaufen"
+    if kanal not in ("email", "sms"):
+        return f"Kanal '{kanal}' nicht versendbar"
+    if not _hat_offene_treffer(conn, kunde_id):
+        return "keine offenen Treffer mehr (Entwurf veraltet)"
+    return None
+
+
 def versenden(conn, versand_id, dry_run=True, test_recipient=None):
     """Sendet einen Entwurf (oder Dry-Run) und protokolliert.
 
     test_recipient gesetzt -> echter Versand, aber an DIESE Adresse umgeleitet
-    (Prototyp: eigenes Postfach). Dann wird `match` NICHT auf 'gemeldet' gesetzt,
-    damit spaeter der echte Kundenversand moeglich bleibt.
+    (Prototyp: eigenes Postfach). Der Entwurf bleibt danach OFFEN ('entwurf'),
+    damit der spaetere echte Kundenversand moeglich ist.
+
+    Schutz gegen Doppelversand: Der Entwurf wird atomar auf 'sendet' beansprucht
+    (`UPDATE ... WHERE status='entwurf'`). Nur ein Aufruf gewinnt. Einwilligung,
+    Loeschfrist, Kanal und offene Treffer werden unmittelbar vor dem Senden
+    erneut geprueft. Fehlertexte werden von Kontaktdaten bereinigt.
 
     Rueckgabe enthaelt NUR maskierte Kontaktdaten.
     """
@@ -212,9 +334,7 @@ def versenden(conn, versand_id, dry_run=True, test_recipient=None):
         return {"ok": False, "fehler": f"Status ist '{status}', nicht 'entwurf'"}
 
     kontakt = kontakt_holen(conn, kunde_id)
-    if not kontakt:
-        return {"ok": False, "fehler": "kein Kontakt vorhanden"}
-    ziel = _ziel_maskiert(kanal, kontakt)
+    ziel = _ziel_maskiert(kanal, kontakt) if kontakt else "<keine>"
 
     if dry_run:
         return {
@@ -226,7 +346,25 @@ def versenden(conn, versand_id, dry_run=True, test_recipient=None):
             "ziel": ziel,
             "betreff": betreff,
             "body": body,
+            "blocker": _versandblocker(conn, kunde_id),
         }
+
+    # --- atomar beanspruchen: verhindert Doppelversand bei parallelen Laeufen ---
+    with conn.cursor() as cur:
+        cur.execute(
+            "UPDATE versand SET status='sendet' WHERE id=%s AND status='entwurf' RETURNING id",
+            (versand_id,),
+        )
+        claimed = cur.fetchone()
+    conn.commit()
+    if not claimed:
+        return {"ok": False, "fehler": "Entwurf wird bereits bearbeitet/versendet", "ziel": ziel}
+
+    # --- Bedingungen unmittelbar vor dem Versand erneut pruefen ---
+    blocker = _versandblocker(conn, kunde_id)
+    if blocker:
+        _status_setzen(conn, versand_id, "fehler", blocker)
+        return {"ok": False, "fehler": blocker, "ziel": ziel}
 
     # Zieladresse bestimmen (Testphase: umleiten aufs Testpostfach)
     if test_recipient:
@@ -236,6 +374,7 @@ def versenden(conn, versand_id, dry_run=True, test_recipient=None):
     else:
         to_addr = kontakt.get("telefon")
     if not to_addr:
+        _status_setzen(conn, versand_id, "entwurf", None)
         return {"ok": False, "fehler": f"keine Zieladresse fuer Kanal '{kanal}'", "ziel": ziel}
 
     try:
@@ -244,28 +383,24 @@ def versenden(conn, versand_id, dry_run=True, test_recipient=None):
         else:
             _senden_sms(kontakt, body)
     except Exception as e:  # noqa: BLE001
-        with conn.cursor() as cur:
-            cur.execute(
-                "UPDATE versand SET status='fehler', fehler_text=%s WHERE id=%s",
-                (str(e)[:300], versand_id),
-            )
-        conn.commit()
-        return {"ok": False, "fehler": str(e)[:200], "ziel": ziel}
+        meldung = _redigiere(str(e), kontakt)[:300]
+        _status_setzen(conn, versand_id, "fehler", meldung)
+        return {"ok": False, "fehler": meldung[:200], "ziel": ziel}
 
     ziel_tatsaechlich = maskiere_email(to_addr) if kanal == "email" else maskiere_telefon(to_addr)
     if test_recipient:
-        with conn.cursor() as cur:
-            cur.execute(
-                "UPDATE versand SET status='gesendet', gesendet_am=now(), fehler_text=%s WHERE id=%s",
-                (f"TEST -> {ziel_tatsaechlich} (kein Kundenversand)", versand_id),
-            )
-        conn.commit()
+        # Testversand: Entwurf bleibt offen, damit der echte Kundenversand
+        # spaeter moeglich ist (ein Test darf ihn NICHT dauerhaft blockieren).
+        _status_setzen(
+            conn, versand_id, "entwurf",
+            f"TEST an {ziel_tatsaechlich} ({datetime.datetime.now():%Y-%m-%d %H:%M}) - Entwurf bleibt offen",
+        )
         return {"ok": True, "dry_run": False, "test": True, "versand_id": versand_id,
                 "ziel": ziel_tatsaechlich, "empfaenger_kunde": ziel}
 
     with conn.cursor() as cur:
         cur.execute(
-            "UPDATE versand SET status='gesendet', gesendet_am=now() WHERE id=%s",
+            "UPDATE versand SET status='gesendet', gesendet_am=now(), fehler_text=NULL WHERE id=%s",
             (versand_id,),
         )
         cur.execute(

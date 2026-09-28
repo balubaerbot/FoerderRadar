@@ -6,7 +6,8 @@ zeigt/versendet sie. Standard ist DRY-RUN - es geht NICHTS raus.
 
   python3 worker/versand_worker.py             # Dry-Run: zeigt, was rausgehen WUERDE (maskiert)
   python3 worker/versand_worker.py --status    # nur Queue-Status
-  python3 worker/versand_worker.py --send      # ECHTER Versand (Phase 3, noch nicht aktiv)
+  python3 worker/versand_worker.py --send      # ECHTER Versand an die Kunden (scharf!)
+  python3 worker/versand_worker.py --send --test  # ECHTER Versand, aber an das Test-Postfach
   python3 worker/versand_worker.py --kunde <uuid>   # nur ein Kunde
 
 Ausgabe enthaelt NIE Klartext-Kontaktdaten (nur maskiert).
@@ -65,14 +66,15 @@ def matching_lauf(conn, nur_kunde=None):
 
 
 def entwuerfe_anlegen(conn, katalog, nur_kunde=None):
-    """Stufe 2: Fuer jeden offenen Kunden ohne bestehenden Entwurf einen anlegen."""
+    """Stufe 2: Entwuerfe anlegen bzw. veraltete aktualisieren.
+
+    Rueckgabe: (gematcht, neu, aktualisiert)
+    """
     gematcht = matching_lauf(conn, nur_kunde)
 
-    neu = []
+    neu, aktualisiert = [], []
     for kunde_id in vs.offene_kunden(conn):
         if nur_kunde and str(kunde_id) != str(nur_kunde):
-            continue
-        if vs.hat_offenen_entwurf(conn, kunde_id):
             continue
         profil = vs.profil_pseudonym(conn, kunde_id)
         if not profil:
@@ -83,9 +85,22 @@ def entwuerfe_anlegen(conn, katalog, nur_kunde=None):
             continue
         kanal = "email"  # Phase 1: nur E-Mail
         betreff, body = vs.nachricht_bauen(profil, treffer, katalog)
+
+        offen = vs.offener_entwurf(conn, kunde_id)
+        if offen:
+            # Nur einen noch offenen Entwurf aktualisieren; bereits versendete
+            # NICHT anfassen. Aendert sich der Text, wird er ersetzt.
+            if offen["status"] == "entwurf" and (offen["betreff"], offen["body"]) != (betreff, body):
+                vs.entwurf_aktualisieren(conn, offen["id"], betreff, body)
+                aktualisiert.append({"versand_id": offen["id"], "kunde_id": str(kunde_id),
+                                     "anzahl_treffer": len(treffer)})
+            continue
+
         vid = vs.entwurf_speichern(conn, kunde_id, betreff, body, kanal)
+        if vid is None:  # parallel/zwischenzeitlich angelegt -> nichts doppelt
+            continue
         neu.append({"versand_id": vid, "kunde_id": str(kunde_id), "anzahl_treffer": len(treffer)})
-    return gematcht, neu
+    return gematcht, neu, aktualisiert
 
 
 def main():
@@ -112,12 +127,16 @@ def main():
                 print(f"  #{e['id']}  {e['kanal']:<5} -> {ziel}  | {e['betreff']}")
             return 0
 
-        gematcht, neu = entwuerfe_anlegen(conn, katalog, args.kunde)
+        gematcht, neu, aktualisiert = entwuerfe_anlegen(conn, katalog, args.kunde)
         print(f"Profile gegen Katalog bewertet: {gematcht}")
         if neu:
             print(f"Neue Entwuerfe angelegt: {len(neu)}")
             for n in neu:
                 print(f"  #{n['versand_id']}  {n['kunde_id'][:8]}...  ({n['anzahl_treffer']} Treffer)")
+        if aktualisiert:
+            print(f"Veraltete Entwuerfe aktualisiert: {len(aktualisiert)}")
+            for a in aktualisiert:
+                print(f"  #{a['versand_id']}  {a['kunde_id'][:8]}...  ({a['anzahl_treffer']} Treffer)")
 
         entwuerfe = vs.offene_entwuerfe(conn)
         if args.kunde:
