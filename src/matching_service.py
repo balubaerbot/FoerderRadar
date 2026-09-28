@@ -20,7 +20,25 @@ KATALOG_PFAD = os.path.join(BASE, "katalog", "foerderungen.json")
 
 def load_katalog(pfad: str = KATALOG_PFAD) -> dict:
     with open(pfad, encoding="utf-8") as f:
-        return json.load(f)
+        kat = json.load(f)
+    validiere_katalog(kat)
+    return kat
+
+
+def validiere_katalog(kat: dict) -> None:
+    """Stellt sicher, dass `einkommen_max` IMMER eine gueltige Einheit hat.
+
+    Ohne Einheit wuerde stillschweigend 'jahr' angenommen - ein Tippfehler bei
+    einem Monatswert haette dann einen Faktor-12-Fehlvergleich zur Folge, ohne
+    dass es auffaellt. Darum hart scheitern (fail loud).
+    """
+    for f in kat.get("foerderungen", []):
+        vor = f.get("voraussetzungen") or {}
+        if "einkommen_max" in vor and vor.get("einkommen_einheit") not in ("jahr", "monat"):
+            raise ValueError(
+                f"Katalog-Eintrag '{f.get('id')}': 'einkommen_max' braucht "
+                f"'einkommen_einheit' ('jahr' oder 'monat')."
+            )
 
 
 def einkommen_obergrenze(spanne: Optional[str]) -> Optional[float]:

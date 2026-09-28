@@ -262,10 +262,31 @@ def _redigiere(text, kontakt):
 def _status_setzen(conn, versand_id, status, fehler_text):
     with conn.cursor() as cur:
         cur.execute(
-            "UPDATE versand SET status=%s, fehler_text=%s WHERE id=%s",
+            "UPDATE versand SET status=%s, fehler_text=%s, sendet_seit=NULL WHERE id=%s",
             (status, fehler_text, versand_id),
         )
     conn.commit()
+
+
+def sendet_zuruecksetzen(conn, minuten=15):
+    """Watchdog: haengende 'sendet'-Zeilen nach `minuten` zurueck auf 'entwurf'.
+
+    Stuerzt ein Lauf zwischen Claim und Senden ab (Prozess tot, DB-Timeout),
+    bliebe die Zeile sonst fuer immer auf 'sendet' - offene_entwuerfe() zeigt sie
+    nicht, entwurf_speichern() legt keinen neuen an, versenden() verweigert.
+    Der Kunde waere dauerhaft blockiert. Rueckgabe: Anzahl zurueckgesetzter Zeilen.
+    """
+    with conn.cursor() as cur:
+        cur.execute(
+            "UPDATE versand SET status='entwurf', sendet_seit=NULL, "
+            "fehler_text='Watchdog: haengender Versand zurueckgesetzt' "
+            "WHERE status='sendet' AND sendet_seit IS NOT NULL "
+            "AND sendet_seit < now() - make_interval(mins => %s)",
+            (minuten,),
+        )
+        n = cur.rowcount
+    conn.commit()
+    return n
 
 
 def _kontakt_status(conn, kunde_id):
@@ -352,7 +373,8 @@ def versenden(conn, versand_id, dry_run=True, test_recipient=None):
     # --- atomar beanspruchen: verhindert Doppelversand bei parallelen Laeufen ---
     with conn.cursor() as cur:
         cur.execute(
-            "UPDATE versand SET status='sendet' WHERE id=%s AND status='entwurf' RETURNING id",
+            "UPDATE versand SET status='sendet', sendet_seit=now() "
+            "WHERE id=%s AND status='entwurf' RETURNING id",
             (versand_id,),
         )
         claimed = cur.fetchone()
@@ -360,24 +382,27 @@ def versenden(conn, versand_id, dry_run=True, test_recipient=None):
     if not claimed:
         return {"ok": False, "fehler": "Entwurf wird bereits bearbeitet/versendet", "ziel": ziel}
 
-    # --- Bedingungen unmittelbar vor dem Versand erneut pruefen ---
-    blocker = _versandblocker(conn, kunde_id)
-    if blocker:
-        _status_setzen(conn, versand_id, "fehler", blocker)
-        return {"ok": False, "fehler": blocker, "ziel": ziel}
-
-    # Zieladresse bestimmen (Testphase: umleiten aufs Testpostfach)
-    if test_recipient:
-        to_addr = test_recipient
-    elif kanal == "email":
-        to_addr = kontakt.get("email")
-    else:
-        to_addr = kontakt.get("telefon")
-    if not to_addr:
-        _status_setzen(conn, versand_id, "entwurf", None)
-        return {"ok": False, "fehler": f"keine Zieladresse fuer Kanal '{kanal}'", "ziel": ziel}
-
+    # Ab hier liegt die Zeile auf 'sendet'. ALLES in try/except, damit eine
+    # unerwartete Exception die Zeile NICHT dauerhaft blockiert (sonst kein neuer
+    # Entwurf und kein Versand mehr moeglich - siehe sendet_zuruecksetzen).
     try:
+        # --- Bedingungen unmittelbar vor dem Versand erneut pruefen ---
+        blocker = _versandblocker(conn, kunde_id)
+        if blocker:
+            _status_setzen(conn, versand_id, "fehler", blocker)
+            return {"ok": False, "fehler": blocker, "ziel": ziel}
+
+        # Zieladresse bestimmen (Testphase: umleiten aufs Testpostfach)
+        if test_recipient:
+            to_addr = test_recipient
+        elif kanal == "email":
+            to_addr = kontakt.get("email")
+        else:
+            to_addr = kontakt.get("telefon")
+        if not to_addr:
+            _status_setzen(conn, versand_id, "entwurf", None)
+            return {"ok": False, "fehler": f"keine Zieladresse fuer Kanal '{kanal}'", "ziel": ziel}
+
         if kanal == "email":
             _senden_email(to_addr, betreff, body)
         else:

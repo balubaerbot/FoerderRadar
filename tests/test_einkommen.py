@@ -87,5 +87,24 @@ bew = m.bewerte(profil, ms.load_katalog())
 raus_ids = {e["id"] for e in bew["raus"]}
 check("Heizkostenzuschuss OÖ bei 48000/Jahr korrekt ausgeschlossen", "heizkostenzuschuss_ooe" in raus_ids)
 
+# --- 9) Katalog-Validierung: einkommen_max OHNE Einheit -> harter Fehler ---
+def _validierung_faellt():
+    try:
+        ms.validiere_katalog({"foerderungen": [{"id": "x", "voraussetzungen": {"einkommen_max": 2000}}]})
+        return False
+    except ValueError:
+        return True
+
+
+check("einkommen_max ohne Einheit -> ValueError", _validierung_faellt())
+try:
+    ms.validiere_katalog(ms.load_katalog())
+    check("echter Katalog validiert ohne Fehler", True)
+except ValueError as e:  # noqa: BLE001
+    check(f"echter Katalog validiert (Fehler: {e})", False)
+
+# --- 10) Watchdog-Funktion existiert und ist importierbar ---
+check("vs.sendet_zuruecksetzen vorhanden", callable(getattr(vs, "sendet_zuruecksetzen", None)))
+
 print(f"\nErgebnis: {ok} OK, {fail} FAIL")
 sys.exit(1 if fail else 0)

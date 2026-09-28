@@ -54,7 +54,10 @@ CREATE TABLE IF NOT EXISTS versand (
     status      TEXT NOT NULL DEFAULT 'entwurf' CHECK (status IN ('entwurf','sendet','gesendet','fehler')),
     fehler_text TEXT,
     erstellt_am TIMESTAMPTZ NOT NULL DEFAULT now(),
-    gesendet_am TIMESTAMPTZ
+    gesendet_am TIMESTAMPTZ,
+    -- Zeitpunkt des atomaren Claims ('sendet') -> Watchdog kann haengende
+    -- Versuche nach einer Frist zuruecksetzen.
+    sendet_seit TIMESTAMPTZ
 );
 
 CREATE INDEX IF NOT EXISTS versand_status_idx ON versand (status);

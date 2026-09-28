@@ -118,6 +118,12 @@ def main():
     katalog = ms.load_katalog()
 
     with psycopg.connect(url, connect_timeout=5) as conn:
+        # Watchdog zuerst: haengende 'sendet'-Zeilen (Absturz waehrend des Sendens)
+        # zuruecksetzen, sonst bleiben Kunden dauerhaft blockiert.
+        zurueck = vs.sendet_zuruecksetzen(conn)
+        if zurueck:
+            print(f"Watchdog: {zurueck} haengende(r) Versand/Versaende zurueckgesetzt")
+
         if args.status:
             entwuerfe = vs.offene_entwuerfe(conn)
             print(f"Offene Entwuerfe: {len(entwuerfe)}")
@@ -147,7 +153,11 @@ def main():
         ergebnisse = []
         test_recipient = vs.ABSENDER if args.test else None
         for e in entwuerfe:
-            r = vs.versenden(conn, e["id"], dry_run=not args.send, test_recipient=test_recipient)
+            # Ein Fehler bei EINEM Kunden darf den restlichen Batch nicht abwuergen.
+            try:
+                r = vs.versenden(conn, e["id"], dry_run=not args.send, test_recipient=test_recipient)
+            except Exception as ex:  # noqa: BLE001
+                r = {"ok": False, "fehler": f"unerwartet: {str(ex)[:200]}"}
             ergebnisse.append(r)
             if not r.get("ok"):
                 print(f"  #{e['id']}  FEHLER: {r.get('fehler')}")
