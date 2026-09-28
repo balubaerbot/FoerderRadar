@@ -67,6 +67,18 @@ r = c.post("/formular", data={"typ": "betrieb", "name": "Max Mustermann",
 check("POST ohne Einwilligung -> 400", r.status_code == 400)
 check("Einwilligungs-Fehler sichtbar", "Einwilligung" in r.text)
 
+# --- Formatvalidierung E-Mail / Kanal (Review #5) ---
+r = c.post("/formular", data={"typ": "betrieb", "name": "Max Mustermann",
+                              "email": "keine-mail", "einwilligung": "ja"})
+check("POST ungueltige E-Mail -> 400", r.status_code == 400)
+check("E-Mail-Formatfehler sichtbar", "E-Mail-Adresse" in r.text)
+
+r = c.post("/formular", data={"typ": "betrieb", "name": "Max Mustermann",
+                              "email": "max@beispiel.at", "kanal": "sms",
+                              "telefon": "", "einwilligung": "ja"})
+check("POST kanal=sms ohne Telefon -> 400", r.status_code == 400)
+check("SMS-Telefon-Fehler sichtbar", "sms" in r.text.lower())
+
 # --- Formular-POST: erfolgreicher Durchlauf (braucht DB) ---
 daten = {
     "typ": "betrieb", "region_grob": "Oberösterreich", "branche": "IT / Digitalisierung",

@@ -12,6 +12,7 @@ Trennung: `profil` = pseudonym (Agent darf lesen), `kontakt` = Klartext
 """
 import hmac
 import os
+import re
 import sys
 import time
 from collections import defaultdict, deque
@@ -23,6 +24,10 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+
+# Einfache, bewusst grosszuegige Formatpruefung (kein RFC-Vollparser):
+# verhindert offensichtlichen Muell, endgueltige Zustellbarkeit zeigt erst der Versand.
+EMAIL_RE = re.compile(r"[^@\s]+@[^@\s]+\.[^@\s]+")
 from pydantic import BaseModel
 from typing import Optional
 
@@ -210,6 +215,13 @@ def _speichere_profil(p: ProfilIn) -> str:
         raise HTTPException(status_code=400, detail="Einwilligung erforderlich")
     if p.kanal not in (None, "email", "sms"):
         raise HTTPException(status_code=400, detail="kanal muss 'email' oder 'sms' sein")
+    if p.email and not EMAIL_RE.fullmatch(p.email):
+        raise HTTPException(status_code=400, detail="Ungueltige E-Mail-Adresse.")
+    # Kanal 'email' verlangt eine Adresse; 'sms' eine Telefonnummer.
+    if p.kanal == "email" and not p.email:
+        raise HTTPException(status_code=400, detail="Fuer den Kanal 'email' wird eine E-Mail-Adresse benoetigt.")
+    if p.kanal == "sms" and not p.telefon:
+        raise HTTPException(status_code=400, detail="Fuer den Kanal 'sms' wird eine Telefonnummer benoetigt.")
 
     with db() as conn, conn.cursor() as cur:
         cur.execute(
