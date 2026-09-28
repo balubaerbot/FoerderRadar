@@ -141,12 +141,16 @@ def nachricht_bauen(profil, treffer, katalog):
 def entwurf_speichern(conn, kunde_id, betreff, body, kanal):
     """Legt einen Entwurf an - idempotent pro Kunde und atomar.
 
-    Sperrt die Profil-Zeile (`FOR UPDATE`), damit zwei parallele Worker nicht
-    gleichzeitig einen Entwurf anlegen. Existiert bereits einer (entwurf/sendet/
-    gesendet), wird None zurueckgegeben und nichts eingefuegt.
+    Serialisiert parallele Worker pro Kunde ueber einen transaktionsgebundenen
+    Advisory-Lock. Bewusst KEIN `FOR UPDATE` auf profil: die Rolle app_worker hat
+    darauf keine Leserechte (Least Privilege, siehe tools/setup_db_roles.py) - nur
+    auf die pseudonyme View profil_agent. Existiert bereits ein offener/erledigter
+    Versand, wird None zurueckgegeben und nichts eingefuegt.
     """
     with conn.cursor() as cur:
-        cur.execute("SELECT 1 FROM profil WHERE kunde_id = %s FOR UPDATE", (kunde_id,))
+        # Advisory-Lock pro kunde_id: haelt bis zum Commit, kein profil-Zugriff noetig.
+        cur.execute("SELECT pg_advisory_xact_lock(hashtext(%s))", (str(kunde_id),))
+        cur.execute("SELECT 1 FROM profil_agent WHERE kunde_id = %s", (kunde_id,))
         if cur.fetchone() is None:
             conn.commit()
             return None
