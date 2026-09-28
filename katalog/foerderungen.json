@@ -23,7 +23,12 @@
       "voraussetzungen": {
         "wko_mitglied": true,
         "projektkosten_min": 12000,
-        "themen": ["digitalisierung", "automatisierung", "ki", "cybersecurity"]
+        "themen": [
+          "digitalisierung",
+          "automatisierung",
+          "ki",
+          "cybersecurity"
+        ]
       },
       "frist": "Antrag 1.6.-2.11.2026",
       "status": "offen",
@@ -37,7 +42,10 @@
       "region": null,
       "betrag": "Beratung bis 3.000 EUR, Umsetzung 30 % max. 6.000 EUR",
       "voraussetzungen": {
-        "themen": ["digitalisierung", "beratung"],
+        "themen": [
+          "digitalisierung",
+          "beratung"
+        ],
         "projektkosten_min": 2000
       },
       "frist": "aktuell kein Antrag (Budget ausgeschoepft)",
@@ -52,7 +60,12 @@
       "region": "OÖ",
       "betrag": "stille Beteiligung bis 75.000 EUR + Anschlusskredit bis 75.000 EUR",
       "voraussetzungen": {
-        "themen": ["investition", "modernisierung", "gruendung", "uebernahme"]
+        "themen": [
+          "investition",
+          "modernisierung",
+          "gruendung",
+          "uebernahme"
+        ]
       },
       "frist": "laufend",
       "status": "offen",
@@ -67,7 +80,10 @@
       "betrag": "30 % der Weiterbildungskosten, max. 1.000 EUR pro Person/Kurs",
       "voraussetzungen": {
         "wko_mitglied": true,
-        "themen": ["schulung", "weiterbildung"]
+        "themen": [
+          "schulung",
+          "weiterbildung"
+        ]
       },
       "frist": "laufend",
       "status": "offen",
@@ -82,9 +98,16 @@
       "betrag": "50 % des Beratungshonorars (netto), max. 750 EUR",
       "voraussetzungen": {
         "wko_mitglied": true,
-        "themen": ["beratung", "innovation", "ki", "cybersecurity"]
+        "themen": [
+          "beratung",
+          "innovation",
+          "ki",
+          "cybersecurity"
+        ]
       },
-      "hinweise": ["Ausschoepfungsgrad 98 % (Stand 25.9.2026)"],
+      "hinweise": [
+        "Ausschoepfungsgrad 98 % (Stand 25.9.2026)"
+      ],
       "frist": "Antrag 1.2.-15.12.2026",
       "status": "offen",
       "quelle": "https://foerderungen.wko.at/ooe/erfolgplus"
@@ -97,7 +120,11 @@
       "region": null,
       "betrag": "je Ausschreibung (Betriebs-Energieeffizienz, PV)",
       "voraussetzungen": {
-        "themen": ["energieeffizienz", "pv", "umwelt"]
+        "themen": [
+          "energieeffizienz",
+          "pv",
+          "umwelt"
+        ]
       },
       "frist": "Ausschreibung 1.7.-12.10.2026",
       "status": "offen",
@@ -111,10 +138,16 @@
       "region": "OÖ",
       "betrag": "200 EUR pro Haushalt",
       "voraussetzungen": {
-        "wohnsituation": ["eigenheim", "miete"],
-        "einkommen_max": 30913
+        "wohnsituation": [
+          "eigenheim",
+          "miete"
+        ],
+        "einkommen_max": 30913,
+        "einkommen_einheit": "jahr"
       },
-      "hinweise": ["Hauptwohnsitz in OÖ seit mind. 01.03.2026", "Einkommensgrenze bezieht sich auf Jahreseinkommen"],
+      "hinweise": [
+        "Hauptwohnsitz in OÖ seit mind. 01.03.2026"
+      ],
       "frist": "Antrag 16.3.-15.5.2026",
       "status": "fenster_zu",
       "quelle": "https://www.land-oberoesterreich.gv.at"
@@ -127,10 +160,13 @@
       "region": "OÖ",
       "betrag": "laufende Beihilfe (Einkommensgrenzen je Haushaltsgroesse)",
       "voraussetzungen": {
-        "wohnsituation": ["miete"],
-        "einkommen_max": 2227
+        "wohnsituation": [
+          "miete"
+        ],
+        "einkommen_max": 2227,
+        "einkommen_einheit": "monat"
       },
-      "hinweise": ["Einkommensgrenze bezieht sich auf Monatseinkommen, gestaffelt nach Haushaltsgroesse"],
+      "hinweise": [],
       "frist": "laufend",
       "status": "offen",
       "quelle": "https://www.land-oberoesterreich.gv.at/wohnbeihilfe.htm"
@@ -143,8 +179,13 @@
       "region": null,
       "betrag": "30 % Grundfoerderung + Boni (Klimageschwindigkeit 16 %, Einkommensbonus je Einkommen), max. 80 %, foerderfaehig bis 28.000 EUR",
       "voraussetzungen": {
-        "heizung_alt": ["oel", "gas"],
-        "wohnsituation": ["eigenheim"]
+        "heizung_alt": [
+          "oel",
+          "gas"
+        ],
+        "wohnsituation": [
+          "eigenheim"
+        ]
       },
       "frist": "Registrierung 2026 beendet (Budget ausgeschoepft)",
       "status": "ausgeschoepft",
@@ -158,10 +199,17 @@
       "region": "OÖ",
       "betrag": "bis 11.400 EUR gesamt",
       "voraussetzungen": {
-        "heizung_alt": ["oel", "gas"],
-        "wohnsituation": ["eigenheim"]
+        "heizung_alt": [
+          "oel",
+          "gas"
+        ],
+        "wohnsituation": [
+          "eigenheim"
+        ]
       },
-      "hinweise": ["Verpflichtende Energieberatung vor Antragstellung"],
+      "hinweise": [
+        "Verpflichtende Energieberatung vor Antragstellung"
+      ],
       "frist": "laufend",
       "status": "offen",
       "quelle": "https://www.land-oberoesterreich.gv.at"
@@ -174,8 +222,14 @@
       "region": "OÖ",
       "betrag": "Zuschuss bis 2.250 EUR (Einzelbauteil) / bis 50.000 EUR (umfassend) + Oekoboni",
       "voraussetzungen": {
-        "wohnsituation": ["eigenheim"],
-        "themen": ["sanierung", "daemmung", "fenster"]
+        "wohnsituation": [
+          "eigenheim"
+        ],
+        "themen": [
+          "sanierung",
+          "daemmung",
+          "fenster"
+        ]
       },
       "frist": "laufend",
       "status": "offen",
@@ -189,9 +243,14 @@
       "region": null,
       "betrag": "20 % der Arbeitskosten, max. 1.500 EUR",
       "voraussetzungen": {
-        "wohnsituation": ["eigenheim", "miete"]
+        "wohnsituation": [
+          "eigenheim",
+          "miete"
+        ]
       },
-      "hinweise": ["Rechnung mit ausgewiesenen Arbeitskosten, oesterreichisches Gewerbe"],
+      "hinweise": [
+        "Rechnung mit ausgewiesenen Arbeitskosten, oesterreichisches Gewerbe"
+      ],
       "frist": "Frist 28.2.2026 (fuer Leistungen 2025)",
       "status": "fenster_zu",
       "quelle": "https://www.handwerkerbonus.gv.at"
@@ -204,8 +263,13 @@
       "region": null,
       "betrag": "150 EUR/kWp (<=10 kWp) / 140 EUR/kWp (10-20 kWp); Speicher 150 EUR/kWh; max. 30 % der Kosten; +10 % Made-in-Europe",
       "voraussetzungen": {
-        "themen": ["pv", "speicher"],
-        "wohnsituation": ["eigenheim"]
+        "themen": [
+          "pv",
+          "speicher"
+        ],
+        "wohnsituation": [
+          "eigenheim"
+        ]
       },
       "frist": "Call-basiert (3. Call: 8.10.-22.10.2026)",
       "status": "angekuendigt",
@@ -219,7 +283,10 @@
       "region": "OÖ",
       "betrag": "15 % der Kosten, max. 2.250 EUR je Wohnung",
       "voraussetzungen": {
-        "wohnsituation": ["eigenheim", "miete"],
+        "wohnsituation": [
+          "eigenheim",
+          "miete"
+        ],
         "pflegestufe_min": 1
       },
       "frist": "laufend",

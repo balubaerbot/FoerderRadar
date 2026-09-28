@@ -29,6 +29,7 @@ ERLAUBTE_VORAUSSETZUNGEN = {
     "themen",
     "wohnsituation",
     "einkommen_max",
+    "einkommen_einheit",
     "heizung_alt",
     "pflegestufe_min",
 }
@@ -102,6 +103,13 @@ def validate(pfad=DEFAULT):
             for k in ("projektkosten_min", "einkommen_max", "pflegestufe_min"):
                 if k in vor and not isinstance(vor[k], (int, float)):
                     fehler.append(f"[{fid}] voraussetzungen.{k} ist keine Zahl")
+            # einkommen_max ohne Einheit -> stiller Faktor-12-Fehler moeglich.
+            # Muss zur Laufzeitpruefung in src/matching_service.py passen.
+            if "einkommen_max" in vor and vor.get("einkommen_einheit") not in ("jahr", "monat"):
+                fehler.append(
+                    f"[{fid}] voraussetzungen.einkommen_max braucht "
+                    f"'einkommen_einheit' ('jahr' oder 'monat')"
+                )
 
         if st == "offen" and not f.get("frist"):
             warnungen.append(f"[{fid}] status 'offen' ohne Frist")

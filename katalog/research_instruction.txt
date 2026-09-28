@@ -31,7 +31,11 @@ aktuellen Foerderungen und Fristen informiert werden koennen.
 - **Feldtrennung einhalten**:
   - `voraussetzungen` = **nur maschinell geprueffte** Schluessel:
     `wko_mitglied`, `projektkosten_min`, `themen`, `wohnsituation`,
-    `einkommen_max`, `heizung_alt`, `pflegestufe_min`.
+    `einkommen_max`, `einkommen_einheit`, `heizung_alt`, `pflegestufe_min`.
+  - **`einkommen_einheit` ist Pflicht, sobald `einkommen_max` gesetzt ist**
+    (Wert `"jahr"` oder `"monat"`). Ohne Einheit schlaegt der Validator fehl
+    (Schutz vor stillen Monat/Jahr-Fehlvergleichen). NICHT nach `hinweise`
+    verschieben.
   - Zusatzbedingungen (verpflichtende Beratung, Nachweise usw.) → `hinweise`
     (Liste von Texten, wird nur angezeigt, nicht geprueft).
 - **Nicht auf `main` mergen.** Entwicklungsbranch ist `develop`.
@@ -47,7 +51,7 @@ aktuellen Foerderungen und Fristen informiert werden koennen.
   "zielgruppe": "betrieb" | "privat",
   "region": "OÖ" | null,            // null = bundesweit
   "betrag": "Text mit Betraegen",
-  "voraussetzungen": { /* nur die 7 erlaubten Keys */ },
+  "voraussetzungen": { /* nur die erlaubten Keys; einkommen_einheit Pflicht bei einkommen_max */ },
   "hinweise": ["nur Anzeige, nicht geprueft"],
   "frist": "Text",
   "status": "offen" | "ausgeschoepft" | "fenster_zu" | "angekuendigt",
