@@ -57,7 +57,11 @@ CREATE TABLE IF NOT EXISTS versand (
     gesendet_am TIMESTAMPTZ,
     -- Zeitpunkt des atomaren Claims ('sendet') -> Watchdog kann haengende
     -- Versuche nach einer Frist zuruecksetzen.
-    sendet_seit TIMESTAMPTZ
+    sendet_seit TIMESTAMPTZ,
+    -- Zeitpunkt des letzten Test-Versands (Prototyp: eigenes Postfach).
+    -- Verhindert, dass ein Cron denselben unveraenderten Entwurf wiederholt
+    -- test-versendet; wird bei Textaenderung auf NULL zurueckgesetzt.
+    test_gesendet_am TIMESTAMPTZ
 );
 
 CREATE INDEX IF NOT EXISTS versand_status_idx ON versand (status);

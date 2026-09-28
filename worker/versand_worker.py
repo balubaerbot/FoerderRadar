@@ -107,6 +107,8 @@ def main():
     ap = argparse.ArgumentParser(description="FoerderRadar Versand-Worker")
     ap.add_argument("--send", action="store_true", help="ECHT versenden")
     ap.add_argument("--test", action="store_true", help="ECHT versenden, aber alles an das TEST-Postfach umleiten")
+    ap.add_argument("--test-to", metavar="ADRESSE",
+                    help="Zieladresse fuer den Testversand (Default: FOERDER_FROM, sonst Scully-Postfach)")
     ap.add_argument("--status", action="store_true", help="nur Queue-Status anzeigen")
     ap.add_argument("--kunde", help="nur diesen kunde_id bearbeiten")
     args = ap.parse_args()
@@ -148,11 +150,20 @@ def main():
         if args.kunde:
             entwuerfe = [e for e in entwuerfe if str(e["kunde_id"]) == str(args.kunde)]
 
-        modus = "TEST -> " + vs.maskiere_email(vs.ABSENDER) if args.test else ("SENDEN" if args.send else "DRY-RUN")
+        test_recipient = (args.test_to or vs.ABSENDER) if args.test else None
+        if args.send and not args.test:
+            print("WARNUNG: --send ohne --test -> ECHTER Versand an Kunden!", file=sys.stderr)
+
+        modus_ziel = vs.maskiere_email(test_recipient) if args.test else ""
+        modus = f"TEST -> {modus_ziel}" if args.test else ("SENDEN" if args.send else "DRY-RUN")
         print(f"\n=== Versand ({modus}) - {len(entwuerfe)} Entwurf/Entwuerfe ===")
         ergebnisse = []
-        test_recipient = vs.ABSENDER if args.test else None
         for e in entwuerfe:
+            # Dedup im Testmodus: denselben (unveraenderten) Entwurf nicht bei
+            # jedem Cron-Lauf erneut an das Testpostfach schicken.
+            if test_recipient and e.get("test_gesendet_am"):
+                print(f"  #{e['id']}  uebersprungen (bereits test-versendet)")
+                continue
             # Ein Fehler bei EINEM Kunden darf den restlichen Batch nicht abwuergen.
             try:
                 r = vs.versenden(conn, e["id"], dry_run=not args.send, test_recipient=test_recipient)

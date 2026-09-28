@@ -199,7 +199,8 @@ def entwurf_aktualisieren(conn, versand_id, betreff, body):
     """
     with conn.cursor() as cur:
         cur.execute(
-            "UPDATE versand SET betreff=%s, body=%s WHERE id=%s AND status='entwurf'",
+            "UPDATE versand SET betreff=%s, body=%s, test_gesendet_am=NULL "
+            "WHERE id=%s AND status='entwurf'",
             (betreff, body, versand_id),
         )
         geaendert = cur.rowcount
@@ -210,7 +211,7 @@ def entwurf_aktualisieren(conn, versand_id, betreff, body):
 def offene_entwuerfe(conn):
     with conn.cursor() as cur:
         cur.execute(
-            """SELECT id, kunde_id, kanal, betreff, body FROM versand
+            """SELECT id, kunde_id, kanal, betreff, body, test_gesendet_am FROM versand
                WHERE status = 'entwurf' ORDER BY id"""
         )
         cols = [c.name for c in cur.description]
@@ -420,6 +421,13 @@ def versenden(conn, versand_id, dry_run=True, test_recipient=None):
             conn, versand_id, "entwurf",
             f"TEST an {ziel_tatsaechlich} ({datetime.datetime.now():%Y-%m-%d %H:%M}) - Entwurf bleibt offen",
         )
+        # Dedup: merken, dass GENAU dieser Text schon test-versendet wurde.
+        # Aendert sich der Text spaeter (neue Treffer), setzt entwurf_aktualisieren
+        # die Marke zurueck -> dann wird erneut test-versendet. So schickt ein
+        # Cron-Lauf NICHT bei jeder Runde dieselbe Testmail.
+        with conn.cursor() as cur:
+            cur.execute("UPDATE versand SET test_gesendet_am=now() WHERE id=%s", (versand_id,))
+        conn.commit()
         return {"ok": True, "dry_run": False, "test": True, "versand_id": versand_id,
                 "ziel": ziel_tatsaechlich, "empfaenger_kunde": ziel}
 
