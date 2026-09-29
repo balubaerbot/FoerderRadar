@@ -31,6 +31,21 @@
 Ein LLM, der pro Anfrage neu entscheidet, driftet, kostet Tokens und kann
 Foerderungen/Deadlines erfinden.
 
+## KI-Mapping (Phase 2)
+
+Freitext („Anliegen") → grobe Achse (`zielgruppe`, `thema`). Der Code bleibt
+Richter: `src/ki_mapping.py` filtert die LLM-Antwort strikt gegen die Allowlists.
+"LLM uebersetzt, Code urteilt."
+
+- **Fail-soft:** ohne Key, bei Timeout/Netzfehler/kaputtem JSON → `None`,
+  es greift die Chips-Heuristik. Eine Formular-Eingabe scheitert nie am LLM.
+- **Einmal gespeichert:** das Ergebnis landet in `profil.thema`, nicht bei jedem
+  Matching-Lauf neu erfragt (reproduzierbar). `anliegen` bleibt als Roh-Freitext.
+- **Datenschutz:** an das LLM geht nur der Freitext — nie Name/E-Mail/Telefon.
+- **Aktivierung (per Env, Key nie im Repo):**
+  `FOERDER_LLM_BASE_URL` (OpenAI-kompatibel), `FOERDER_LLM_API_KEY` (SecretRef),
+  `FOERDER_LLM_MODEL`, `FOERDER_LLM_TIMEOUT`. Ohne Key ist das Modul inaktiv.
+
 ## Katalog
 
 - `katalog/foerderungen.json` = Datenquelle (Feldtrennung siehe unten).

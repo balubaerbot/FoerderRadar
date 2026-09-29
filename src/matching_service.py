@@ -99,6 +99,16 @@ def profil_row_to_dict(row: dict) -> dict:
     """
     d = dict(row)
     vorhaben = vok.normalisiere_vorhaben(list(d.get("vorhaben") or []))
+    # Grobe Thema-Achse: bevorzugt das beim Eintrag EINMAL gespeicherte Ergebnis
+    # (Chips + optionales KI-Mapping), sonst aus den Vorhaben abgeleitet. Beides
+    # wird vereinigt und auf erlaubte Werte gefiltert - Altdaten ohne `thema`
+    # funktionieren unveraendert.
+    thema_db = [t for t in (d.get("thema") or []) if t in vok.ERLAUBTE_THEMEN]
+    thema = list(thema_db)
+    for t in vok.thema_aus_vorhaben(vorhaben):
+        if t not in thema:
+            thema.append(t)
+    thema = sorted(thema)
     return {
         "typ": d.get("typ"),
         "region": regionmod.normalisiere_region(d.get("region_grob")),
@@ -114,10 +124,8 @@ def profil_row_to_dict(row: dict) -> dict:
         "kinder_im_haushalt": d.get("kinder_im_haushalt"),
         "vorhaben": vorhaben,
         "themen": vorhaben,
-        # Grobe Thema-Achse (WAS) aus den Vorhaben abgeleitet. Sobald der
-        # KI-Schritt existiert, fuellt er `thema` direkt (Freitext) - die
-        # Ableitung dient als Fallback und bleibt idempotent.
-        "thema": vok.thema_aus_vorhaben(vorhaben),
+        # Grobe Thema-Achse (WAS): gespeichert (inkl. KI) + aus Vorhaben abgeleitet.
+        "thema": thema,
         # projektkosten kennt das pseudonyme Profil nicht -> Pruefung wird uebersprungen
         "projektkosten": None,
     }

@@ -33,6 +33,7 @@ from typing import Optional
 
 # Projekt-Root auf den Importpfad, damit `src.*` importierbar ist
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from src import ki_mapping as ki  # noqa: E402
 from src import matching_service as ms  # noqa: E402
 from src import region as regionmod  # noqa: E402
 from src import vokabular as vok  # noqa: E402
@@ -198,6 +199,9 @@ class ProfilIn(BaseModel):
     familienstand: Optional[str] = None
     kinder_im_haushalt: Optional[bool] = None
     vorhaben: list[str] = []
+    # Freitext "Anliegen" (optional). Wird per LLM in die grobe Achse uebersetzt
+    # (fail-soft: ohne Key/bei Fehler bleibt die Chips-Heuristik).
+    anliegen: Optional[str] = None
     # Kontaktdaten (getrennt gespeichert)
     name: Optional[str] = None
     email: Optional[str] = None
@@ -223,13 +227,20 @@ def _speichere_profil(p: ProfilIn) -> str:
     if p.kanal == "sms" and not p.telefon:
         raise HTTPException(status_code=400, detail="Fuer den Kanal 'sms' wird eine Telefonnummer benoetigt.")
 
+    # Freitext begrenzen (Kosten-/Missbrauchsschutz) und Thema-Achse ableiten.
+    anliegen = (p.anliegen or "").strip()[: ki.MAX_ZEICHEN] or None
+    vorhaben = vok.normalisiere_vorhaben(p.vorhaben)
+    # Chips-Heuristik + optionales KI-Mapping. Das Ergebnis wird EINMAL gespeichert
+    # (reproduzierbar), nicht bei jedem Matching-Lauf neu erfragt.
+    thema = ki.thema_fuer(vorhaben, anliegen=anliegen, typ=p.typ)
+
     with db() as conn, conn.cursor() as cur:
         cur.execute(
             """
             INSERT INTO profil (typ, region_grob, branche, mitarbeiterklasse, wko_mitglied,
                 wohnsituation, haushaltsgroesse, einkommen_spanne, heizung, pflegestufe,
-                familienstand, kinder_im_haushalt, vorhaben)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                familienstand, kinder_im_haushalt, vorhaben, anliegen, thema)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
             RETURNING kunde_id
             """,
             (p.typ, regionmod.normalisiere_region(p.region_grob) or p.region_grob,
@@ -238,7 +249,7 @@ def _speichere_profil(p: ProfilIn) -> str:
              vok.normalisiere_wohnsituation(p.wohnsituation), p.haushaltsgroesse,
              p.einkommen_spanne, vok.normalisiere_heizung(p.heizung),
              p.pflegestufe, p.familienstand, p.kinder_im_haushalt,
-             vok.normalisiere_vorhaben(p.vorhaben)),
+             vorhaben, anliegen, thema),
         )
         kunde_id = cur.fetchone()[0]
         cur.execute(
@@ -339,7 +350,7 @@ def _profil_aus_formular(form) -> ProfilIn:
         familienstand=(form.get("familienstand") or None) if privat else None,
         kinder_im_haushalt=_ja_nein(form.get("kinder_im_haushalt")) if privat else None,
         vorhaben=list(form.getlist("vorhaben")),
-        name=(form.get("name") or "").strip() or None,
+        anliegen=((form.get("anliegen") or "").strip() or None),        name=(form.get("name") or "").strip() or None,
         email=(form.get("email") or "").strip() or None,
         telefon=(form.get("telefon") or "").strip() or None,
         kanal=(form.get("kanal") or None),

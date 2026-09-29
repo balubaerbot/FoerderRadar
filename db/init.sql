@@ -22,6 +22,16 @@ CREATE TABLE IF NOT EXISTS profil (
     erstellt_am        TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- Phase 2 (KI-Mapping): Freitext-Anliegen + daraus abgeleitete grobe Thema-Achse.
+-- Idempotent (IF NOT EXISTS), damit bestehende Datenbanken beim Re-Init mitwandern.
+-- `anliegen` ist ein pseudonymes Feld (Kundentext, keine Kontaktdaten).
+-- `thema` speichert das Ergebnis EINMAL (reproduzierbar), statt bei jedem
+-- Matching-Lauf erneut das LLM zu fragen.
+ALTER TABLE profil ADD COLUMN IF NOT EXISTS anliegen TEXT;
+ALTER TABLE profil ADD COLUMN IF NOT EXISTS thema TEXT[];
+
+CREATE INDEX IF NOT EXISTS profil_thema_idx ON profil USING GIN (thema);
+
 CREATE TABLE IF NOT EXISTS kontakt (
     kunde_id        UUID PRIMARY KEY REFERENCES profil(kunde_id) ON DELETE CASCADE,
     name            TEXT,
@@ -74,5 +84,5 @@ CREATE UNIQUE INDEX IF NOT EXISTS versand_ein_offener ON versand (kunde_id)
 CREATE OR REPLACE VIEW profil_agent AS
 SELECT kunde_id, typ, region_grob, branche, mitarbeiterklasse, wko_mitglied,
        wohnsituation, haushaltsgroesse, einkommen_spanne, heizung, pflegestufe,
-       familienstand, kinder_im_haushalt, vorhaben
+       familienstand, kinder_im_haushalt, vorhaben, thema, anliegen
 FROM profil;
