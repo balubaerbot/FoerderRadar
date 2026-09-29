@@ -20,6 +20,16 @@ def profil_vorhaben(profil):
     return set(profil.get("vorhaben", []) + profil.get("themen", []))
 
 
+def profil_thema(profil):
+    """Grobe Thema-Achse des Profils (WAS), z. B. {'sozial', 'energie'}.
+
+    Gegenstueck zu `profil_vorhaben` (fein). Kommt aus dem Formular/der KI
+    (`thema`) bzw. abgeleitet aus den Vorhaben. Ohne Angabe leer -> die grobe
+    Pruefung wird uebersprungen (kein falscher Ausschluss).
+    """
+    return set(profil.get("thema") or [])
+
+
 def pruefe(f, profil):
     """Gibt (kategorie, gruende) zurueck.
 
@@ -84,7 +94,7 @@ def pruefe(f, profil):
         if pk and pk < vor["projektkosten_min"]:
             return "raus", [f"Projektkosten {pk:,.0f} < Mindest {vor['projektkosten_min']:,.0f} EUR"]
 
-    # 9) Themen/Vorhaben
+    # 9) Themen/Vorhaben (fein)
     if "themen" in vor:
         gemeinsam = profil_vorhaben(profil) & set(vor["themen"])
         if not gemeinsam:
@@ -92,6 +102,20 @@ def pruefe(f, profil):
             gruende.append("Thema passt nicht direkt zu den Vorhaben")
         else:
             gruende.append("Thema passt: " + ", ".join(sorted(gemeinsam)))
+
+    # 9b) Thema-Achse (grob): standbein-uebergreifende Einordnung.
+    #     Gibt es ein Profilthema, aber keine gemeinsame Schnittmenge mit dem
+    #     Eintrag -> 'knapp' (nicht 'raus'): die grobe Achse ist heuristisch/aus
+    #     Freitext abgeleitet und darf einen Treffer nicht hart verwerfen.
+    if f.get("thema"):
+        mein_thema = profil_thema(profil)
+        if mein_thema:
+            gemeinsam = mein_thema & set(f["thema"])
+            if not gemeinsam:
+                knapp = True
+                gruende.append("Thema (grob) passt nicht zu den Angaben")
+            else:
+                gruende.append("Thema passt: " + ", ".join(sorted(gemeinsam)))
 
     # 10) Status
     st = f.get("status")
@@ -159,6 +183,7 @@ def bewerte(profil, katalog):
             "id": f.get("id"),
             "name": f.get("name"),
             "stelle": f.get("stelle"),
+            "thema": f.get("thema", []),
             "betrag": f.get("betrag"),
             "frist": f.get("frist"),
             "status": f.get("status"),

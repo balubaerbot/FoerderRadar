@@ -22,6 +22,9 @@ BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT = os.path.join(BASE, "katalog", "foerderungen.json")
 
 ERLAUBTE_ZIELGRUPPEN = {"betrieb", "privat"}
+# Thema-Achse = WAS (wer = zielgruppe). Mehrwertige Liste, ein Eintrag darf
+# mehrere Themen tragen. Kanonisch auch in src/vokabular.py (ERLAUBTE_THEMEN).
+ERLAUBTE_THEMEN = {"wirtschaft", "sozial", "energie", "wohnen", "bildung"}
 ERLAUBTE_STATUS = {"offen", "ausgeschoepft", "fenster_zu", "angekuendigt"}
 ERLAUBTE_VORAUSSETZUNGEN = {
     "wko_mitglied",
@@ -33,7 +36,7 @@ ERLAUBTE_VORAUSSETZUNGEN = {
     "heizung_alt",
     "pflegestufe_min",
 }
-PFLICHTFELDER = ["id", "name", "stelle", "zielgruppe", "betrag", "frist", "status", "quelle"]
+PFLICHTFELDER = ["id", "name", "stelle", "zielgruppe", "thema", "betrag", "frist", "status", "quelle"]
 
 
 def validate(pfad=DEFAULT):
@@ -83,6 +86,20 @@ def validate(pfad=DEFAULT):
         st = f.get("status")
         if st not in ERLAUBTE_STATUS:
             fehler.append(f"[{fid}] ungueltiger status: {st!r}")
+
+        # Thema-Achse: nicht-leere Liste erlaubter, grober Themen.
+        thema = f.get("thema")
+        if not isinstance(thema, list) or not thema:
+            if thema is not None or "thema" in f:
+                fehler.append(f"[{fid}] 'thema' muss eine nicht-leere Liste sein")
+            else:
+                fehler.append(f"[{fid}] Pflichtfeld fehlt/leer: thema")
+        else:
+            unbekannt = [t for t in thema if t not in ERLAUBTE_THEMEN]
+            if unbekannt:
+                fehler.append(f"[{fid}] unbekannte thema-Werte: {sorted(unbekannt)}")
+            if len(thema) != len(set(thema)):
+                fehler.append(f"[{fid}] 'thema' enthaelt Duplikate")
 
         q = f.get("quelle")
         if q and not re.match(r"^https?://", str(q)):

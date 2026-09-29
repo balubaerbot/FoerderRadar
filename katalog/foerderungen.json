@@ -18,6 +18,9 @@
       "name": "DIGITAL.PLUS 26",
       "stelle": "Land OÖ / WKOÖ",
       "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
       "region": "OÖ",
       "betrag": "35 % der Kosten, max. 7.000 EUR",
       "voraussetzungen": {
@@ -39,6 +42,9 @@
       "name": "KMU.DIGITAL",
       "stelle": "Bund / aws",
       "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
       "region": null,
       "betrag": "Beratung bis 3.000 EUR, Umsetzung 30 % max. 6.000 EUR",
       "voraussetzungen": {
@@ -57,6 +63,9 @@
       "name": "Gruenderfonds fuer die ooe. Wirtschaft",
       "stelle": "Land OÖ",
       "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
       "region": "OÖ",
       "betrag": "stille Beteiligung bis 75.000 EUR + Anschlusskredit bis 75.000 EUR",
       "voraussetzungen": {
@@ -76,6 +85,10 @@
       "name": "Innovative Skills fuer KMUs",
       "stelle": "Land OÖ",
       "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft",
+        "bildung"
+      ],
       "region": "OÖ",
       "betrag": "30 % der Weiterbildungskosten, max. 1.000 EUR pro Person/Kurs",
       "voraussetzungen": {
@@ -94,6 +107,9 @@
       "name": "ERFOLG.PLUS 26",
       "stelle": "WKOÖ",
       "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
       "region": "OÖ",
       "betrag": "50 % des Beratungshonorars (netto), max. 750 EUR",
       "voraussetzungen": {
@@ -117,6 +133,10 @@
       "name": "Umweltfoerderung im Inland (Energieeffizienz)",
       "stelle": "KPC / Klimafonds",
       "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft",
+        "energie"
+      ],
       "region": null,
       "betrag": "je Ausschreibung (Betriebs-Energieeffizienz, PV)",
       "voraussetzungen": {
@@ -135,6 +155,10 @@
       "name": "Heizkostenzuschuss OÖ",
       "stelle": "Land OÖ",
       "zielgruppe": "privat",
+      "thema": [
+        "sozial",
+        "energie"
+      ],
       "region": "OÖ",
       "betrag": "200 EUR pro Haushalt",
       "voraussetzungen": {
@@ -157,6 +181,10 @@
       "name": "Wohnbeihilfe OÖ",
       "stelle": "Land OÖ",
       "zielgruppe": "privat",
+      "thema": [
+        "sozial",
+        "wohnen"
+      ],
       "region": "OÖ",
       "betrag": "laufende Beihilfe (Einkommensgrenzen je Haushaltsgroesse)",
       "voraussetzungen": {
@@ -176,6 +204,10 @@
       "name": "Raus aus Oel und Gas (Heizungstausch)",
       "stelle": "Bund (Klimaministerium)",
       "zielgruppe": "privat",
+      "thema": [
+        "energie",
+        "wohnen"
+      ],
       "region": null,
       "betrag": "30 % Grundfoerderung + Boni (Klimageschwindigkeit 16 %, Einkommensbonus je Einkommen), max. 80 %, foerderfaehig bis 28.000 EUR",
       "voraussetzungen": {
@@ -196,6 +228,10 @@
       "name": "OÖ Heizungstausch (Land + Bund)",
       "stelle": "Land OÖ",
       "zielgruppe": "privat",
+      "thema": [
+        "energie",
+        "wohnen"
+      ],
       "region": "OÖ",
       "betrag": "bis 11.400 EUR gesamt",
       "voraussetzungen": {
@@ -219,6 +255,10 @@
       "name": "OÖ Sanierungsfoerderung",
       "stelle": "Land OÖ",
       "zielgruppe": "privat",
+      "thema": [
+        "energie",
+        "wohnen"
+      ],
       "region": "OÖ",
       "betrag": "Zuschuss bis 2.250 EUR (Einzelbauteil) / bis 50.000 EUR (umfassend) + Oekoboni",
       "voraussetzungen": {
@@ -240,6 +280,9 @@
       "name": "Handwerkerbonus",
       "stelle": "Bund",
       "zielgruppe": "privat",
+      "thema": [
+        "wohnen"
+      ],
       "region": null,
       "betrag": "20 % der Arbeitskosten, max. 1.500 EUR",
       "voraussetzungen": {
@@ -260,6 +303,9 @@
       "name": "EAG-Investitionszuschuss Photovoltaik",
       "stelle": "EAG-Abwicklungsstelle / Klimaministerium",
       "zielgruppe": "privat",
+      "thema": [
+        "energie"
+      ],
       "region": null,
       "betrag": "150 EUR/kWp (<=10 kWp) / 140 EUR/kWp (10-20 kWp); Speicher 150 EUR/kWh; max. 30 % der Kosten; +10 % Made-in-Europe",
       "voraussetzungen": {
@@ -280,6 +326,10 @@
       "name": "OÖ Wohnraumanpassung bei Pflegebedarf",
       "stelle": "Land OÖ",
       "zielgruppe": "privat",
+      "thema": [
+        "sozial",
+        "wohnen"
+      ],
       "region": "OÖ",
       "betrag": "15 % der Kosten, max. 2.250 EUR je Wohnung",
       "voraussetzungen": {

@@ -47,6 +47,7 @@ def gueltig(fid="a", **over):
         "name": "Test",
         "stelle": "Stelle",
         "zielgruppe": "privat",
+        "thema": ["sozial"],
         "betrag": "100 EUR",
         "frist": "laufend",
         "status": "offen",

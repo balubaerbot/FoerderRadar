@@ -77,6 +77,41 @@ _VORHABEN = {
 
 _UMLAUT = {"ä": "ae", "ö": "oe", "ü": "ue", "ß": "ss"}
 
+# ---------------------------------------------------------------- Thema-Achse
+# Grobe Themen (WAS) - kanonisch auch in tools/validate_katalog.py (ERLAUBTE_THEMEN).
+# Die Fein-Vorhaben des Formulars werden darauf abgebildet, damit auch ohne
+# KI-Freitext eine grobe Zuordnung existiert. Ein Vorhaben darf mehrere grobe
+# Themen tragen (z. B. sanierung -> energie + wohnen).
+ERLAUBTE_THEMEN = {"wirtschaft", "sozial", "energie", "wohnen", "bildung"}
+
+_THEMA_VORHABEN = {
+    # Betrieb / Foerderung
+    "digitalisierung": ["wirtschaft"],
+    "automatisierung": ["wirtschaft"],
+    "ki": ["wirtschaft"],
+    "cybersecurity": ["wirtschaft"],
+    "investition": ["wirtschaft"],
+    "modernisierung": ["wirtschaft"],
+    "gruendung": ["wirtschaft"],
+    "uebernahme": ["wirtschaft"],
+    "beratung": ["wirtschaft"],
+    "innovation": ["wirtschaft"],
+    # Wissen
+    "schulung": ["bildung"],
+    "weiterbildung": ["bildung"],
+    # Energie
+    "energieeffizienz": ["energie"],
+    "pv": ["energie"],
+    "speicher": ["energie"],
+    "heizungstausch": ["energie"],
+    "umwelt": ["energie"],
+    "mobilitaet": ["energie"],
+    # Wohnen (und Energie, weil Gebaeudehuelle)
+    "sanierung": ["energie", "wohnen"],
+    "daemmung": ["energie", "wohnen"],
+    "fenster": ["energie", "wohnen"],
+}
+
 
 def _slug(wert):
     """Fallback: beliebigen Text in einen Slug verwandeln (ä -> ae usw.)."""
@@ -110,4 +145,22 @@ def normalisiere_vorhaben(liste):
         s = _uebersetze(x, _VORHABEN)
         if s and s not in aus:
             aus.append(s)
+    return aus
+
+
+def thema_aus_vorhaben(liste):
+    """Fein-Vorhaben -> grobe Thema-Achse (mehrwertig, dedupliziert).
+
+    Idempotent: nimmt auch bereits normalisierte Slugs entgegen. Unbekannte
+    Vorhaben tragen kein grobes Thema bei (leere Liste) - die Zuordnung ist
+    bewusst konservativ, die Fein-Pruefung im Matching laeuft ohnehin daneben.
+    """
+    if not liste:
+        return []
+    aus = []
+    for x in liste:
+        s = _uebersetze(x, _VORHABEN)
+        for t in _THEMA_VORHABEN.get(s, []):
+            if t not in aus:
+                aus.append(t)
     return aus

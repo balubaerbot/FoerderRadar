@@ -114,6 +114,10 @@ def profil_row_to_dict(row: dict) -> dict:
         "kinder_im_haushalt": d.get("kinder_im_haushalt"),
         "vorhaben": vorhaben,
         "themen": vorhaben,
+        # Grobe Thema-Achse (WAS) aus den Vorhaben abgeleitet. Sobald der
+        # KI-Schritt existiert, fuellt er `thema` direkt (Freitext) - die
+        # Ableitung dient als Fallback und bleibt idempotent.
+        "thema": vok.thema_aus_vorhaben(vorhaben),
         # projektkosten kennt das pseudonyme Profil nicht -> Pruefung wird uebersprungen
         "projektkosten": None,
     }
