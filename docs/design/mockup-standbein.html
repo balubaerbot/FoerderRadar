@@ -1,4 +1,4 @@
-<!doctype html><meta charset="utf-8"><title>Fördora — Startseite</title><style>
+<!doctype html><meta charset="utf-8"><title>Fördora — Standbeine & Thema-Achse</title><style>
 :root{--p:#0f766e;--p2:#14b8a6;--p3:#ecfdf5;--ink:#0f172a;--mut:#5b6475;
       --bg:#f8fafc;--card:#fff;--line:#e2e8f0;--warn:#b45309}
 *{box-sizing:border-box}
@@ -70,16 +70,26 @@ input:focus,select:focus,textarea:focus{outline:0;border-color:var(--p2)}
 </style><header><div class="logo"><span class="mark"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.4" fill="#fff" stroke="none"/></svg></span>Fördora</div><nav>
 <a href="#">Wie es funktioniert</a><a href="#">Förderungen</a><a href="#">Kontakt</a>
 <a class="btn btn-p" style="padding:11px 20px;font-size:15px" href="#">Jetzt starten</a>
-</nav></header>
+</nav></header><style>
+.badge{display:inline-block;border:1px solid #a7f3d0;background:var(--p3);color:var(--p);
+  border-radius:999px;padding:3px 11px;font-size:12.5px;font-weight:650;margin-left:6px}
+.badge.neu{border-color:#fcd34d;background:#fffbeb;color:var(--warn)}
+.door{display:flex;gap:15px;align-items:flex-start}
+.door .ico{width:46px;height:46px;border-radius:13px;font-size:19px;display:grid;place-items:center;
+  background:var(--p3);color:var(--p);font-weight:700}
+.card.hl{border-color:var(--p);box-shadow:0 8px 26px rgba(15,118,110,.12)}
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 22px}
+</style>
 <main class="wrap">
-  <section class="hero">
+  <section class="hero" style="padding-bottom:40px">
     <div class="eyebrow">✦ KI-gestützt · nur amtliche Quellen</div>
-    <h1>Finden Sie heraus, welche<br>Förderungen Ihnen zustehen.</h1>
-    <p class="lead">Fördora gleicht Ihr Profil automatisch mit allen Förderprogrammen
-       für Österreich ab – und meldet sich, sobald eine Frist naht.</p>
+    <h1>Förderungen und Unterstützung,<br>die zu Ihnen passen.</h1>
+    <p class="lead">Fördora gleicht Ihr Profil automatisch mit Förderungen und
+       Sozialangeboten für Österreich ab – und meldet sich, sobald eine Frist naht.</p>
     <div class="cta">
       <a class="btn btn-p" href="#">Für Betriebe</a>
       <a class="btn btn-o" href="#">Für Privatpersonen</a>
+      <a class="btn btn-o" href="#">Sozial &amp; Alltag</a>
     </div>
     <div class="trust">
       <span><b>✓</b> Kostenlos &amp; unverbindlich</span>
@@ -87,61 +97,62 @@ input:focus,select:focus,textarea:focus{outline:0;border-color:var(--p2)}
       <span><b>✓</b> Ohne Registrierung</span>
     </div>
   </section>
-  <section class="steps">
-    <div class="card"><div class="step-n">1</div><h2 style="font-size:19px">Angaben machen</h2>
-      <p class="small">In 2 Minuten: ein paar Eckdaten zu Ihrem Vorhaben. Kein Papierkram.</p></div>
-    <div class="card"><div class="step-n">2</div><h2 style="font-size:19px">Automatisch abgleichen</h2>
-      <p class="small">Wir prüfen Ihren Fall gegen alle aktuellen Programme – belegt aus den Originalquellen.</p></div>
-    <div class="card"><div class="step-n">3</div><h2 style="font-size:19px">Treffer erhalten</h2>
-      <p class="small">Sie bekommen die passenden Förderungen per E-Mail – und einen Hinweis, wenn eine Frist läuft.</p></div>
+
+  <h2 class="sec-title" style="margin-top:34px">Drei Standbeine, ein Radar</h2>
+  <p class="sec-sub">Jeder Bereich funktioniert nach demselben Prinzip – nur die
+     passenden Angebote unterscheiden sich.</p>
+  <section class="steps" style="padding-bottom:34px">
+    <div class="card"><div class="door"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/></svg></div><div>
+      <h2 style="font-size:19px">Betrieb &amp; Förderung</h2>
+      <p class="small">Digitalisierung, Investitionen, Energie, Gründung –
+      Wirtschaftsförderung für Unternehmen.</p></div></div></div>
+    <div class="card"><div class="door"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v11h14V10"/></svg></div><div>
+      <h2 style="font-size:19px">Privat &amp; Zuhause</h2>
+      <p class="small">Sanieren, Heizen, Photovoltaik, Handwerkerbonus –
+      Förderungen rund um Wohnen.</p></div></div></div>
+    <div class="card hl"><div class="door"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M2 21v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1"/><path d="M17 8h4M19 6v4"/></svg></div><div>
+      <h2 style="font-size:19px">Sozial &amp; Alltag <span class="badge neu">neu</span></h2>
+      <p class="small">Heizkostenzuschuss, Wohnbeihilfe, Pflege &amp;
+      Barrierefreiheit – Unterstützung für Menschen.</p></div></div></div>
   </section>
 
-  <h2 class="sec-title">Das macht Fördora anders</h2>
-  <p class="sec-sub">Andere Seiten sind Kataloge zum Selbst-Durchsuchen.
-     Fördora arbeitet für Sie – automatisch und nachvollziehbar.</p>
-  <section class="usp">
-    <div class="card"><div class="ico">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2"
-        stroke-linecap="round" stroke-linejoin="round"><path d="M22 6 12 13 2 6"/>
-        <rect x="2" y="4" width="20" height="16" rx="2"/></svg></div>
-      <div><h2 style="font-size:19px">Push statt Suchen</h2>
-      <p class="small">Wir warten nicht, bis Sie suchen. Fördora meldet passende Treffer aktiv –
-      und erinnert, bevor eine Frist abläuft.</p></div></div>
+  <h2 class="sec-title" style="margin-top:8px">Filtern nach Thema</h2>
+  <p class="sec-sub">Ein Angebot kann mehreren Themen zugeordnet sein
+     (z.&nbsp;B. die Wohnbeihilfe ist <i>sozial</i> und <i>wohnen</i>).</p>
+  <div class="filters">
+    <span class="chip">wirtschaft</span><span class="chip on">sozial</span>
+    <span class="chip">energie</span><span class="chip">wohnen</span>
+    <span class="chip">bildung</span>
+  </div>
 
-    <div class="card"><div class="ico">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2"
-        stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
-      <div><h2 style="font-size:19px">Nachweisbar, keine Blackbox</h2>
-      <p class="small">Jede Zusage kommt aus einer belegten Regel, nicht aus einer KI-Vermutung.
-      Wir zeigen, welche Bedingung erfüllt ist.</p></div></div>
-
-    <div class="card"><div class="ico">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2"
-        stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-      <div><h2 style="font-size:19px">Datenschutz ohne Konto</h2>
-      <p class="small">Keine Registrierung, kein Passwort. Kontaktdaten bleiben getrennt
-      von der Auswertung – EU-Hosting.</p></div></div>
-
-    <div class="card"><div class="ico">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2"
-        stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V6a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/>
-        <path d="M8 8h8M8 12h6"/></svg></div>
-      <div><h2 style="font-size:19px">Nur geprüfte Quellen</h2>
-      <p class="small">Jede Förderung stammt aus amtlichen Originalquellen und ist verlinkt.
-      Keine Quelle, keine Aufnahme.</p></div></div>
-  </section>
+  <div class="card" style="margin-bottom:34px"><div style="display:flex;justify-content:space-between;
+       align-items:flex-start;gap:16px;flex-wrap:wrap">
+    <div><h2 style="font-size:19px;margin:0">Heizkostenzuschuss Oberösterreich</h2>
+      <p class="small" style="margin:6px 0 0">Zuschuss zu den Heizkosten für Haushalte
+      mit geringem Einkommen.</p></div>
+    <div><span class="badge">sozial</span><span class="badge">energie</span></div>
+  </div>
+  <p class="small" style="margin:14px 0 0">
+    <b style="color:var(--p)">bis 300 €</b> &nbsp;·&nbsp; Frist 31.10.2026
+    &nbsp;·&nbsp; Quelle: land-oberoesterreich.gv.at &nbsp;✓ amtlich</p></div>
 
   <section class="aibox">
     <div>
       <h2>Intelligenz, die nur beim Verstehen hilft.</h2>
-      <p>Unsere KI liest Förderrichtlinien, versteht Ihr Vorhaben in normaler Sprache und
-         formuliert die Treffer verständlich. Ob eine Förderung wirklich passt, entscheidet
-         jedoch eine nachvollziehbare Regel – nicht die KI. So bleibt jede Zusage überprüfbar.</p>
+      <p>Unsere KI liest Förderrichtlinien und versteht Ihr Vorhaben in normaler Sprache –
+         sie erkennt, welches Standbein und welche Themen passen. Ob eine Förderung
+         wirklich zutrifft, entscheidet jedoch eine nachvollziehbare Regel, nicht die KI.
+         So bleibt jede Zusage überprüfbar.</p>
       <div class="row">
         <div class="tag"><b>KI</b> versteht Ihre Angaben</div>
         <div class="tag"><b>Code</b> prüft die Bedingungen</div>
         <div class="tag">Jede Quelle <b>verlinkt</b></div>
       </div>
+      <p class="small" style="margin:16px 0 0;color:#94a3b8;font-size:13.5px">
+        Beispiel: „Ich pflege meine Mutter, die Heizkosten sind kaum leistbar“
+        → erkannt als <b style="color:#5eead4;font-weight:650">privat</b> ·
+        <b style="color:#5eead4;font-weight:650">sozial</b> ·
+        <b style="color:#5eead4;font-weight:650">energie</b></p>
     </div>
     <div class="flow">
       <div><span>1</span>KI versteht, was Sie vorhaben</div>

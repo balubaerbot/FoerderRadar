@@ -31,9 +31,9 @@ h2{font-size:26px;margin:0 0 10px;letter-spacing:-.01em}
 footer{background:#fff;border-top:1px solid var(--line);padding:22px 40px;color:var(--mut);font-size:14px}
 footer a{color:var(--mut);text-decoration:none;margin-right:18px}
 label{display:block;font-size:14px;font-weight:600;margin:0 0 6px}
-input,select{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;
+input,select,textarea{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;
              font-size:15.5px;background:#fff;font-family:inherit}
-input:focus,select:focus{outline:0;border-color:var(--p2)}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--p2)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .field{margin-bottom:18px}
 .tabs{display:flex;gap:10px;margin-bottom:24px}
@@ -77,7 +77,10 @@ input:focus,select:focus{outline:0;border-color:var(--p2)}
   <p class="lead" style="font-size:16.5px;margin-bottom:26px">Je genauer, desto besser die Treffer.
      Pflichtfelder sind mit * markiert.</p>
 
-  <div class="tabs"><div class="tab on">Betrieb</div><div class="tab">Privatperson</div></div>
+  <div class="tabs">
+    <div class="tab on" data-beispiel="Wir wollen unsere Fertigung digitalisieren – die Energiekosten in der Werkstatt sind stark gestiegen." onclick="waehle(this,'betrieb')">Betrieb</div>
+    <div class="tab" data-beispiel="Ich pflege meine Mutter, die Heizkosten sind kaum leistbar." onclick="waehle(this,'privat')">Privatperson</div>
+  </div>
 
   <div class="card">
     <div class="grid2">
@@ -103,8 +106,16 @@ input:focus,select:focus{outline:0;border-color:var(--p2)}
         <span class="chip">Photovoltaik</span><span class="chip">Gründung</span>
       </div></div>
 
-    <div class="field" style="margin-top:24px"><label>Projektkosten (ca., EUR)</label>
-      <input value="25.000"></div>
+    <div class="field" style="margin-top:22px">
+      <label>Beschreiben Sie kurz Ihr Anliegen <span style="color:var(--mut);font-weight:400">(optional)</span></label>
+      <textarea rows="4" id="anliegen" style="resize:vertical">Wir wollen unsere Fertigung digitalisieren – die Energiekosten in der Werkstatt sind stark gestiegen.</textarea>
+      <p class="small" style="margin:7px 0 0">In eigenen Worten – die KI erkennt daraus Standbein und Themen.
+         Die Prüfung selbst machen weiterhin die Regeln.</p></div>
+
+    <div class="grid2" style="margin-top:24px">
+      <div class="field" style="margin-bottom:0"><label>Projektkosten (ca., EUR)</label>
+        <input value="25.000"></div>
+    </div>
 
     <hr style="border:0;border-top:1px solid var(--line);margin:24px 0">
 
@@ -127,4 +138,11 @@ input:focus,select:focus{outline:0;border-color:var(--p2)}
       Prüfung verwendet.</p>
   </div>
   <div style="height:40px"></div>
-</main><footer><a href="#">Impressum</a><a href="#">Datenschutz</a><a href="#">Kontakt</a><span style="float:right">© 2026 Fördora</span></footer>
+</main>
+<script>
+function waehle(el){
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
+  el.classList.add('on');
+  document.getElementById('anliegen').value = el.dataset.beispiel;
+}
+</script><footer><a href="#">Impressum</a><a href="#">Datenschutz</a><a href="#">Kontakt</a><span style="float:right">© 2026 Fördora</span></footer>

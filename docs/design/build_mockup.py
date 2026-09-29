@@ -37,9 +37,9 @@ h2{font-size:26px;margin:0 0 10px;letter-spacing:-.01em}
 footer{background:#fff;border-top:1px solid var(--line);padding:22px 40px;color:var(--mut);font-size:14px}
 footer a{color:var(--mut);text-decoration:none;margin-right:18px}
 label{display:block;font-size:14px;font-weight:600;margin:0 0 6px}
-input,select{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;
+input,select,textarea{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;
              font-size:15.5px;background:#fff;font-family:inherit}
-input:focus,select:focus{outline:0;border-color:var(--p2)}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--p2)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .field{margin-bottom:18px}
 .tabs{display:flex;gap:10px;margin-bottom:24px}
@@ -184,7 +184,10 @@ formular = screen("Fördora — Angaben", HEAD + f"""
   <p class="lead" style="font-size:16.5px;margin-bottom:26px">Je genauer, desto besser die Treffer.
      Pflichtfelder sind mit * markiert.</p>
 
-  <div class="tabs"><div class="tab on">Betrieb</div><div class="tab">Privatperson</div></div>
+  <div class="tabs">
+    <div class="tab on" data-beispiel="Wir wollen unsere Fertigung digitalisieren – die Energiekosten in der Werkstatt sind stark gestiegen." onclick="waehle(this,'betrieb')">Betrieb</div>
+    <div class="tab" data-beispiel="Ich pflege meine Mutter, die Heizkosten sind kaum leistbar." onclick="waehle(this,'privat')">Privatperson</div>
+  </div>
 
   <div class="card">
     <div class="grid2">
@@ -210,8 +213,16 @@ formular = screen("Fördora — Angaben", HEAD + f"""
         <span class="chip">Photovoltaik</span><span class="chip">Gründung</span>
       </div></div>
 
-    <div class="field" style="margin-top:24px"><label>Projektkosten (ca., EUR)</label>
-      <input value="25.000"></div>
+    <div class="field" style="margin-top:22px">
+      <label>Beschreiben Sie kurz Ihr Anliegen <span style="color:var(--mut);font-weight:400">(optional)</span></label>
+      <textarea rows="4" id="anliegen" style="resize:vertical">Wir wollen unsere Fertigung digitalisieren – die Energiekosten in der Werkstatt sind stark gestiegen.</textarea>
+      <p class="small" style="margin:7px 0 0">In eigenen Worten – die KI erkennt daraus Standbein und Themen.
+         Die Prüfung selbst machen weiterhin die Regeln.</p></div>
+
+    <div class="grid2" style="margin-top:24px">
+      <div class="field" style="margin-bottom:0"><label>Projektkosten (ca., EUR)</label>
+        <input value="25.000"></div>
+    </div>
 
     <hr style="border:0;border-top:1px solid var(--line);margin:24px 0">
 
@@ -234,7 +245,14 @@ formular = screen("Fördora — Angaben", HEAD + f"""
       Prüfung verwendet.</p>
   </div>
   <div style="height:40px"></div>
-</main>""" + FOOT)
+</main>
+<script>
+function waehle(el){{
+  document.querySelectorAll('.tab').forEach(function(t){{t.classList.remove('on');}});
+  el.classList.add('on');
+  document.getElementById('anliegen').value = el.dataset.beispiel;
+}}
+</script>""" + FOOT)
 
 # ---------------------------------------------------------------- Danke
 danke = screen("Fördora — Danke", HEAD + """
@@ -264,6 +282,104 @@ danke = screen("Fördora — Danke", HEAD + """
   </div>
 </main>""" + FOOT)
 
-for name, html in (("mockup-start", start), ("mockup-formular", formular), ("mockup-danke", danke)):
+# ------------------------------------------------- Entwurf: 3. Standbein "Sozial"
+# Zeigt die vorgeschlagene thema-Achse: die drei Standbeine sind nur Tueren,
+# datenseitig ist "Sozial" = zielgruppe=privat + thema=sozial. Ein Eintrag kann
+# mehrere Themen tragen (mehrwertige Liste) -> deshalb sind es Badges, keine Spalte.
+EXTRA_CSS = """
+.badge{display:inline-block;border:1px solid #a7f3d0;background:var(--p3);color:var(--p);
+  border-radius:999px;padding:3px 11px;font-size:12.5px;font-weight:650;margin-left:6px}
+.badge.neu{border-color:#fcd34d;background:#fffbeb;color:var(--warn)}
+.door{display:flex;gap:15px;align-items:flex-start}
+.door .ico{width:46px;height:46px;border-radius:13px;font-size:19px;display:grid;place-items:center;
+  background:var(--p3);color:var(--p);font-weight:700}
+.card.hl{border-color:var(--p);box-shadow:0 8px 26px rgba(15,118,110,.12)}
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 22px}
+"""
+standbein = screen("Fördora — Standbeine & Thema-Achse", HEAD + f"<style>{EXTRA_CSS}</style>" + """
+<main class="wrap">
+  <section class="hero" style="padding-bottom:40px">
+    <div class="eyebrow">✦ KI-gestützt · nur amtliche Quellen</div>
+    <h1>Förderungen und Unterstützung,<br>die zu Ihnen passen.</h1>
+    <p class="lead">Fördora gleicht Ihr Profil automatisch mit Förderungen und
+       Sozialangeboten für Österreich ab – und meldet sich, sobald eine Frist naht.</p>
+    <div class="cta">
+      <a class="btn btn-p" href="#">Für Betriebe</a>
+      <a class="btn btn-o" href="#">Für Privatpersonen</a>
+      <a class="btn btn-o" href="#">Sozial &amp; Alltag</a>
+    </div>
+    <div class="trust">
+      <span><b>✓</b> Kostenlos &amp; unverbindlich</span>
+      <span><b>✓</b> Nur amtliche Quellen</span>
+      <span><b>✓</b> Ohne Registrierung</span>
+    </div>
+  </section>
+
+  <h2 class="sec-title" style="margin-top:34px">Drei Standbeine, ein Radar</h2>
+  <p class="sec-sub">Jeder Bereich funktioniert nach demselben Prinzip – nur die
+     passenden Angebote unterscheiden sich.</p>
+  <section class="steps" style="padding-bottom:34px">
+    <div class="card"><div class="door"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/></svg></div><div>
+      <h2 style="font-size:19px">Betrieb &amp; Förderung</h2>
+      <p class="small">Digitalisierung, Investitionen, Energie, Gründung –
+      Wirtschaftsförderung für Unternehmen.</p></div></div></div>
+    <div class="card"><div class="door"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v11h14V10"/></svg></div><div>
+      <h2 style="font-size:19px">Privat &amp; Zuhause</h2>
+      <p class="small">Sanieren, Heizen, Photovoltaik, Handwerkerbonus –
+      Förderungen rund um Wohnen.</p></div></div></div>
+    <div class="card hl"><div class="door"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M2 21v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1"/><path d="M17 8h4M19 6v4"/></svg></div><div>
+      <h2 style="font-size:19px">Sozial &amp; Alltag <span class="badge neu">neu</span></h2>
+      <p class="small">Heizkostenzuschuss, Wohnbeihilfe, Pflege &amp;
+      Barrierefreiheit – Unterstützung für Menschen.</p></div></div></div>
+  </section>
+
+  <h2 class="sec-title" style="margin-top:8px">Filtern nach Thema</h2>
+  <p class="sec-sub">Ein Angebot kann mehreren Themen zugeordnet sein
+     (z.&nbsp;B. die Wohnbeihilfe ist <i>sozial</i> und <i>wohnen</i>).</p>
+  <div class="filters">
+    <span class="chip">wirtschaft</span><span class="chip on">sozial</span>
+    <span class="chip">energie</span><span class="chip">wohnen</span>
+    <span class="chip">bildung</span>
+  </div>
+
+  <div class="card" style="margin-bottom:34px"><div style="display:flex;justify-content:space-between;
+       align-items:flex-start;gap:16px;flex-wrap:wrap">
+    <div><h2 style="font-size:19px;margin:0">Heizkostenzuschuss Oberösterreich</h2>
+      <p class="small" style="margin:6px 0 0">Zuschuss zu den Heizkosten für Haushalte
+      mit geringem Einkommen.</p></div>
+    <div><span class="badge">sozial</span><span class="badge">energie</span></div>
+  </div>
+  <p class="small" style="margin:14px 0 0">
+    <b style="color:var(--p)">bis 300 €</b> &nbsp;·&nbsp; Frist 31.10.2026
+    &nbsp;·&nbsp; Quelle: land-oberoesterreich.gv.at &nbsp;✓ amtlich</p></div>
+
+  <section class="aibox">
+    <div>
+      <h2>Intelligenz, die nur beim Verstehen hilft.</h2>
+      <p>Unsere KI liest Förderrichtlinien und versteht Ihr Vorhaben in normaler Sprache –
+         sie erkennt, welches Standbein und welche Themen passen. Ob eine Förderung
+         wirklich zutrifft, entscheidet jedoch eine nachvollziehbare Regel, nicht die KI.
+         So bleibt jede Zusage überprüfbar.</p>
+      <div class="row">
+        <div class="tag"><b>KI</b> versteht Ihre Angaben</div>
+        <div class="tag"><b>Code</b> prüft die Bedingungen</div>
+        <div class="tag">Jede Quelle <b>verlinkt</b></div>
+      </div>
+      <p class="small" style="margin:16px 0 0;color:#94a3b8;font-size:13.5px">
+        Beispiel: „Ich pflege meine Mutter, die Heizkosten sind kaum leistbar“
+        → erkannt als <b style="color:#5eead4;font-weight:650">privat</b> ·
+        <b style="color:#5eead4;font-weight:650">sozial</b> ·
+        <b style="color:#5eead4;font-weight:650">energie</b></p>
+    </div>
+    <div class="flow">
+      <div><span>1</span>KI versteht, was Sie vorhaben</div>
+      <div><span>2</span>Regeln prüfen jede Förderung</div>
+      <div><span>3</span>Sie erhalten Treffer – mit Quelle</div>
+    </div>
+  </section>
+</main>""" + FOOT)
+
+for name, html in (("mockup-start", start), ("mockup-formular", formular),
+                   ("mockup-danke", danke), ("mockup-standbein", standbein)):
     (BASE / f"{name}.html").write_text(html, encoding="utf-8")
     print(f"{name}.html geschrieben")
