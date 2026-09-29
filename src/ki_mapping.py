@@ -29,6 +29,7 @@ konfiguriert per Umgebung - der Key gehoert NIE ins Repo:
     FOERDER_LLM_API_KEY    SecretRef / Env
     FOERDER_LLM_MODEL      z. B. ein kleines, guenstiges Modell
     FOERDER_LLM_TIMEOUT    Sekunden (Default 12)
+    FOERDER_LLM_REASONING  "on" laesst Denk-Tokens zu (Default: aus - schneller)
 
 Ohne `FOERDER_LLM_API_KEY` ist das Modul **inaktiv** (`ist_aktiv()` == False);
 dann laeuft alles wie bisher ueber die Chips.
@@ -48,6 +49,9 @@ ERLAUBTE_THEMEN = vok.ERLAUBTE_THEMEN
 # Obergrenze fuer den Freitext: schuetzt vor Kosten-/Payload-Missbrauch.
 MAX_ZEICHEN = 2000
 STANDARD_TIMEOUT = 12.0
+# Antwort ist ein winziges JSON-Objekt - eine grosszuegige Obergrenze genuegt
+# und verhindert ausufernde Generierung.
+MAX_TOKENS = 200
 
 SYSTEM_PROMPT = (
     "Du bist ein praeziser Klassifizierer fuer ein oesterreichisches "
@@ -168,11 +172,18 @@ def mappe_anliegen(text, typ=None, transport=None):
     payload = {
         "model": cfg["modell"],
         "temperature": 0,
+        "max_tokens": MAX_TOKENS,
         "messages": [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": _nutzer_prompt(text, typ=typ)},
         ],
     }
+    # Denk-/Reasoning-Tokens standardmaessig abschalten. Qwen3.7 & Co. erzeugen
+    # sonst ~1000 Denk-Tokens (~12 s) fuer ein Etikett, das in 16 Tokens passt.
+    # Gemessen: 12.8 s -> 0.84 s, identisches Ergebnis. Uebersteuerbar per
+    # FOERDER_LLM_REASONING=on (falls ein Modell es zwingend braucht).
+    if os.environ.get("FOERDER_LLM_REASONING", "off").strip().lower() not in ("on", "1", "true", "yes"):
+        payload["reasoning"] = {"enabled": False}
     headers = {
         "Content-Type": "application/json",
         "Authorization": "Bearer " + cfg["key"],

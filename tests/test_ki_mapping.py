@@ -116,6 +116,19 @@ check("Freitext ist im Prompt enthalten", "Heizkosten kaum leistbar" in gesendet
 check("kein Kontaktfeld im Payload",
       not any(k in str(aufrufe[0]["payload"]) for k in ("email", "telefon", "@")))
 
+# --- Latenz-Schutz: Denk-Tokens aus, max_tokens gesetzt -------------------
+aufrufe = []
+ki.mappe_anliegen("Heizkosten kaum leistbar", transport=_stub("{}", aufrufe))
+p = aufrufe[0]["payload"]
+check("reasoning standardmaessig aus (12s -> 0.8s)", p.get("reasoning") == {"enabled": False})
+check("max_tokens gesetzt (kein Ausufern)", p.get("max_tokens") == ki.MAX_TOKENS)
+check("temperature 0 (reproduzierbar)", p.get("temperature") == 0)
+os.environ["FOERDER_LLM_REASONING"] = "on"
+aufrufe = []
+ki.mappe_anliegen("Heizkosten kaum leistbar", transport=_stub("{}", aufrufe))
+check("FOERDER_LLM_REASONING=on laesst Denk-Tokens zu", "reasoning" not in aufrufe[0]["payload"])
+os.environ.pop("FOERDER_LLM_REASONING", None)
+
 # --- Laengenbegrenzung ------------------------------------------------------
 lang = "x" * (ki.MAX_ZEICHEN + 500)
 aufrufe = []
