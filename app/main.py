@@ -192,7 +192,7 @@ def health():
 
 
 class ProfilIn(BaseModel):
-    typ: str  # betrieb | privat
+    typ: str  # betrieb | privat | sozial
     region_grob: Optional[str] = None
     branche: Optional[str] = None
     mitarbeiterklasse: Optional[str] = None
@@ -221,8 +221,8 @@ class ProfilIn(BaseModel):
 
 def _speichere_profil(p: ProfilIn) -> str:
     """Validiert und speichert ein Profil (pseudonym + Kontakt getrennt)."""
-    if p.typ not in ("betrieb", "privat"):
-        raise HTTPException(status_code=400, detail="typ muss 'betrieb' oder 'privat' sein")
+    if p.typ not in ("betrieb", "privat", "sozial"):
+        raise HTTPException(status_code=400, detail="typ muss 'betrieb', 'privat' oder 'sozial' sein")
     if not p.einwilligung:
         raise HTTPException(status_code=400, detail="Einwilligung erforderlich")
     if p.kanal not in (None, "email", "sms"):
@@ -340,12 +340,13 @@ def _maske_email(email):
 
 
 def _profil_aus_formular(form) -> ProfilIn:
-    # Standbein "Sozial & Alltag": UI-typ ist "sozial", datenseitig aber
-    # typ='privat' (DB-Constraint) + thema bekommt zwingend 'sozial'.
+    # Standbein "Sozial & Alltag": UI-typ "sozial" wird jetzt als echter
+    # typ-Wert gespeichert (DB-Constraint erlaubt 'sozial'); thema bekommt
+    # zusaetzlich das grobe Topic-Tag 'sozial' fuer die Thema-Achse.
     typ_roh = (form.get("typ") or "betrieb").strip()
     sozial = typ_roh == "sozial"
     privat = typ_roh == "privat" or sozial
-    typ = "privat" if sozial else typ_roh
+    typ = typ_roh
     if sozial:
         region = form.get("region_grob_s")
     elif privat:
@@ -402,8 +403,8 @@ async def formular_post(request: Request):
     form = await request.form()
     p = _profil_aus_formular(form)
     werte = _werte_aus_formular(form)
-    # Fuers Re-Rendering bei Fehlern zaehlt der vom Nutzer gewaehlte Tab
-    # (sozial), nicht der datenseitig auf 'privat' abgebildete p.typ.
+    # Fuer Re-Rendering bei Fehlern: typ_anzeige spiegelt den vom Nutzer
+    # gewaehlten Tab (identisch zu p.typ, seit 'sozial' ein echter Wert ist).
     typ_anzeige = (form.get("typ") or "betrieb").strip()
     if typ_anzeige not in ("betrieb", "privat", "sozial"):
         typ_anzeige = "betrieb"

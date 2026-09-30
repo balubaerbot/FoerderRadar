@@ -21,7 +21,7 @@ import sys
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT = os.path.join(BASE, "katalog", "foerderungen.json")
 
-ERLAUBTE_ZIELGRUPPEN = {"betrieb", "privat"}
+ERLAUBTE_ZIELGRUPPEN = {"betrieb", "privat", "sozial"}
 # Thema-Achse = WAS (wer = zielgruppe). Mehrwertige Liste, ein Eintrag darf
 # mehrere Themen tragen. Kanonisch auch in src/vokabular.py (ERLAUBTE_THEMEN).
 ERLAUBTE_THEMEN = {"wirtschaft", "sozial", "energie", "wohnen", "bildung"}

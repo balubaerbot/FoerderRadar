@@ -110,7 +110,8 @@ _THEMA_VORHABEN = {
     "sanierung": ["energie", "wohnen"],
     "daemmung": ["energie", "wohnen"],
     "fenster": ["energie", "wohnen"],
-    # Sozial & Alltag (3. Standbein: zielgruppe=privat + thema=sozial)
+    # Sozial & Alltag (3. Standbein: zielgruppe=sozial; hier nur das feine
+    # Topic-Tag fuer die Thema-Achse)
     "sozial": ["sozial"],
     "heizkostenzuschuss": ["sozial", "energie"],
     "pflegegeld": ["sozial"],

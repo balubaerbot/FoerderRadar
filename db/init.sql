@@ -3,7 +3,7 @@
 
 CREATE TABLE IF NOT EXISTS profil (
     kunde_id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    typ                TEXT NOT NULL CHECK (typ IN ('betrieb','privat')),
+    typ                TEXT NOT NULL CHECK (typ IN ('betrieb','privat','sozial')),
     region_grob        TEXT,
     -- nur Betrieb
     branche            TEXT,
@@ -31,9 +31,14 @@ ALTER TABLE profil ADD COLUMN IF NOT EXISTS anliegen TEXT;
 ALTER TABLE profil ADD COLUMN IF NOT EXISTS thema TEXT[];
 
 -- Phase 3 (Standbein "Sozial & Alltag"): Lebenssituation als eigenes Feld.
--- Datenseitig bleibt `typ` = 'privat' (DB-Constraint); die Unterscheidung
--- zum dritten Standbein laeuft ueber `thema` (enthaelt 'sozial').
 ALTER TABLE profil ADD COLUMN IF NOT EXISTS lebenssituation TEXT;
+
+-- Phase 4: `typ` fuehrt 'sozial' als echten dritten Wert (ersetzt den
+-- frueheren Workaround typ='privat' + thema='sozial'). Idempotente Migration
+-- fuer bereits initialisierte DBs: CHECK-Constraint droppen + neu anlegen
+-- (ein CHECK laesst sich nicht per ALTER aendern, nur ersetzen).
+ALTER TABLE profil DROP CONSTRAINT IF EXISTS profil_typ_check;
+ALTER TABLE profil ADD CONSTRAINT profil_typ_check CHECK (typ IN ('betrieb','privat','sozial'));
 
 CREATE INDEX IF NOT EXISTS profil_thema_idx ON profil USING GIN (thema);
 

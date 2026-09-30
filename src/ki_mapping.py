@@ -5,7 +5,7 @@ Grundsatz aus ARCHITEKTUR.md: **„LLM uebersetzt, Code urteilt."**
 Dieses Modul bittet ein LLM, einen **Freitext** (das „Anliegen" des Kunden) in
 die grobe Achse zu uebersetzen:
 
-    zielgruppe (WER)  ->  'betrieb' | 'privat'
+    zielgruppe (WER)  ->  'betrieb' | 'privat' | 'sozial'
     thema      (WAS)  ->  Teilmenge von {wirtschaft, sozial, energie, wohnen, bildung}
 
 Die Antwort des LLM wird **strikt** gegen die Allowlists geprueft; alles
@@ -43,7 +43,7 @@ import urllib.request
 from src import vokabular as vok
 
 # Kanonische Allowlists - dieselben Werte wie Validator und Katalog.
-ERLAUBTE_ZIELGRUPPEN = {"betrieb", "privat"}
+ERLAUBTE_ZIELGRUPPEN = {"betrieb", "privat", "sozial"}
 ERLAUBTE_THEMEN = vok.ERLAUBTE_THEMEN
 
 # Obergrenze fuer den Freitext: schuetzt vor Kosten-/Payload-Missbrauch.
@@ -84,7 +84,7 @@ def _nutzer_prompt(text, typ=None):
         ziel = f'Der Nutzer hat "typ" bereits als "{typ}" angegeben - nutze diesen Wert fuer zielgruppe.'
     return (
         "Ordne den folgenden Freitext ein.\n\n"
-        "zielgruppe (WER): einer von \"betrieb\" oder \"privat\" (oder null, wenn unklar).\n"
+        "zielgruppe (WER): einer von \"betrieb\", \"privat\" oder \"sozial\" (oder null, wenn unklar).\n"
         "thema (WAS): Liste aus diesen Werten, nur zutreffende: "
         + ", ".join(sorted(ERLAUBTE_THEMEN)) + ".\n"
         + ziel + "\n\n"
