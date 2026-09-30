@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Erzeugt die Design-Mockups (Start / Formular / Danke) als HTML."""
+"""ARCHIVIERTER Design-Mockup-Generator (Start / Formular / Danke).
+
+Historischer Entwurf - NICHT mehr die Quelle der Wahrheit. Das echte
+Design lebt in app/templates/*.html und app/static/style.css.
+Schreibt die HTML-Dateien nach ./mockups/.
+"""
 import pathlib
 
 BASE = pathlib.Path(__file__).resolve().parent
@@ -419,5 +424,7 @@ for name, html in (('mockup-start', start),
                    ('mockup-formular-privat', formular_privat),
                    ('mockup-formular-sozial', formular_sozial),
                    ('mockup-danke', danke), ('mockup-standbein', standbein)):
-    (BASE / f'{name}.html').write_text(html, encoding='utf-8')
+    out_dir = BASE / 'mockups'
+    out_dir.mkdir(exist_ok=True)
+    (out_dir / f'{name}.html').write_text(html, encoding='utf-8')
     print(f'{name}.html geschrieben')
