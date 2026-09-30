@@ -30,6 +30,11 @@ CREATE TABLE IF NOT EXISTS profil (
 ALTER TABLE profil ADD COLUMN IF NOT EXISTS anliegen TEXT;
 ALTER TABLE profil ADD COLUMN IF NOT EXISTS thema TEXT[];
 
+-- Phase 3 (Standbein "Sozial & Alltag"): Lebenssituation als eigenes Feld.
+-- Datenseitig bleibt `typ` = 'privat' (DB-Constraint); die Unterscheidung
+-- zum dritten Standbein laeuft ueber `thema` (enthaelt 'sozial').
+ALTER TABLE profil ADD COLUMN IF NOT EXISTS lebenssituation TEXT;
+
 CREATE INDEX IF NOT EXISTS profil_thema_idx ON profil USING GIN (thema);
 
 CREATE TABLE IF NOT EXISTS kontakt (
@@ -84,5 +89,5 @@ CREATE UNIQUE INDEX IF NOT EXISTS versand_ein_offener ON versand (kunde_id)
 CREATE OR REPLACE VIEW profil_agent AS
 SELECT kunde_id, typ, region_grob, branche, mitarbeiterklasse, wko_mitglied,
        wohnsituation, haushaltsgroesse, einkommen_spanne, heizung, pflegestufe,
-       familienstand, kinder_im_haushalt, vorhaben, thema, anliegen
+       familienstand, kinder_im_haushalt, lebenssituation, vorhaben, thema, anliegen
 FROM profil;

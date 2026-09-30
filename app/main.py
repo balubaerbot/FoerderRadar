@@ -96,6 +96,11 @@ HEIZUNGEN = ["Fernw\u00e4rme", "Gas", "\u00d6l", "Pellets / Holz", "W\u00e4rmepu
 FAMILIENSTAENDE = ["ledig", "verheiratet / Partnerschaft", "geschieden", "verwitwet"]
 VORHABEN_OPTIONEN = ["Digitalisierung", "Investition", "Schulung", "Energieeffizienz",
                      "Photovoltaik", "Gr\u00fcndung", "Sanierung", "Weiterbildung", "Mobilit\u00e4t"]
+# Drittes Standbein "Sozial & Alltag" (datenseitig: typ='privat' + thema enthaelt 'sozial').
+LEBENSSITUATIONEN = ["Pflege eines Angeh\u00f6rigen", "Kinderbetreuung", "Arbeitssuchend",
+                     "Pension", "Behinderung / Beeintr\u00e4chtigung", "Alleinerziehend"]
+BEDARF_OPTIONEN = ["Heizkostenzuschuss", "Pflegegeld", "Kinderbetreuung", "Wohnbeihilfe",
+                   "Ausbildung", "Barrierefreiheit"]
 
 
 def _render(request, name, ctx=None, status_code=200):
@@ -116,6 +121,7 @@ def _formular_kontext(werte=None, fehler=None, typ="betrieb"):
         "haushaltsgroessen": HAUSHALTSGROESSEN, "einkommensspannen": EINKOMMENSSPANNEN,
         "heizungen": HEIZUNGEN, "familienstaende": FAMILIENSTAENDE,
         "vorhaben_optionen": VORHABEN_OPTIONEN,
+        "lebenssituationen": LEBENSSITUATIONEN, "bedarf_optionen": BEDARF_OPTIONEN,
     }
 
 
@@ -198,6 +204,8 @@ class ProfilIn(BaseModel):
     pflegestufe: Optional[int] = None
     familienstand: Optional[str] = None
     kinder_im_haushalt: Optional[bool] = None
+    # Nur Standbein "Sozial & Alltag" (typ wird dabei datenseitig zu 'privat')
+    lebenssituation: Optional[str] = None
     vorhaben: list[str] = []
     # Freitext "Anliegen" (optional). Wird per LLM in die grobe Achse uebersetzt
     # (fail-soft: ohne Key/bei Fehler bleibt die Chips-Heuristik).
@@ -239,8 +247,8 @@ def _speichere_profil(p: ProfilIn) -> str:
             """
             INSERT INTO profil (typ, region_grob, branche, mitarbeiterklasse, wko_mitglied,
                 wohnsituation, haushaltsgroesse, einkommen_spanne, heizung, pflegestufe,
-                familienstand, kinder_im_haushalt, vorhaben, anliegen, thema)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                familienstand, kinder_im_haushalt, lebenssituation, vorhaben, anliegen, thema)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
             RETURNING kunde_id
             """,
             (p.typ, regionmod.normalisiere_region(p.region_grob) or p.region_grob,
@@ -248,7 +256,7 @@ def _speichere_profil(p: ProfilIn) -> str:
              # Anzeige-Labels -> kanonische Katalog-Slugs (sonst kein Treffer)
              vok.normalisiere_wohnsituation(p.wohnsituation), p.haushaltsgroesse,
              p.einkommen_spanne, vok.normalisiere_heizung(p.heizung),
-             p.pflegestufe, p.familienstand, p.kinder_im_haushalt,
+             p.pflegestufe, p.familienstand, p.kinder_im_haushalt, p.lebenssituation,
              vorhaben, anliegen, thema),
         )
         kunde_id = cur.fetchone()[0]
@@ -332,25 +340,43 @@ def _maske_email(email):
 
 
 def _profil_aus_formular(form) -> ProfilIn:
-    typ = (form.get("typ") or "betrieb").strip()
-    privat = typ == "privat"
-    region = form.get("region_grob_p") if privat else form.get("region_grob")
+    # Standbein "Sozial & Alltag": UI-typ ist "sozial", datenseitig aber
+    # typ='privat' (DB-Constraint) + thema bekommt zwingend 'sozial'.
+    typ_roh = (form.get("typ") or "betrieb").strip()
+    sozial = typ_roh == "sozial"
+    privat = typ_roh == "privat" or sozial
+    typ = "privat" if sozial else typ_roh
+    if sozial:
+        region = form.get("region_grob_s")
+    elif privat:
+        region = form.get("region_grob_p")
+    else:
+        region = form.get("region_grob")
     pf = (form.get("pflegestufe") or "").strip()
+    # Bedarf-Chips (nur Sozial) zaehlen wie Vorhaben zur Thema-Achse; die
+    # explizite Standbein-Wahl erzwingt zusaetzlich das grobe Thema 'sozial'.
+    vorhaben = list(form.getlist("vorhaben")) + list(form.getlist("bedarf"))
+    if sozial and "sozial" not in vorhaben:
+        vorhaben.append("sozial")
     return ProfilIn(
         typ=typ,
         region_grob=(region or None),
         branche=None if privat else (form.get("branche") or None),
         mitarbeiterklasse=None if privat else (form.get("mitarbeiterklasse") or None),
         wko_mitglied=None if privat else _ja_nein(form.get("wko_mitglied")),
-        wohnsituation=(form.get("wohnsituation") or None) if privat else None,
-        haushaltsgroesse=(form.get("haushaltsgroesse") or None) if privat else None,
-        einkommen_spanne=(form.get("einkommen_spanne") or None) if privat else None,
-        heizung=(form.get("heizung") or None) if privat else None,
-        pflegestufe=(int(pf) if pf.isdigit() else None) if privat else None,
-        familienstand=(form.get("familienstand") or None) if privat else None,
-        kinder_im_haushalt=_ja_nein(form.get("kinder_im_haushalt")) if privat else None,
-        vorhaben=list(form.getlist("vorhaben")),
-        anliegen=((form.get("anliegen") or "").strip() or None),        name=(form.get("name") or "").strip() or None,
+        wohnsituation=(form.get("wohnsituation") or None) if (privat and not sozial) else None,
+        haushaltsgroesse=((form.get("haushaltsgroesse_s") if sozial
+                           else form.get("haushaltsgroesse")) or None) if privat else None,
+        einkommen_spanne=((form.get("einkommen_spanne_s") if sozial
+                           else form.get("einkommen_spanne")) or None) if privat else None,
+        heizung=(form.get("heizung") or None) if (privat and not sozial) else None,
+        pflegestufe=(int(pf) if pf.isdigit() else None) if (privat and not sozial) else None,
+        familienstand=(form.get("familienstand") or None) if (privat and not sozial) else None,
+        kinder_im_haushalt=_ja_nein(form.get("kinder_im_haushalt")) if (privat and not sozial) else None,
+        lebenssituation=(form.get("lebenssituation") or None) if sozial else None,
+        vorhaben=vorhaben,
+        anliegen=((form.get("anliegen") or "").strip() or None),
+        name=(form.get("name") or "").strip() or None,
         email=(form.get("email") or "").strip() or None,
         telefon=(form.get("telefon") or "").strip() or None,
         kanal=(form.get("kanal") or None),
@@ -361,13 +387,14 @@ def _profil_aus_formular(form) -> ProfilIn:
 def _werte_aus_formular(form):
     werte = dict(form)
     werte["vorhaben"] = list(form.getlist("vorhaben"))
+    werte["bedarf"] = list(form.getlist("bedarf"))
     return werte
 
 
 @app.get("/formular")
 def formular(request: Request, typ: str = "betrieb"):
-    return _render(request, "formular.html",
-                   _formular_kontext(typ=("privat" if typ == "privat" else "betrieb")))
+    typ = typ if typ in ("betrieb", "privat", "sozial") else "betrieb"
+    return _render(request, "formular.html", _formular_kontext(typ=typ))
 
 
 @app.post("/formular")
@@ -375,10 +402,15 @@ async def formular_post(request: Request):
     form = await request.form()
     p = _profil_aus_formular(form)
     werte = _werte_aus_formular(form)
+    # Fuers Re-Rendering bei Fehlern zaehlt der vom Nutzer gewaehlte Tab
+    # (sozial), nicht der datenseitig auf 'privat' abgebildete p.typ.
+    typ_anzeige = (form.get("typ") or "betrieb").strip()
+    if typ_anzeige not in ("betrieb", "privat", "sozial"):
+        typ_anzeige = "betrieb"
 
     def _zurueck(fehler):
         return _render(request, "formular.html",
-                       _formular_kontext(werte=werte, fehler=fehler, typ=p.typ),
+                       _formular_kontext(werte=werte, fehler=fehler, typ=typ_anzeige),
                        status_code=400)
 
     if not p.name or not p.email:

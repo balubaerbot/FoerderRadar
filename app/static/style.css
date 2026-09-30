@@ -90,8 +90,12 @@ input:focus,select:focus,textarea:focus{outline:0;border-color:var(--p2)}
 
 /* Betrieb/Privat-Umschaltung rein per CSS */
 .nur-privat{display:none}
+.nur-sozial{display:none}
 body:has(input[name="typ"][value="privat"]:checked) .nur-betrieb{display:none}
 body:has(input[name="typ"][value="privat"]:checked) .nur-privat{display:block}
+body:has(input[name="typ"][value="sozial"]:checked) .nur-betrieb{display:none}
+body:has(input[name="typ"][value="sozial"]:checked) .nur-sozial{display:block}
+body:has(input[name="typ"][value="sozial"]:checked) .nicht-sozial{display:none}
 
 /* Mobil */
 @media (max-width:720px){

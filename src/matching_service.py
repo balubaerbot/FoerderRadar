@@ -122,6 +122,7 @@ def profil_row_to_dict(row: dict) -> dict:
         "pflegestufe": d.get("pflegestufe"),
         "familienstand": d.get("familienstand"),
         "kinder_im_haushalt": d.get("kinder_im_haushalt"),
+        "lebenssituation": d.get("lebenssituation"),
         "vorhaben": vorhaben,
         "themen": vorhaben,
         # Grobe Thema-Achse (WAS): gespeichert (inkl. KI) + aus Vorhaben abgeleitet.

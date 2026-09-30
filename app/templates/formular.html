@@ -14,9 +14,11 @@
   <form method="post" action="/formular" novalidate>
     <div class="tabs">
       <label class="tab"><input type="radio" name="typ" value="betrieb"
-        {% if typ != "privat" %}checked{% endif %}>Betrieb</label>
+        {% if typ not in ("privat", "sozial") %}checked{% endif %}>Betrieb</label>
       <label class="tab"><input type="radio" name="typ" value="privat"
         {% if typ == "privat" %}checked{% endif %}>Privatperson</label>
+      <label class="tab"><input type="radio" name="typ" value="sozial"
+        {% if typ == "sozial" %}checked{% endif %}>Sozial &amp; Alltag</label>
     </div>
 
     <div class="card">
@@ -121,7 +123,49 @@
         </div>
       </div>
 
-      <div class="field"><label>Ihr Vorhaben (Mehrfachauswahl)</label>
+      <!-- ---------------- Sozial & Alltag ---------------- -->
+      <div class="nur-sozial">
+        <div class="grid2">
+          <div class="field"><label for="bundesland_s">Bundesland *</label>
+            <select id="bundesland_s" name="region_grob_s">
+              {% for b in bundeslaender %}
+              <option value="{{ b }}" {% if b == werte.region_grob_s %}selected{% endif %}>{{ b }}</option>
+              {% endfor %}
+            </select></div>
+          <div class="field"><label for="lebenssituation">Lebenssituation</label>
+            <select id="lebenssituation" name="lebenssituation">
+              <option value="">– bitte wählen –</option>
+              {% for x in lebenssituationen %}
+              <option value="{{ x }}" {% if x == werte.lebenssituation %}selected{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label for="haushaltsgroesse_s">Haushaltsgröße</label>
+            <select id="haushaltsgroesse_s" name="haushaltsgroesse_s">
+              <option value="">– bitte wählen –</option>
+              {% for x in haushaltsgroessen %}
+              <option value="{{ x }}" {% if x == werte.haushaltsgroesse_s %}selected{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select></div>
+          <div class="field"><label for="einkommen_spanne_s">Haushaltseinkommen (netto/Monat)</label>
+            <select id="einkommen_spanne_s" name="einkommen_spanne_s">
+              <option value="">– bitte wählen –</option>
+              {% for x in einkommensspannen %}
+              <option value="{{ x }}" {% if x == werte.einkommen_spanne_s %}selected{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select></div>
+        </div>
+        <div class="field"><label>Wobei brauchen Sie Unterstützung? (Mehrfachauswahl)</label>
+          <div class="chips">
+            {% for v in bedarf_optionen %}
+            <label class="chip"><input type="checkbox" name="bedarf" value="{{ v }}"
+              {% if v in werte.bedarf %}checked{% endif %}>{{ v }}</label>
+            {% endfor %}
+          </div></div>
+      </div>
+
+      <div class="field nicht-sozial"><label>Ihr Vorhaben (Mehrfachauswahl)</label>
         <div class="chips">
           {% for v in vorhaben_optionen %}
           <label class="chip"><input type="checkbox" name="vorhaben" value="{{ v }}"
