@@ -1,15 +1,25 @@
 {
   "meta": {
-    "stand": "2026-09-28",
+    "stand": "2026-09-30",
     "hinweis": "TESTDATEN-Prototyp. Betraege/Fristen aus Live-Recherche, vor echtem Einsatz verifizieren.",
     "quellen": [
-      "foerderungen.wko.at/ooe/digitalplus26",
       "aws.at",
-      "land-oberoesterreich.gv.at",
-      "umweltfoerderung.at",
       "eag-abwicklungsstelle.at",
+      "foerderungen.wko.at/ooe/digitalplus26",
+      "foerderungen.wko.at/ooe/erfolgplus",
+      "land-oberoesterreich.gv.at",
+      "pflege.gv.at",
       "sanierungsoffensive.gv.at",
-      "foerderungen.wko.at/ooe/erfolgplus"
+      "transparenzportal.gv.at",
+      "umweltfoerderung.at",
+      "www.aws.at",
+      "www.bundeskanzleramt.gv.at",
+      "www.ffg.at",
+      "www.land-oberoesterreich.gv.at",
+      "www.sozialministeriumservice.gv.at",
+      "www.tirol.gv.at",
+      "www.umweltfoerderung.at",
+      "www.wko.at"
     ]
   },
   "foerderungen": [
@@ -78,7 +88,7 @@
       },
       "frist": "laufend",
       "status": "offen",
-      "quelle": "https://www.startmatch.dev/de-at/foerderungen/land-oberoesterreich/gruenderfonds-fuer-die-ooe-wirtschaft"
+      "quelle": "https://www.land-oberoesterreich.gv.at/555126.htm"
     },
     {
       "id": "innovative_skills",
@@ -342,6 +352,324 @@
       "frist": "laufend",
       "status": "offen",
       "quelle": "https://www.ris.bka.gv.at"
+    },
+    {
+      "id": "tirol_investitionsfoerderung_ku",
+      "name": "Tiroler Investitionsförderung für Kleinst- und Kleinunternehmen",
+      "stelle": "Land Tirol – Abteilung Wirtschaftsförderung und Fördertransparenz",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
+      "betrag": "Investitionsvolumen 20.000–700.000 Euro (Fördersatz laut Richtlinie, nicht auf Seite beziffert)",
+      "frist": "k.A. (laufende Einreichung laut Transparenzportal)",
+      "status": "offen",
+      "quelle": "https://transparenzportal.gv.at/tdb/tp/leistung/1061266.html",
+      "region": "Tirol",
+      "hinweise": [
+        "Beherbergungs- und Gastronomiebetriebe sind hier nicht antragsberechtigt, siehe 'Tiroler Tourismus und Regionalität'."
+      ],
+      "voraussetzungen": {
+        "projektkosten_min": 20000
+      }
+    },
+    {
+      "id": "tirol_kleininvestitionsfoerderung",
+      "name": "Tiroler Kleininvestitionsförderung",
+      "stelle": "Land Tirol – Abteilung Wirtschaftsförderung und Fördertransparenz",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
+      "betrag": "Nicht rückzahlbarer Einmalzuschuss, i.d.R. max. 50% der förderbaren Kosten; Bemessungsgrundlage 5.000–20.000 Euro (Zuschuss faktisch ca. 2.500–10.000 Euro)",
+      "frist": "Förderansuchen bis 31.12.2027 (Richtlinie gültig 01.01.2026–30.06.2028)",
+      "status": "offen",
+      "quelle": "https://www.tirol.gv.at/fileadmin/themen/arbeit-wirtschaft/wirtschaftsfoerderung/Dateistruktur_2024/Foerderungen/Richtlinien/RL_Tiroler_Kleininvestitionsf%C3%B6rderung.pdf",
+      "region": "Tirol",
+      "voraussetzungen": {
+        "projektkosten_min": 5000
+      }
+    },
+    {
+      "id": "tirol_digitalisierungsfoerderung",
+      "name": "Tiroler Digitalisierungsförderung",
+      "stelle": "Land Tirol (Abwicklung), WKO Tirol (Information)",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
+      "betrag": "Zuschuss: Kleinstunternehmen max. 30% (Projektkosten bis 100.000€); Kleine Unternehmen max. 20% (bis 300.000€); Mittlere/Große Unternehmen max. 10% (bis 750.000€)",
+      "frist": "Antrag bis 31.12.2027 (Geltungsdauer 01.01.2023–30.06.2028)",
+      "status": "offen",
+      "quelle": "https://www.wko.at/foerderungen/tiroler-digitalisierungsfoerderung",
+      "region": "Tirol"
+    },
+    {
+      "id": "tirol_tourismusfoerderung",
+      "name": "Tiroler Tourismusförderung",
+      "stelle": "Land Tirol (Abwicklung teils über ÖHT), WKO Tirol (Information)",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
+      "betrag": "k.A. (Zuschuss, Höhe je Investitionsschwerpunkt unterschiedlich)",
+      "frist": "Anträge bis 31.12.2027 (Geltungsdauer 1.1.2023–30.6.2028)",
+      "status": "offen",
+      "quelle": "https://www.wko.at/foerderungen/tourismusfoerderung-tirol",
+      "region": "Tirol"
+    },
+    {
+      "id": "tirol_rahmenrichtlinie_wirtschaft",
+      "name": "Förderungen nach der Rahmenrichtlinie für die Tiroler Wirtschaftsförderung",
+      "stelle": "Land Tirol",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
+      "betrag": "k.A. (Einzelfallentscheidung je Vorhaben, EU-Beihilfenrecht ist einzuhalten)",
+      "frist": "k.A. (laufend)",
+      "status": "offen",
+      "quelle": "https://transparenzportal.gv.at/tdb/tp/leistung/1061555.html",
+      "region": "Tirol",
+      "hinweise": [
+        "Auffangschiene für besonders berücksichtigungswürdige Vorhaben, die nicht unter eine spezielle Tiroler Wirtschaftsförderungsrichtlinie fallen."
+      ]
+    },
+    {
+      "id": "aws_garantie",
+      "name": "aws Garantie",
+      "stelle": "Austria Wirtschaftsservice (aws)",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
+      "betrag": "Garantie bis zu 30 Mio. Euro pro Projekt, max. 50 Mio. Euro pro Unternehmen/Gruppe",
+      "frist": "laufend, Einreichung jederzeit",
+      "status": "offen",
+      "quelle": "https://www.aws.at/aws-garantie/",
+      "region": "Bund"
+    },
+    {
+      "id": "aws_wachstumsinvestition",
+      "name": "aws Wachstumsinvestition",
+      "stelle": "Austria Wirtschaftsservice (aws)",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
+      "betrag": "Zuschuss, durchschnittlich 300.000–400.000 Euro (teilweise auch darüber)",
+      "frist": "laufend, Einreichung jederzeit",
+      "status": "offen",
+      "quelle": "https://www.aws.at/aws-wachstumsinvestition/",
+      "region": "Bund",
+      "voraussetzungen": {
+        "projektkosten_min": 300000
+      }
+    },
+    {
+      "id": "ffg_impact_innovation",
+      "name": "FFG Impact Innovation",
+      "stelle": "Forschungsförderungsgesellschaft (FFG) / BMK",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
+      "betrag": "k.A. (kombinierbar mit Innovationsscheck bis 10.000 Euro)",
+      "frist": "k.A. (siehe jeweils aktuelle Ausschreibung)",
+      "status": "offen",
+      "quelle": "https://www.ffg.at/programm/impactinnovation",
+      "region": "Bund",
+      "hinweise": [
+        "Antragsberechtigt sind Organisationen jeder Größe (KMU und Großunternehmen), Vereine sowie Einzel-Forscher:innen und Startups."
+      ]
+    },
+    {
+      "id": "kpc_gebaeudesanierung_betriebe",
+      "name": "Umweltförderung: Umfassende Gebäudesanierung für Betriebe",
+      "stelle": "Kommunalkredit Public Consulting (KPC) im Auftrag des BMK",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "energie",
+        "wirtschaft"
+      ],
+      "betrag": "k.A. (Details im Informationsblatt der Förderstelle)",
+      "frist": "laufend",
+      "status": "offen",
+      "quelle": "https://www.umweltfoerderung.at/betriebe/umfassende-gebaeudesanierung",
+      "region": "Bund"
+    },
+    {
+      "id": "kpc_energiezentralen_betriebe",
+      "name": "Umweltförderung: Innerbetriebliche Energiezentralen (Energiesparen)",
+      "stelle": "Kommunalkredit Public Consulting (KPC) im Auftrag des BMK",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "energie",
+        "wirtschaft"
+      ],
+      "betrag": "k.A.",
+      "frist": "Förderungsaktion per 30.06.2025 eingestellt; bis dahin eingereichte Anträge werden noch bearbeitet",
+      "status": "fenster_zu",
+      "quelle": "https://www.umweltfoerderung.at/betriebe/innerbetriebliche-energiezentralen/energiesparen",
+      "region": "Bund"
+    },
+    {
+      "id": "ooe_energiesparen_betriebe",
+      "name": "Oberösterreich: Energiesparen in Betrieben und effiziente Energienutzung",
+      "stelle": "Land Oberösterreich (Information via WKO OÖ)",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "energie",
+        "wirtschaft"
+      ],
+      "betrag": "k.A.",
+      "frist": "k.A.",
+      "status": "offen",
+      "quelle": "https://www.wko.at/foerderungen/energiesparen-energienutzung-betriebe-oberoesterreich",
+      "region": "OÖ",
+      "hinweise": [
+        "Förderung für Unternehmen, Vereine, konfessionelle Einrichtungen und unternehmerisch tätige Organisationen."
+      ]
+    },
+    {
+      "id": "bund_24h_betreuung_foerderung",
+      "name": "Förderung für 24-Stunden-Betreuung",
+      "stelle": "Sozialministeriumservice",
+      "zielgruppe": "sozial",
+      "thema": [
+        "sozial"
+      ],
+      "betrag": "800 Euro/Monat für zwei selbstständige Betreuungspersonen; bis zu 1.600 Euro/Monat für zwei angestellte Betreuungspersonen",
+      "frist": "laufend",
+      "status": "offen",
+      "quelle": "https://pflege.gv.at/de/foerderung-fuer-24-stunden-betreuung",
+      "region": "Bund",
+      "voraussetzungen": {
+        "pflegestufe_min": 3,
+        "einkommen_max": 2500,
+        "einkommen_einheit": "monat"
+      }
+    },
+    {
+      "id": "bund_erhoehte_familienbeihilfe",
+      "name": "Erhöhte Familienbeihilfe",
+      "stelle": "Finanzamt Österreich (Gutachten: Sozialministeriumservice)",
+      "zielgruppe": "sozial",
+      "thema": [
+        "sozial"
+      ],
+      "betrag": "189,20 Euro monatlich zusätzlich zur regulären Familienbeihilfe (ab 1. Jänner 2026)",
+      "frist": "laufend; rückwirkende Auszahlung bis maximal 5 Jahre möglich",
+      "status": "offen",
+      "quelle": "https://www.sozialministeriumservice.gv.at/Menschen_mit_Behinderung/Finanzielle_Unterstuetzung/erhoehte_Familienbeihilfe/Erhoehte-Familienbeihilfe.de.html",
+      "region": "Bund"
+    },
+    {
+      "id": "bund_schuelerbeihilfe",
+      "name": "Schülerbeihilfe, Heimbeihilfe und Besondere Schulbeihilfe",
+      "stelle": "Bildungsministerium / Schülerbeihilfenbehörde",
+      "zielgruppe": "sozial",
+      "thema": [
+        "bildung",
+        "sozial"
+      ],
+      "betrag": "k.A. (einkommensabhängige Transferzahlung); Heimfahrtbeihilfe zwischen 19 € und 58 € pro Monat je nach Entfernung",
+      "frist": "Antrag bis 31. Dezember bzw. 31. Mai (bei semesterweise geführten Schulen) des laufenden Schuljahres",
+      "status": "offen",
+      "quelle": "https://transparenzportal.gv.at/tdb/tp/leistung/1006097.html",
+      "region": "Bund"
+    },
+    {
+      "id": "bund_schulstartgeld",
+      "name": "Schulstartgeld",
+      "stelle": "Bundeskanzleramt / Finanzamt Österreich",
+      "zielgruppe": "sozial",
+      "thema": [
+        "bildung",
+        "sozial"
+      ],
+      "betrag": "121,40 Euro im August pro Kind im Alter von 6 bis 15 Jahren",
+      "frist": "kein gesonderter Antrag nötig; automatische Auszahlung mit der Familienbeihilfe im August",
+      "status": "offen",
+      "quelle": "https://www.bundeskanzleramt.gv.at/agenda/familie/familienbeihilfe/schulstartgeld.html",
+      "region": "Bund"
+    },
+    {
+      "id": "ooe_sozialhilfe",
+      "name": "Oö. Sozialhilfe – Unterstützung des Lebensunterhalts und Wohnbedarfs",
+      "stelle": "Land Oberösterreich",
+      "zielgruppe": "sozial",
+      "thema": [
+        "sozial"
+      ],
+      "betrag": "pauschalierte Richtsätze; Reduktion um bis zu 302,25 Euro/Monat bei geringen Wohnkosten",
+      "frist": "laufend",
+      "status": "offen",
+      "quelle": "https://www.land-oberoesterreich.gv.at/23004.htm",
+      "region": "OÖ"
+    },
+    {
+      "id": "ooe_soziale_rehabilitation",
+      "name": "Soziale Rehabilitation – Förderungen für Menschen mit Behinderung (OÖ)",
+      "stelle": "Land Oberösterreich",
+      "zielgruppe": "sozial",
+      "thema": [
+        "sozial"
+      ],
+      "betrag": "k.A. (Einzelfallzuschuss, z.B. Kfz-Adaptierung, Wohnraumadaptierung, Kommunikationshilfsmittel, elektronische Hilfsmittel, Gebärdensprach-Dolmetschkosten, finanzielle Notlagen)",
+      "frist": "laufend",
+      "status": "offen",
+      "quelle": "https://www.land-oberoesterreich.gv.at/276889.htm",
+      "region": "OÖ"
+    },
+    {
+      "id": "tirol_mindestsicherung",
+      "name": "Tiroler Mindestsicherung",
+      "stelle": "Land Tirol – Bezirkshauptmannschaften / Stadtmagistrat Innsbruck, Amt für Soziales",
+      "zielgruppe": "sozial",
+      "thema": [
+        "sozial"
+      ],
+      "betrag": "922,42 €/Monat (Alleinstehende/Alleinerziehende); 691,81 €/Monat (Volljährige in Bedarfsgemeinschaft); gestaffelte Sätze für Kinder (304,40 € bis 147,59 €/Monat); zzgl. Wohnbedarf je nach Bezirk",
+      "frist": "laufend",
+      "status": "offen",
+      "quelle": "https://www.tirol.gv.at/fileadmin/themen/gesellschaft-soziales/soziales/Formulare/Mindestsicherung/Informationsblatt_offene_Mindestsicherung_J%C3%A4nner_2026.pdf",
+      "region": "Tirol"
+    },
+    {
+      "id": "tirol_heizkostenzuschuss",
+      "name": "Heizkostenzuschuss Tirol 2026",
+      "stelle": "Land Tirol – Abteilung Soziales / Tiroler Hilfswerk",
+      "zielgruppe": "sozial",
+      "thema": [
+        "energie",
+        "sozial"
+      ],
+      "betrag": "k.A. (einkommens- und haushaltsgrößenabhängig, siehe Online-Zuschussrechner)",
+      "frist": "01.05.2026 – 31.10.2026",
+      "status": "offen",
+      "quelle": "https://www.tirol.gv.at/gesellschaft-soziales/soziales/heizkostenzuschuss/",
+      "region": "Tirol"
+    },
+    {
+      "id": "tirol_wohnbeihilfe",
+      "name": "Wohnbeihilfe Tirol",
+      "stelle": "Land Tirol – Wohnbauförderung",
+      "zielgruppe": "privat",
+      "thema": [
+        "wohnen"
+      ],
+      "betrag": "k.A. (Differenz zwischen anrechenbarem Wohnungsaufwand und zumutbarer Wohnungsaufwandsbelastung nach Haushaltsgröße/Einkommen)",
+      "frist": "laufend",
+      "status": "offen",
+      "quelle": "https://www.tirol.gv.at/bauen-wohnen/wohnbaufoerderung/beihilfe/wohnbeihilfe/wohnbeihilfe-information/",
+      "region": "Tirol",
+      "voraussetzungen": {
+        "wohnsituation": [
+          "miete",
+          "eigentum"
+        ]
+      }
     }
   ]
 }

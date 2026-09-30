@@ -58,3 +58,10 @@ aktuellen Foerderungen und Fristen informiert werden koennen.
   "quelle": "https://..."
 }
 ```
+
+## Roadmap (offene Standorte)
+
+Abgedeckt: OÖ + Tirol (Testabdeckung) sowie Programme mit region "Bund".
+VORGEMERKT: restliche Bundeslaender nachziehen - Wien, Niederoesterreich,
+Burgenland, Steiermark, Kaernten, Salzburg, Vorarlberg.
+Gleicher Standard: kein Eintrag ohne reale, abgerufene Quelle (No-Halluzination).
