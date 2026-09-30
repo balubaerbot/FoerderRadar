@@ -176,7 +176,7 @@
       <div class="field"><label for="anliegen">Beschreiben Sie kurz Ihr Anliegen
         <span class="small" style="font-weight:400">(optional)</span></label>
         <textarea id="anliegen" name="anliegen" rows="4"
-          placeholder="{% if typ == 'privat' %}Ich pflege meine Mutter, die Heizkosten sind kaum leistbar.{% else %}Wir wollen unsere Fertigung digitalisieren – die Energiekosten in der Werkstatt sind stark gestiegen.{% endif %}">{{ werte.anliegen or '' }}</textarea>
+          placeholder="{% if typ == 'sozial' %}Ich pflege meine Mutter zu Hause und kann die Heizkosten kaum bezahlen.{% elif typ == 'privat' %}Ich möchte mein Haus sanieren – welche Förderung gibt es dafür?{% else %}Wir wollen unsere Fertigung digitalisieren – die Energiekosten in der Werkstatt sind stark gestiegen.{% endif %}">{{ werte.anliegen or '' }}</textarea>
         <p class="small" style="margin-top:6px">In eigenen Worten – die KI erkennt daraus Standbein
           und Themen. Die Prüfung selbst machen weiterhin die Regeln.</p></div>
 

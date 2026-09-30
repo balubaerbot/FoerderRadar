@@ -97,10 +97,14 @@ FAMILIENSTAENDE = ["ledig", "verheiratet / Partnerschaft", "geschieden", "verwit
 VORHABEN_OPTIONEN = ["Digitalisierung", "Investition", "Schulung", "Energieeffizienz",
                      "Photovoltaik", "Gr\u00fcndung", "Sanierung", "Weiterbildung", "Mobilit\u00e4t"]
 # Drittes Standbein "Sozial & Alltag" (datenseitig: typ='privat' + thema enthaelt 'sozial').
-LEBENSSITUATIONEN = ["Pflege eines Angeh\u00f6rigen", "Kinderbetreuung", "Arbeitssuchend",
-                     "Pension", "Behinderung / Beeintr\u00e4chtigung", "Alleinerziehend"]
-BEDARF_OPTIONEN = ["Heizkostenzuschuss", "Pflegegeld", "Kinderbetreuung", "Wohnbeihilfe",
-                   "Ausbildung", "Barrierefreiheit"]
+LEBENSSITUATIONEN = ["Pflege eines Angehörigen", "Geringes Einkommen / Arbeitssuchend",
+                     "Behinderung / Beeinträchtigung", "Alleinerziehend",
+                     "Familie mit Kindern", "Pension"]
+# Jede Option ist an mindestens eine reale Beihilfe im Katalog gekoppelt
+# (kein Chip ohne Trefferquelle).
+BEDARF_OPTIONEN = ["Heizkostenzuschuss", "Wohnbeihilfe", "Pflege & Betreuung",
+                   "Mindestsicherung / Sozialhilfe", "Familien- & Schulbeihilfe",
+                   "Behinderung & Rehabilitation", "Barrierefreies Wohnen"]
 
 
 def _render(request, name, ctx=None, status_code=200):

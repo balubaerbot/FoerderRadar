@@ -77,7 +77,7 @@ else:
 try:
     daten = {
         "typ": "sozial", "region_grob_s": "Oberösterreich",
-        "lebenssituation": "Pflege", "bedarf": ["Pflegegeld"],
+        "lebenssituation": "Pflege eines Angehörigen", "bedarf": ["Pflege & Betreuung"],
         "name": "Erika Musterfrau", "email": "erika@beispiel.at",
         "kanal": "email", "einwilligung": "ja",
     }

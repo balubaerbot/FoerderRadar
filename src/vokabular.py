@@ -119,6 +119,12 @@ _THEMA_VORHABEN = {
     "wohnbeihilfe": ["sozial", "wohnen"],
     "ausbildung": ["sozial", "bildung"],
     "barrierefreiheit": ["sozial", "wohnen"],
+    # Feine Bedarfs-Labels des Sozial-Formulars (nachgeschaerft an echten Beihilfen)
+    "pflege_betreuung": ["sozial"],
+    "mindestsicherung_sozialhilfe": ["sozial"],
+    "familien_schulbeihilfe": ["sozial", "bildung"],
+    "behinderung_rehabilitation": ["sozial"],
+    "barrierefreies_wohnen": ["sozial", "wohnen"],
 }
 
 
