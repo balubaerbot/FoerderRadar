@@ -82,7 +82,7 @@ LOGO = ('<div class="logo"><span class="mark">'
 
 HEAD = f"""<header>{LOGO}<nav>
 <a href="mockup-start.html">Wie es funktioniert</a><a href="mockup-standbein.html">Förderungen</a><a href="#">Kontakt</a>
-<a class="btn btn-p" style="padding:11px 20px;font-size:15px" href="mockup-formular.html?typ=betrieb">Jetzt starten</a>
+<a class="btn btn-p" style="padding:11px 20px;font-size:15px" href="mockup-formular-betrieb.html">Jetzt starten</a>
 </nav></header>"""
 
 FOOT = ('<footer><a href="#">Impressum</a><a href="#">Datenschutz</a><a href="#">Kontakt</a>'
@@ -103,8 +103,8 @@ start = screen("Fördora — Startseite", HEAD + f"""
     <p class="lead">Fördora gleicht Ihr Profil automatisch mit allen Förderprogrammen
        für Österreich ab – und meldet sich, sobald eine Frist naht.</p>
     <div class="cta">
-      <a class="btn btn-p" href="mockup-formular.html?typ=betrieb">Für Betriebe</a>
-      <a class="btn btn-o" href="mockup-formular.html?typ=privat">Für Privatpersonen</a>
+      <a class="btn btn-p" href="mockup-formular-betrieb.html">Für Betriebe</a>
+      <a class="btn btn-o" href="mockup-formular-privat.html">Für Privatpersonen</a>
     </div>
     <div class="trust">
       <span><b>✓</b> Kostenlos &amp; unverbindlich</span>
@@ -176,151 +176,118 @@ start = screen("Fördora — Startseite", HEAD + f"""
   </section>
 </main>""" + FOOT)
 
-# ---------------------------------------------------------------- Formular
-formular = screen("Fördora — Angaben", HEAD + f"""
-<main class="wrap" style="max-width:820px;padding-top:40px">
-  <p class="small" style="margin-bottom:6px">Schritt 1 von 1 · dauert ca. 2 Minuten</p>
-  <h1 style="font-size:32px">Ihre Angaben</h1>
-  <p class="lead" style="font-size:16.5px;margin-bottom:26px">Je genauer, desto besser die Treffer.
-  Pflichtfelder sind mit * markiert.</p>
-  <div class="tabs">
-    <div class="tab" data-typ="betrieb" onclick="waehle(this)">Betrieb</div>
-    <div class="tab" data-typ="privat" onclick="waehle(this)">Privatperson</div>
-    <div class="tab" data-typ="sozial" onclick="waehle(this)">Sozial &amp; Alltag</div>
-  </div>
-  <div class="card">
-    <div class="variante" data-typ="betrieb">
-      <div class="grid2">
-        <div class="field"><label>Bundesland *</label>
-          <select><option>Oberösterreich</option><option>Wien</option><option>Niederösterreich</option>
-          <option>Salzburg</option><option>Tirol</option><option>Kärnten</option><option>Steiermark</option>
-          <option>Vorarlberg</option><option>Burgenland</option></select></div>
-        <div class="field"><label>Branche</label>
-          <select><option>Handwerk / Gewerbe</option><option>IT / Digitalisierung</option>
-          <option>Handel</option><option>Produktion</option><option>Sonstiges</option></select></div>
-      </div>
-      <div class="grid2">
-        <div class="field"><label>Mitarbeiter</label>
-          <select><option>1–4</option><option>5–9</option><option>10–49</option><option>50–249</option></select></div>
-        <div class="field"><label>WKO-Mitglied?</label>
-          <select><option>Ja</option><option>Nein</option></select></div>
-      </div>
-      <div class="field">
-        <label>Ihr Vorhaben (Mehrfachauswahl)</label>
-        <div class="chips">
-          <span class="chip on">Digitalisierung</span><span class="chip on">Investition</span>
-          <span class="chip">Schulung</span><span class="chip">Energieeffizienz</span>
-          <span class="chip">Photovoltaik</span><span class="chip">Gründung</span>
-        </div></div>
-      <div class="field" style="margin-top:22px">
-        <label>Beschreiben Sie kurz Ihr Anliegen <span style="color:var(--mut);font-weight:400">(optional)</span></label>
-        <textarea rows="4" style="resize:vertical">Wir wollen unsere Fertigung digitalisieren – die Energiekosten in der Werkstatt sind stark gestiegen.</textarea>
-        <p class="small" style="margin:7px 0 0">In eigenen Worten – die KI erkennt daraus Standbein und Themen.
-        Die Prüfung selbst machen weiterhin die Regeln.</p></div>
-      <div class="grid2" style="margin-top:24px">
-        <div class="field" style="margin-bottom:0"><label>Projektkosten (ca., EUR)</label>
-          <input value="25.000"></div>
-      </div>
-    </div>
-    <div class="variante" data-typ="privat">
-      <div class="grid2">
-        <div class="field"><label>Bundesland *</label>
-          <select><option>Oberösterreich</option><option>Wien</option><option>Niederösterreich</option>
-          <option>Salzburg</option><option>Tirol</option><option>Kärnten</option><option>Steiermark</option>
-          <option>Vorarlberg</option><option>Burgenland</option></select></div>
-        <div class="field"><label>Wohnsituation</label>
-          <select><option>Eigentum</option><option>Miete</option><option>Gemeindewohnung</option><option>bei Angehörigen</option></select></div>
-      </div>
-      <div class="grid2">
-        <div class="field"><label>Haushaltsgröße</label>
-          <select><option>1 Person</option><option>2 Personen</option><option>3 Personen</option><option>4 Personen</option><option>5+ Personen</option></select></div>
-        <div class="field"><label>Haushaltseinkommen (netto/Monat)</label>
-          <select><option>unter 1.500 €</option><option>1.500–2.500 €</option><option>2.500–4.000 €</option><option>über 4.000 €</option><option>keine Angabe</option></select></div>
-      </div>
-      <div class="field">
-        <label>Ihr Vorhaben (Mehrfachauswahl)</label>
-        <div class="chips">
-          <span class="chip on">Sanierung</span><span class="chip on">Heizungstausch</span>
-          <span class="chip">Fenstertausch</span><span class="chip">Photovoltaik</span>
-          <span class="chip">E-Auto</span><span class="chip">Energieberatung</span>
-        </div></div>
-      <div class="field" style="margin-top:22px">
-        <label>Beschreiben Sie kurz Ihr Anliegen <span style="color:var(--mut);font-weight:400">(optional)</span></label>
-        <textarea rows="4" style="resize:vertical">Ich möchte mein Haus sanieren – die Heizkosten sind stark gestiegen.</textarea>
-        <p class="small" style="margin:7px 0 0">In eigenen Worten – die KI erkennt daraus Standbein und Themen.
-        Die Prüfung selbst machen weiterhin die Regeln.</p></div>
-      <div class="grid2" style="margin-top:24px">
-        <div class="field" style="margin-bottom:0"><label>Geschätzte Kosten (ca., EUR)</label>
-          <input value="12.000"></div>
-      </div>
-    </div>
-    <div class="variante" data-typ="sozial">
-      <div class="grid2">
-        <div class="field"><label>Bundesland *</label>
-          <select><option>Oberösterreich</option><option>Wien</option><option>Niederösterreich</option>
-          <option>Salzburg</option><option>Tirol</option><option>Kärnten</option><option>Steiermark</option>
-          <option>Vorarlberg</option><option>Burgenland</option></select></div>
-        <div class="field"><label>Lebenssituation</label>
-          <select><option>Pflege eines Angehörigen</option><option>Kinderbetreuung</option><option>Arbeitssuchend</option><option>Pension</option><option>Behinderung / Beeinträchtigung</option><option>Alleinerziehend</option></select></div>
-      </div>
-      <div class="grid2">
-        <div class="field"><label>Haushaltsgröße</label>
-          <select><option>1 Person</option><option>2 Personen</option><option>3 Personen</option><option>4 Personen</option><option>5+ Personen</option></select></div>
-        <div class="field"><label>Haushaltseinkommen (netto/Monat)</label>
-          <select><option>unter 1.500 €</option><option>1.500–2.500 €</option><option>2.500–4.000 €</option><option>über 4.000 €</option><option>keine Angabe</option></select></div>
-      </div>
-      <div class="field">
-        <label>Wobei brauchen Sie Unterstützung? (Mehrfachauswahl)</label>
-        <div class="chips">
-          <span class="chip on">Heizkostenzuschuss</span><span class="chip on">Pflegegeld</span>
-          <span class="chip">Kinderbetreuung</span><span class="chip">Wohnbeihilfe</span>
-          <span class="chip">Ausbildung</span><span class="chip">Barrierefreiheit</span>
-        </div></div>
-      <div class="field" style="margin-top:22px">
-        <label>Beschreiben Sie kurz Ihr Anliegen <span style="color:var(--mut);font-weight:400">(optional)</span></label>
-        <textarea rows="4" style="resize:vertical">Ich pflege meine Mutter, die Heizkosten sind kaum leistbar.</textarea>
-        <p class="small" style="margin:7px 0 0">In eigenen Worten – die KI erkennt daraus Standbein und Themen.
-        Die Prüfung selbst machen weiterhin die Regeln.</p></div>
-    </div>
-    <hr style="border:0;border-top:1px solid var(--line);margin:24px 0">
-    <h2 style="font-size:17px;margin-bottom:14px">Kontakt</h2>
-    <div class="grid2">
-      <div class="field"><label>Name *</label><input value="Max Mustermann"></div>
-      <div class="field"><label>E-Mail *</label><input value="max@beispiel.at"></div>
-    </div>
-    <div class="field"><label>Telefon (optional, für SMS)</label><input value="+43 660 1234567"></div>
-    <div class="consent">
-      <input type="checkbox" checked>
-      <div class="small" style="color:#134e4a">Ich willige ein, dass Fördora meine Angaben zur Prüfung
-      möglicher Förderungen verarbeitet und mich per E-Mail/SMS kontaktiert. Diese Einwilligung kann ich
-      jederzeit widerrufen.</div>
-    </div>
-    <a class="btn btn-p" href="mockup-danke.html" style="display:block;text-align:center;text-decoration:none;width:100%;padding:16px;font-size:17px">Förderungen finden</a>
-    <p class="small center" style="margin-top:14px">Keine Registrierung. Ihre Daten werden nur zur
-    Prüfung verwendet.</p>
-  </div>
-  <div style="height:40px"></div>
-</main>
-<script>
-function waehle(el){{
-  document.querySelectorAll('.tab').forEach(function(t){{t.classList.remove('on');}});
-  el.classList.add('on');
-  zeigeVariante(el.getAttribute('data-typ'));
-}}
-function zeigeVariante(typ){{
-  document.querySelectorAll('.variante').forEach(function(v){{
-    v.style.display = (v.getAttribute('data-typ') === typ) ? '' : 'none';
-  }});
-}}
-(function(){{
-  var typ = new URLSearchParams(location.search).get('typ') || 'betrieb';
-  var tab = document.querySelector('.tab[data-typ="' + typ + '"]');
-  if (!tab) {{ tab = document.querySelector('.tab'); typ = 'betrieb'; }}
-  document.querySelectorAll('.tab').forEach(function(t){{t.classList.remove('on');}});
-  tab.classList.add('on');
-  zeigeVariante(typ);
-}})();
-</script>""" + FOOT)
+# ---------------------------------------------------------------- Formular-Bausteine
+# Kapselung: kleine, benannte Bausteine -> kein kopiertes Feld-Markup mehr.
+BUNDESLAENDER = ("Oberösterreich", "Wien", "Niederösterreich", "Salzburg", "Tirol",
+                 "Kärnten", "Steiermark", "Vorarlberg", "Burgenland")
+
+
+def optionen(werte):
+    return "".join(f"<option>{w}</option>" for w in werte)
+
+
+def feld(label, inner, pflicht=False):
+    return f'<div class="field"><label>{label}{" *" if pflicht else ""}</label>{inner}</div>'
+
+
+def auswahl(label, werte, pflicht=False):
+    return feld(label, f"<select>{optionen(werte)}</select>", pflicht)
+
+
+def zeile(*felder):
+    return '<div class="grid2">' + "".join(felder) + "</div>"
+
+
+def chips_feld(label, eintraege):
+    spans = "".join(f'<span class="chip{" on" if an else ""}">{text}</span>'
+                    for text, an in eintraege)
+    return feld(label, f'<div class="chips">{spans}</div>')
+
+
+def anliegen(text):
+    return ('<div class="field" style="margin-top:22px">'
+            '<label>Beschreiben Sie kurz Ihr Anliegen '
+            '<span style="color:var(--mut);font-weight:400">(optional)</span></label>'
+            f'<textarea rows="4" style="resize:vertical">{text}</textarea>'
+            '<p class="small" style="margin:7px 0 0">In eigenen Worten – die KI erkennt daraus '
+            'Standbein und Themen. Die Prüfung selbst machen weiterhin die Regeln.</p></div>')
+
+
+_KONTAKT = (
+    '<hr style="border:0;border-top:1px solid var(--line);margin:24px 0">'
+    '<h2 style="font-size:17px;margin-bottom:14px">Kontakt</h2>'
+    + zeile(feld("Name", '<input value="Max Mustermann">', True),
+            feld("E-Mail", '<input value="max@beispiel.at">', True))
+    + feld("Telefon (optional, für SMS)", '<input value="+43 660 1234567">')
+    + '<div class="consent"><input type="checkbox" checked>'
+      '<div class="small" style="color:#134e4a">Ich willige ein, dass Fördora meine Angaben '
+      'zur Prüfung möglicher Förderungen verarbeitet und mich per E-Mail/SMS kontaktiert. '
+      'Diese Einwilligung kann ich jederzeit widerrufen.</div></div>'
+    + '<a class="btn btn-p" href="mockup-danke.html" style="display:block;text-align:center;'
+      'text-decoration:none;width:100%;padding:16px;font-size:17px">Förderungen finden</a>'
+    + '<p class="small center" style="margin-top:14px">Keine Registrierung. Ihre Daten werden '
+      'nur zur Prüfung verwendet.</p>'
+)
+
+
+def formular_seite(*bloecke):
+    """Eine eigenstaendige Formularseite aus Feldbloecken zusammensetzen."""
+    return screen("Fördora — Angaben", HEAD + (
+        '<main class="wrap" style="max-width:820px;padding-top:40px">'
+        '<p class="small" style="margin-bottom:6px">Schritt 1 von 1 · dauert ca. 2 Minuten</p>'
+        '<h1 style="font-size:32px">Ihre Angaben</h1>'
+        '<p class="lead" style="font-size:16.5px;margin-bottom:26px">Je genauer, desto besser '
+        'die Treffer. Pflichtfelder sind mit * markiert.</p>'
+        '<div class="card">' + "".join(bloecke) + _KONTAKT + '</div>'
+        '<div style="height:40px"></div></main>') + FOOT)
+
+
+# ---------------------------------------------------------------- Formulare je Standbein
+formular_betrieb = formular_seite(
+    zeile(auswahl("Bundesland", BUNDESLAENDER, True),
+          auswahl("Branche", ("Handwerk / Gewerbe", "IT / Digitalisierung", "Handel",
+                              "Produktion", "Sonstiges"))),
+    zeile(auswahl("Mitarbeiter", ("1–4", "5–9", "10–49", "50–249")),
+          auswahl("WKO-Mitglied?", ("Ja", "Nein"))),
+    chips_feld("Ihr Vorhaben (Mehrfachauswahl)",
+               (("Digitalisierung", True), ("Investition", True), ("Schulung", False),
+                ("Energieeffizienz", False), ("Photovoltaik", False), ("Gründung", False))),
+    anliegen("Wir wollen unsere Fertigung digitalisieren – die Energiekosten in der Werkstatt "
+             "sind stark gestiegen."),
+    zeile(feld("Projektkosten (ca., EUR)", '<input value="25.000">')),
+)
+
+formular_privat = formular_seite(
+    zeile(auswahl("Bundesland", BUNDESLAENDER, True),
+          auswahl("Wohnsituation", ("Eigentum", "Miete", "Gemeindewohnung", "bei Angehörigen"))),
+    zeile(auswahl("Haushaltsgröße", ("1 Person", "2 Personen", "3 Personen", "4 Personen",
+                                     "5+ Personen")),
+          auswahl("Haushaltseinkommen (netto/Monat)", ("unter 1.500 €", "1.500–2.500 €",
+                                                       "2.500–4.000 €", "über 4.000 €",
+                                                       "keine Angabe"))),
+    chips_feld("Ihr Vorhaben (Mehrfachauswahl)",
+               (("Sanierung", True), ("Heizungstausch", True), ("Fenstertausch", False),
+                ("Photovoltaik", False), ("E-Auto", False), ("Energieberatung", False))),
+    anliegen("Ich möchte mein Haus sanieren – die Heizkosten sind stark gestiegen."),
+    zeile(feld("Geschätzte Kosten (ca., EUR)", '<input value="12.000">')),
+)
+
+formular_sozial = formular_seite(
+    zeile(auswahl("Bundesland", BUNDESLAENDER, True),
+          auswahl("Lebenssituation", ("Pflege eines Angehörigen", "Kinderbetreuung",
+                                      "Arbeitssuchend", "Pension",
+                                      "Behinderung / Beeinträchtigung", "Alleinerziehend"))),
+    zeile(auswahl("Haushaltsgröße", ("1 Person", "2 Personen", "3 Personen", "4 Personen",
+                                     "5+ Personen")),
+          auswahl("Haushaltseinkommen (netto/Monat)", ("unter 1.500 €", "1.500–2.500 €",
+                                                       "2.500–4.000 €", "über 4.000 €",
+                                                       "keine Angabe"))),
+    chips_feld("Wobei brauchen Sie Unterstützung? (Mehrfachauswahl)",
+               (("Heizkostenzuschuss", True), ("Pflegegeld", True), ("Kinderbetreuung", False),
+                ("Wohnbeihilfe", False), ("Ausbildung", False), ("Barrierefreiheit", False))),
+    anliegen("Ich pflege meine Mutter, die Heizkosten sind kaum leistbar."),
+)
+
 
 # ---------------------------------------------------------------- Danke
 danke = screen("Fördora — Danke", HEAD + """
@@ -372,9 +339,9 @@ standbein = screen("Fördora — Standbeine & Thema-Achse", HEAD + f"<style>{EXT
     <p class="lead">Fördora gleicht Ihr Profil automatisch mit Förderungen und
        Sozialangeboten für Österreich ab – und meldet sich, sobald eine Frist naht.</p>
     <div class="cta">
-      <a class="btn btn-p" href="mockup-formular.html?typ=betrieb">Für Betriebe</a>
-      <a class="btn btn-o" href="mockup-formular.html?typ=privat">Für Privatpersonen</a>
-      <a class="btn btn-o" href="mockup-formular.html?typ=sozial">Sozial &amp; Alltag</a>
+      <a class="btn btn-p" href="mockup-formular-betrieb.html">Für Betriebe</a>
+      <a class="btn btn-o" href="mockup-formular-privat.html">Für Privatpersonen</a>
+      <a class="btn btn-o" href="mockup-formular-sozial.html">Sozial &amp; Alltag</a>
     </div>
     <div class="trust">
       <span><b>✓</b> Kostenlos &amp; unverbindlich</span>
@@ -447,7 +414,10 @@ standbein = screen("Fördora — Standbeine & Thema-Achse", HEAD + f"<style>{EXT
   </section>
 </main>""" + FOOT)
 
-for name, html in (("mockup-start", start), ("mockup-formular", formular),
-                   ("mockup-danke", danke), ("mockup-standbein", standbein)):
-    (BASE / f"{name}.html").write_text(html, encoding="utf-8")
-    print(f"{name}.html geschrieben")
+for name, html in (('mockup-start', start),
+                   ('mockup-formular-betrieb', formular_betrieb),
+                   ('mockup-formular-privat', formular_privat),
+                   ('mockup-formular-sozial', formular_sozial),
+                   ('mockup-danke', danke), ('mockup-standbein', standbein)):
+    (BASE / f'{name}.html').write_text(html, encoding='utf-8')
+    print(f'{name}.html geschrieben')
