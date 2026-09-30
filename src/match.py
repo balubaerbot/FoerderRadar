@@ -8,6 +8,11 @@ import json
 import os
 import sys
 
+try:
+    from src import region as regionmod
+except ImportError:  # direkt als Skript gestartet (python src/match.py)
+    import region as regionmod  # type: ignore
+
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -44,7 +49,10 @@ def pruefe(f, profil):
         return "raus", ["Zielgruppe passt nicht"]
 
     # 2) Region
-    if f.get("region") and f["region"] != profil.get("region"):
+    # Bundesfoerderungen gelten in ganz Oesterreich -> fuer JEDES Bundesland
+    # ein Treffer. "Bund"/leer = bundesweit (siehe src/region.ist_bundesweit).
+    if not regionmod.ist_bundesweit(f.get("region")) \
+            and f.get("region") != profil.get("region"):
         return "raus", [f"Region {f['region']} != {profil.get('region')}"]
 
     # 3) WKO-Mitgliedschaft

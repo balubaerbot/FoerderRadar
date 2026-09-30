@@ -1,7 +1,8 @@
 """FoerderRadar - Region-Normalisierung.
 
-Der Katalog kennt `region` nur als **Bundesland** ("OÖ", "NÖ", ...) oder
-`null` (= bundesweit). Profile speichern aber historisch auch "OOe-Steyr",
+Der Katalog kennt `region` als **Bundesland** ("OÖ", "NÖ", ...) oder
+"Bund" (= bundesweit, gilt in ganz Oesterreich). Leer/`null` zaehlt
+ebenso als bundesweit. Profile speichern aber historisch auch "OOe-Steyr",
 "ooe", "Oberösterreich" usw. Diese Funktion bringt beliebige Regionstexte
 auf das kanonische Bundesland - damit "OOe-Steyr" nicht mehr durchfaellt.
 
@@ -56,6 +57,23 @@ def normalisiere_region(text):
             if re.match(rf"^{re.escape(a)}([\s\-]|$)", f):
                 return kanon
     return None
+
+
+# Bundesweit-Marker + tolerante Schreibweisen. Eine Bundesfoerderung gilt
+# in JEDEM Bundesland und darf nie durch den Bundesland-Filter fallen.
+_BUND_ALIASE = ("bund", "bundesweit", "bundesfoerderung",
+                "oesterreich", "österreich", "at")
+
+
+def ist_bundesweit(region) -> bool:
+    """True, wenn die Foerderung in ganz Oesterreich gilt.
+
+    Katalog-Konvention: `region` ist ein Bundesland-Kuerzel ("OÖ", ...) oder
+    "Bund" (= bundesweit). Leer/None zaehlt ebenfalls als bundesweit.
+    """
+    if region is None or (isinstance(region, str) and not region.strip()):
+        return True
+    return str(region).strip().lower() in _BUND_ALIASE
 
 
 if __name__ == "__main__":
