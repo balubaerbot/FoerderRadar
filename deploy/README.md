@@ -16,24 +16,50 @@ einzige, was nach aussen auf 80/443 lauscht.
    (Ein `www`-Record existiert nicht; die www-Blöcke in den Configs sind
    daher standardmaessig auskommentiert.)
 
-## Variante A: Caddy (empfohlen)
+## Variante A: nginx + certbot (empfohlen)
 
-Weniger Fehlerquellen: holt und erneuert Zertifikate selbst, ~15 Zeilen Config.
-
-```bash
-cp deploy/Caddyfile /etc/caddy/Caddyfile
-systemctl reload caddy
-```
-
-## Variante B: nginx + certbot
+Alle Pakete kommen aus den offiziellen Ubuntu-Quellen - kein Drittanbieter-Repo,
+kein Fremdschluessel. `nginx.conf` ist die **Phase-1-Fassung** (nur Port 80) und
+laedt fehlerfrei, bevor ein Zertifikat existiert; certbot ergaenzt TLS danach selbst.
 
 ```bash
-apt install nginx certbot python3-certbot-nginx
+apt install -y nginx certbot python3-certbot-nginx
 cp deploy/nginx.conf /etc/nginx/sites-available/foerdora
-ln -s /etc/nginx/sites-available/foerdora /etc/nginx/sites-enabled/foerdora
+ln -sf /etc/nginx/sites-available/foerdora /etc/nginx/sites-enabled/foerdora
+rm -f /etc/nginx/sites-enabled/default
 nginx -t && systemctl reload nginx
 certbot --nginx -d foerdora.cloud
 ```
+
+Das `rm -f .../sites-enabled/default` ist wichtig: Ubuntus Default-Site belegt
+sonst Port 80 und die eigene Site greift nicht.
+
+## Variante B: Caddy (aktuell NICHT via apt installierbar)
+
+**Bekanntes Problem (Stand 01.10.2026):** Caddys apt-Repo laesst sich nicht
+verifizieren. Der Signing-Subkey des aktuellen Schluessels ist seit **2024-03-30
+abgelaufen** (`[SA] [expired: 2024-03-30]`), Cloudsmith signiert das `InRelease`
+aber weiterhin damit. `apt update` bricht deshalb mit:
+
+```
+The following signatures were invalid: EXPKEYSIG 531A6B20FA058A70 Caddy Web Server
+```
+
+Nachgeprueft: `531A6B20FA058A70` ist der **Subkey** des aktuellen Hauptschluessels
+`155B6D79CA56EA34` - **kein** veralteter Alt-Schluessel. Ein Neu-Import des
+Schluessels aendert daran nichts (getestet). Das ist serverseitig und auf dem
+Host nicht reparierbar.
+
+Ausweg, falls Caddy unbedingt gewuenscht: statisches Binary statt apt-Repo.
+`Caddyfile` bleibt unveraendert gueltig.
+
+```bash
+curl -fsSL 'https://caddyserver.com/api/download?os=linux&arch=amd64' -o /usr/local/bin/caddy
+chmod +x /usr/local/bin/caddy
+caddy version
+```
+
+Danach eine systemd-Unit anlegen (Binary hat keine mitgeliefert).
 
 ## Waehrend der Entwicklung: Zugangsschutz
 
