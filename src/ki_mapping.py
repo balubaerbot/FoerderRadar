@@ -390,20 +390,30 @@ def _validiere_mail_antwort(obj, treffer):
 
 
 _ANREDE_MUSTER = re.compile(
-    r"^\s*(guten\s+tag|hallo|servus|"
+    r"^\s*(?:guten\s+tag|hallo|servus|"
     r"gr(?:ue|ü)(?:ss|ß)\s+(?:gott|dich|sie)|"
-    r"sehr\s+geehrte[rn]?|liebe[rs]?)\b[^\n]*\n+",
+    r"sehr\s+geehrte[rn]?(?:\s+(?:damen\s+und\s+herren|frau|herr))?"
+    r"(?:\s+[A-ZÄÖÜ][\wäöüß.\-]*)?|"
+    r"liebe[rs]?(?:\s+[A-ZÄÖÜ][\wäöüß.\-]*)?)"
+    r"\s*[!,.]?\s*",
     re.IGNORECASE,
 )
 
 
 def _ohne_anrede(text):
-    """Entfernt eine fuehrende Anrede, die das LLM trotz Anweisung ergaenzt hat
+    """Entfernt fuehrende Anreden, die das LLM trotz Anweisung ergaenzt hat
     (z.B. "Guten Tag,"), damit sie sich nicht mit der festen Anrede aus dem Code
-    verdoppelt. Ohne erkannte Anrede bleibt der Text unveraendert."""
+    verdoppeln. Entfernt nur den Anredeteil, nicht die folgende Aussage; eine
+    Anrede darf dabei mehrfach (auch ueber Leerzeilen) am Anfang stehen. Ohne
+    erkannte Anrede bleibt der Text unveraendert."""
     if not text:
         return text
-    return _ANREDE_MUSTER.sub("", text, count=1).lstrip()
+    for _ in range(3):
+        neu = _ANREDE_MUSTER.sub("", text, count=1)
+        if neu == text:
+            break
+        text = neu
+    return text.lstrip()
 
 
 def _mail_body_bauen(rahmen, treffer):
