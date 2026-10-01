@@ -1,0 +1,53 @@
+# FoerderRadar - Reverse Proxy (Caddy)
+#
+# Laeuft auf dem HOST, nicht im Container.
+# Aufgabe: TLS terminieren, 80 -> 443 umleiten, an die im Container
+# laufende App weiterreichen (Port ist als 127.0.0.1:8100 veroeffentlicht).
+#
+# Installation:
+#   curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+#   curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | tee /etc/apt/sources.list.d/caddy-stable.list
+#   apt update && apt install caddy
+#
+# Aktivieren:
+#   cp deploy/Caddyfile /etc/caddy/Caddyfile
+#   systemctl reload caddy
+#
+# Voraussetzung: TCP 80 + 443 offen (hPanel-Firewall UND "ufw allow 80,443/tcp").
+# DNS: foerdora.cloud A -> 168.231.110.175 (bereits gesetzt).
+
+foerdora.cloud {
+	encode zstd gzip
+
+	# App im Container, vom Host aus erreichbar auf 127.0.0.1:8100
+	reverse_proxy 127.0.0.1:8100
+
+	# ------------------------------------------------------------------
+	# ENTWICKLUNGSPHASE: Zugang nur mit Passwort.
+	# Hash erzeugen:  caddy hash-password --plaintext 'DEIN-PASSWORT'
+	# Dann die beiden Zeilen einkommentieren und Caddy neu laden.
+	# Beim Go-Live einfach wieder auskommentieren.
+	# ------------------------------------------------------------------
+	#basic_auth {
+	#	balu $2a$14$HIER_DEN_HASH_EINSETZEN
+	#}
+
+	header {
+		# HSTS (Caddy setzt das bei HTTPS ohnehin, hier explizit + Subdomains)
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	log {
+		output file /var/log/caddy/foerdora.log
+	}
+}
+
+# Optional: www -> ohne www.
+# Nur aktivieren, wenn für www.foerdora.cloud auch ein DNS-Record existiert,
+# sonst scheitert die Zertifikatsausstellung.
+#www.foerdora.cloud {
+#	redir https://foerdora.cloud{uri} permanent
+#}

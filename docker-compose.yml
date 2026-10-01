@@ -21,6 +21,21 @@ services:
     volumes:
       - ./:/app
     working_dir: /app
+    # Proxy-Header: hinter dem Reverse Proxy soll die App die echte Client-IP
+    # und das Schema "https" sehen (Rate-Limit greift pro IP).
+    # "*" ist vertretbar, weil der Port nur an 127.0.0.1 gebunden ist - nur
+    # Host-Prozesse (der Proxy) koennen ueberhaupt verbinden.
+    command:
+      - python
+      - -m
+      - uvicorn
+      - app.main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --proxy-headers
+      - --forwarded-allow-ips=*
     depends_on:
       - foerderradar-db
     networks:
