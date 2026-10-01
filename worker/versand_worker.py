@@ -25,6 +25,25 @@ from src import matching_service as ms  # noqa: E402
 from src import versand_service as vs   # noqa: E402
 
 
+def _lade_env_datei():
+    """Laedt die gemountete `.env` und setzt sie als massgeblich (overrides Env).
+
+    Der Worker laeuft als CLI - anders als die API bekommt er KEINE
+    `env_file`-Umgebung. Ohne diesen Schritt fehlen z.B. die FOERDER_LLM_*-
+    Variablen, wodurch ki_mapping.ist_aktiv() False bleibt und die LLM-
+    Mailtext-Stufe still auf die Vorlage zurueckfaellt.
+    """
+    pfad = os.path.join(BASE, ".env")
+    if not os.path.exists(pfad):
+        return
+    for zeile in open(pfad, encoding="utf-8"):
+        zeile = zeile.strip()
+        if not zeile or zeile.startswith("#") or "=" not in zeile:
+            continue
+        k, v = zeile.split("=", 1)
+        os.environ[k.strip()] = v.strip()
+
+
 def laden_env():
     """DB-URL fuer den Versand-Worker.
 
@@ -116,6 +135,7 @@ def main():
     if args.test:
         args.send = True
 
+    _lade_env_datei()
     url = laden_env()
     katalog = ms.load_katalog()
 
