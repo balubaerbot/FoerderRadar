@@ -87,14 +87,21 @@ def pruefe(f, profil):
         if profil.get("heizung") not in vor["heizung_alt"]:
             return "raus", [f"Heizung '{profil.get('heizung')}' nicht foerderfaehig"]
 
-    # 7) Pflegestufe
+    # 7) Pflegestufe (HART)
+    #    Ohne Angabe im Profil wird die Foerderung NICHT angezeigt: ein
+    #    Pflegebedarf darf nicht unterstellt werden (kein stiller "knapp"-Treffer).
     if "pflegestufe_min" in vor:
         ps = profil.get("pflegestufe")
         if ps is None:
-            knapp = True
-            gruende.append("Pflegestufe nicht angegeben - nicht pruefbar")
-        elif ps < vor["pflegestufe_min"]:
+            return "raus", ["Pflegestufe nicht angegeben"]
+        if ps < vor["pflegestufe_min"]:
             return "raus", [f"Pflegestufe {ps} < {vor['pflegestufe_min']}"]
+
+    # 7b) Bedarfs-Trigger Behinderung (HART)
+    #     Eintraege, die eine Behinderung voraussetzen, gelten nur bei
+    #     expliziter Angabe im Profil. Fehlt das Feld -> raus.
+    if vor.get("behinderung") and not profil.get("behinderung"):
+        return "raus", ["Behinderung nicht angegeben"]
 
     # 8) Projektkosten
     if "projektkosten_min" in vor:

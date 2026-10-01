@@ -35,6 +35,7 @@ ERLAUBTE_VORAUSSETZUNGEN = {
     "einkommen_einheit",
     "heizung_alt",
     "pflegestufe_min",
+    "behinderung",
 }
 PFLICHTFELDER = ["id", "name", "stelle", "zielgruppe", "thema", "betrag", "frist", "status", "quelle"]
 
@@ -114,6 +115,8 @@ def validate(pfad=DEFAULT):
                 fehler.append(f"[{fid}] unbekannte voraussetzungen-Schluessel: {sorted(unbekannt)}")
             if "themen" in vor and not isinstance(vor["themen"], list):
                 fehler.append(f"[{fid}] voraussetzungen.themen ist keine Liste")
+            if "behinderung" in vor and not isinstance(vor["behinderung"], bool):
+                fehler.append(f"[{fid}] voraussetzungen.behinderung muss true/false sein")
             for k in ("wohnsituation", "heizung_alt"):
                 if k in vor and not isinstance(vor[k], list):
                     fehler.append(f"[{fid}] voraussetzungen.{k} ist keine Liste")

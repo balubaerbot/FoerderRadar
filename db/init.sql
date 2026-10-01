@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS profil (
     einkommen_spanne   TEXT,
     heizung            TEXT,
     pflegestufe        INTEGER,
+    behinderung        BOOLEAN,
     familienstand      TEXT,
     kinder_im_haushalt BOOLEAN,
     -- beide
@@ -94,5 +95,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS versand_ein_offener ON versand (kunde_id)
 CREATE OR REPLACE VIEW profil_agent AS
 SELECT kunde_id, typ, region_grob, branche, mitarbeiterklasse, wko_mitglied,
        wohnsituation, haushaltsgroesse, einkommen_spanne, heizung, pflegestufe,
-       familienstand, kinder_im_haushalt, lebenssituation, vorhaben, thema, anliegen
+       behinderung, familienstand, kinder_im_haushalt, lebenssituation, vorhaben,
+       thema, anliegen
 FROM profil;

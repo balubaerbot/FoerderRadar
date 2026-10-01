@@ -99,7 +99,7 @@ check("body enthaelt echte Katalogfakten (Frist/Status)",
       res and "31.12.2026" in res["body"] and "offen" in res["body"])
 check("body enthaelt LLM-Einleitung", res and gueltig["einleitung"] in res["body"])
 check("body enthaelt Pflicht-Disclaimer (wie Phase-1-Vorlage)",
-      res and "keine Rechts- oder Steuerberatung und ohne Gewaehr" in res["body"])
+      res and "keine Rechts- oder Steuerberatung und ohne Gewähr" in res["body"])
 
 # --- (c) Grounding: erfundener Betrag -> kompletter Fallback (None) ---------
 erfundener_betrag = {

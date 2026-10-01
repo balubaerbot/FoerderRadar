@@ -105,6 +105,12 @@
               <option value="{{ n }}" {% if werte.pflegestufe == n|string %}selected{% endif %}>Stufe {{ n }}</option>
               {% endfor %}
             </select></div>
+          <div class="field"><label for="behinderung">Behinderung / Beeinträchtigung</label>
+            <select id="behinderung" name="behinderung">
+              <option value="">– keine Angabe –</option>
+              <option value="ja" {% if werte.behinderung == "ja" %}selected{% endif %}>Ja (bei mir oder Kind im Haushalt)</option>
+              <option value="nein" {% if werte.behinderung == "nein" %}selected{% endif %}>Nein</option>
+            </select></div>
         </div>
         <div class="grid2">
           <div class="field"><label for="familienstand">Familienstand</label>

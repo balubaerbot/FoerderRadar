@@ -206,6 +206,7 @@ class ProfilIn(BaseModel):
     einkommen_spanne: Optional[str] = None
     heizung: Optional[str] = None
     pflegestufe: Optional[int] = None
+    behinderung: Optional[bool] = None   # Bedarfs-Trigger (Behinderung/Beeintraechtigung)
     familienstand: Optional[str] = None
     kinder_im_haushalt: Optional[bool] = None
     # Nur Standbein "Sozial & Alltag" (typ wird dabei datenseitig zu 'privat')
@@ -251,8 +252,9 @@ def _speichere_profil(p: ProfilIn) -> str:
             """
             INSERT INTO profil (typ, region_grob, branche, mitarbeiterklasse, wko_mitglied,
                 wohnsituation, haushaltsgroesse, einkommen_spanne, heizung, pflegestufe,
-                familienstand, kinder_im_haushalt, lebenssituation, vorhaben, anliegen, thema)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                behinderung, familienstand, kinder_im_haushalt, lebenssituation, vorhaben,
+                anliegen, thema)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
             RETURNING kunde_id
             """,
             (p.typ, regionmod.normalisiere_region(p.region_grob) or p.region_grob,
@@ -260,8 +262,8 @@ def _speichere_profil(p: ProfilIn) -> str:
              # Anzeige-Labels -> kanonische Katalog-Slugs (sonst kein Treffer)
              vok.normalisiere_wohnsituation(p.wohnsituation), p.haushaltsgroesse,
              p.einkommen_spanne, vok.normalisiere_heizung(p.heizung),
-             p.pflegestufe, p.familienstand, p.kinder_im_haushalt, p.lebenssituation,
-             vorhaben, anliegen, thema),
+             p.pflegestufe, p.behinderung, p.familienstand, p.kinder_im_haushalt,
+             p.lebenssituation, vorhaben, anliegen, thema),
         )
         kunde_id = cur.fetchone()[0]
         cur.execute(
@@ -376,6 +378,7 @@ def _profil_aus_formular(form) -> ProfilIn:
                            else form.get("einkommen_spanne")) or None) if privat else None,
         heizung=(form.get("heizung") or None) if (privat and not sozial) else None,
         pflegestufe=(int(pf) if pf.isdigit() else None) if (privat and not sozial) else None,
+        behinderung=_ja_nein(form.get("behinderung")),
         familienstand=(form.get("familienstand") or None) if (privat and not sozial) else None,
         kinder_im_haushalt=_ja_nein(form.get("kinder_im_haushalt")) if (privat and not sozial) else None,
         lebenssituation=(form.get("lebenssituation") or None) if sozial else None,

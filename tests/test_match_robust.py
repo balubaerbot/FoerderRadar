@@ -35,6 +35,9 @@ KATALOG = {
         {"id": "pflege_test", "name": "Pflegetest", "stelle": "X", "zielgruppe": "privat",
          "region": None, "betrag": "1 EUR", "frist": "laufend", "status": "offen",
          "voraussetzungen": {"pflegestufe_min": 2}, "quelle": "https://example.com"},
+        {"id": "behinderung_test", "name": "Behindertentest", "stelle": "X", "zielgruppe": "privat",
+         "region": None, "betrag": "1 EUR", "frist": "laufend", "status": "offen",
+         "voraussetzungen": {"behinderung": True}, "quelle": "https://example.com"},
     ],
 }
 
@@ -63,12 +66,18 @@ check("Einkommen ueber Grenze -> raus", kat == "raus")
 kat, _ = kategorie(KATALOG, {"typ": "privat", "haushaltseinkommen": 20000}, "eink_test")
 check("Einkommen unter Grenze -> top", kat == "top")
 
-# 4) Pflegestufe unbekannt -> kein Crash, pruefenswert
+# 4) Pflegestufe unbekannt -> kein Crash, NICHT anzeigen (kein Unterstellen)
 try:
     kat, gr = kategorie(KATALOG, {"typ": "privat"}, "pflege_test")
-    check("Pflegestufe unbekannt -> kein Crash + pruefenswert", kat == "pruefenswert")
+    check("Pflegestufe unbekannt -> kein Crash + raus", kat == "raus")
 except Exception as e:  # noqa: BLE001
     check(f"Pflegestufe unbekannt -> kein Crash (Exception: {e})", False)
+
+# 5) Bedarfs-Trigger Behinderung: ohne Angabe raus, mit Angabe treffer
+kat, _ = kategorie(KATALOG, {"typ": "privat"}, "behinderung_test")
+check("Behinderung nicht angegeben -> raus", kat == "raus")
+kat, _ = kategorie(KATALOG, {"typ": "privat", "behinderung": True}, "behinderung_test")
+check("Behinderung angegeben -> top", kat == "top")
 
 # 5) Pflegestufe zu niedrig -> raus
 kat, _ = kategorie(KATALOG, {"typ": "privat", "pflegestufe": 1}, "pflege_test")

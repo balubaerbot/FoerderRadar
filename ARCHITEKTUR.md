@@ -58,7 +58,7 @@ Richter: `src/ki_mapping.py` filtert die LLM-Antwort strikt gegen die Allowlists
 **Feldtrennung:**
 - `voraussetzungen` = **nur maschinell geprueffte** Keys
   (`wko_mitglied`, `projektkosten_min`, `themen`, `wohnsituation`,
-  `einkommen_max`, `heizung_alt`, `pflegestufe_min`)
+  `einkommen_max`, `heizung_alt`, `pflegestufe_min`, `behinderung`)
 - `hinweise` = nur Anzeige, **nicht** geprueft
 - `status` ∈ {`offen`, `ausgeschoepft`, `fenster_zu`, `angekuendigt`}
 

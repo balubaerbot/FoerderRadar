@@ -438,10 +438,10 @@ def _mail_body_bauen(rahmen, treffer):
         "Guten Tag,\n\n"
         + einleitung + "\n\n"
         + "\n".join(zeilen)
-        + "\n\nBitte pruefen Sie alle Angaben anhand der jeweiligen Quelle. "
-        "Diese Zusammenstellung ist keine Rechts- oder Steuerberatung und ohne Gewaehr.\n\n"
+        + "\n\nBitte prüfen Sie alle Angaben anhand der jeweiligen Quelle. "
+        "Diese Zusammenstellung ist keine Rechts- oder Steuerberatung und ohne Gewähr.\n\n"
         + rahmen["abschluss"] + "\n"
-        "Freundliche Gruesse\nIhr Foerdora-Team"
+        "Freundliche Grüße\nIhr Foerdora-Team"
     )
 
 

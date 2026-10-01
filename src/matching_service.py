@@ -120,6 +120,7 @@ def profil_row_to_dict(row: dict) -> dict:
         "haushaltseinkommen": einkommen_jahr_obergrenze(d.get("einkommen_spanne")),
         "heizung": vok.normalisiere_heizung(d.get("heizung")),
         "pflegestufe": d.get("pflegestufe"),
+        "behinderung": d.get("behinderung"),
         "familienstand": d.get("familienstand"),
         "kinder_im_haushalt": d.get("kinder_im_haushalt"),
         "lebenssituation": d.get("lebenssituation"),

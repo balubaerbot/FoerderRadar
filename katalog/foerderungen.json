@@ -563,7 +563,10 @@
       "frist": "laufend; rückwirkende Auszahlung bis maximal 5 Jahre möglich",
       "status": "offen",
       "quelle": "https://www.sozialministeriumservice.gv.at/Menschen_mit_Behinderung/Finanzielle_Unterstuetzung/erhoehte_Familienbeihilfe/Erhoehte-Familienbeihilfe.de.html",
-      "region": "Bund"
+      "region": "Bund",
+      "voraussetzungen": {
+        "behinderung": true
+      }
     },
     {
       "id": "bund_schuelerbeihilfe",
@@ -621,7 +624,10 @@
       "frist": "laufend",
       "status": "offen",
       "quelle": "https://www.land-oberoesterreich.gv.at/276889.htm",
-      "region": "OÖ"
+      "region": "OÖ",
+      "voraussetzungen": {
+        "behinderung": true
+      }
     },
     {
       "id": "tirol_mindestsicherung",
