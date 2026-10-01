@@ -1,6 +1,6 @@
 {
   "meta": {
-    "stand": "2026-09-30",
+    "stand": "2026-10-01",
     "hinweis": "TESTDATEN-Prototyp. Betraege/Fristen aus Live-Recherche, vor echtem Einsatz verifizieren.",
     "quellen": [
       "aws.at",
@@ -15,6 +15,7 @@
       "www.aws.at",
       "www.bundeskanzleramt.gv.at",
       "www.ffg.at",
+      "www.ffg.at/programm/impactinnovation",
       "www.land-oberoesterreich.gv.at",
       "www.sozialministeriumservice.gv.at",
       "www.tirol.gv.at",
@@ -132,10 +133,10 @@
         ]
       },
       "hinweise": [
-        "Ausschoepfungsgrad 98 % (Stand 25.9.2026)"
+        "Ausschoepfungsgrad 98 % (Stand 25.9.2026); Budget laut WKOÖ-Seite ausgeschöpft (Stand 01.10.2026)"
       ],
-      "frist": "Antrag 1.2.-15.12.2026",
-      "status": "offen",
+      "frist": "Beantragung nicht mehr möglich – Budget ausgeschöpft (geplanter Antrag 1.2.-15.12.2026)",
+      "status": "ausgeschoepft",
       "quelle": "https://foerderungen.wko.at/ooe/erfolgplus"
     },
     {
@@ -475,8 +476,8 @@
         "wirtschaft"
       ],
       "betrag": "k.A. (kombinierbar mit Innovationsscheck bis 10.000 Euro)",
-      "frist": "k.A. (siehe jeweils aktuelle Ausschreibung)",
-      "status": "offen",
+      "frist": "Ausschreibung Impact Innovation 2026 seit 12.03.2026 geschlossen (Budget ausgeschöpft)",
+      "status": "ausgeschoepft",
       "quelle": "https://www.ffg.at/programm/impactinnovation",
       "region": "Bund",
       "hinweise": [
