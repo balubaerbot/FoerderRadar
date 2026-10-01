@@ -83,6 +83,37 @@ nginx -t && systemctl reload nginx
 
 **Go-Live:** den Block wieder auskommentieren, reload. Fertig.
 
+## DEV-Phase: Tor zu (aktueller Zustand)
+
+Solange entwickelt wird, zeigt `foerdora.cloud` **keinen** oeffentlichen Inhalt.
+`nginx-dev.conf` liefert nur eine Platzhalterseite; die App wird nicht
+durchgereicht (ihr Port ist ohnehin nur `127.0.0.1:8100`).
+
+```bash
+mkdir -p /var/www/foerdora-dev
+cp deploy/dev-placeholder.html /var/www/foerdora-dev/index.html
+cp deploy/nginx-dev.conf /etc/nginx/sites-available/foerdora
+nginx -t && systemctl reload nginx
+```
+
+**Go-Live-Schalter** (wenn oeffentlich werden soll):
+
+```bash
+cp deploy/nginx.conf /etc/nginx/sites-available/foerdora
+nginx -t && systemctl reload nginx
+```
+
+**App waehrend der Dev-Phase selbst testen** - nicht ueber die Domain, sondern
+per SSH-Tunnel auf den Loopback-Port des Hosts:
+
+```bash
+ssh -L 8100:127.0.0.1:8100 hostinger-openclaw
+# dann im Browser: http://localhost:8100
+```
+
+Zum Testen der App ggf. `FOERDER_ADMIN_TOKEN` als Bearer-Header mitschicken -
+die Middleware ist Default-Deny (siehe `PUBLIC` in `app/main.py`).
+
 ## Wichtig: Proxy-Header in der App
 
 Damit die App die echte Client-IP und `https` als Schema sieht (Rate-Limit pro
