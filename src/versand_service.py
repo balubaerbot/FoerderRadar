@@ -156,7 +156,7 @@ def nachricht_bauen(profil, treffer, katalog, transport=None):
         + "\n".join(zeilen)
         + "\n\nBitte pruefen Sie alle Angaben anhand der jeweiligen Quelle. "
         "Diese Zusammenstellung ist keine Rechts- oder Steuerberatung und ohne Gewaehr.\n\n"
-        "Freundliche Gruesse\nIhr FoerderRadar-Team"
+        "Freundliche Gruesse\nIhr Foerdora-Team"
     )
     return betreff, body
 

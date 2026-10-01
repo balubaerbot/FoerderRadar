@@ -441,7 +441,7 @@ def _mail_body_bauen(rahmen, treffer):
         + "\n\nBitte pruefen Sie alle Angaben anhand der jeweiligen Quelle. "
         "Diese Zusammenstellung ist keine Rechts- oder Steuerberatung und ohne Gewaehr.\n\n"
         + rahmen["abschluss"] + "\n"
-        "Freundliche Gruesse\nIhr FoerderRadar-Team"
+        "Freundliche Gruesse\nIhr Foerdora-Team"
     )
 
 
