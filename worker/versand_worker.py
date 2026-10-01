@@ -170,7 +170,7 @@ def main():
         if args.kunde:
             entwuerfe = [e for e in entwuerfe if str(e["kunde_id"]) == str(args.kunde)]
 
-        test_recipient = (args.test_to or vs.ABSENDER) if args.test else None
+        test_recipient = (args.test_to or vs.absender()) if args.test else None
         if args.send and not args.test:
             print("WARNUNG: --send ohne --test -> ECHTER Versand an Kunden!", file=sys.stderr)
 

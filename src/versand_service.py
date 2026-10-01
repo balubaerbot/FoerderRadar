@@ -21,9 +21,17 @@ from email.message import EmailMessage
 
 from src import ki_mapping
 
-# Absender (Testphase: baluopenclaw@gmail.com; wird beim Livegang umgestellt).
-ABSENDER = os.environ.get("FOERDER_FROM", "baluopenclaw@gmail.com")
-HIMALAYA_ACCOUNT = os.environ.get("HIMALAYA_ACCOUNT", "gmail")
+# Absender und Himalaya-Account bewusst LAZY ueber Funktionen lesen:
+# Der Worker laedt die .env erst in main() - also NACH dem Import dieses
+# Moduls. Modul-Konstanten wuerden die .env daher nie sehen.
+def absender():
+    """Absenderadresse aus FOERDER_FROM (Default: Testpostfach)."""
+    return os.environ.get("FOERDER_FROM", "baluopenclaw@gmail.com")
+
+
+def himalaya_account():
+    """Himalaya-Account aus HIMALAYA_ACCOUNT (Default: gmail)."""
+    return os.environ.get("HIMALAYA_ACCOUNT", "gmail")
 
 
 def maskiere_email(adresse):
@@ -254,12 +262,12 @@ def offene_entwuerfe(conn):
 def _senden_email(to_addr, betreff, body):
     """Echter Versand ueber die himalaya-CLI (nutzt deren Auth; kein Passwort hier)."""
     msg = EmailMessage()
-    msg["From"] = ABSENDER
+    msg["From"] = absender()
     msg["To"] = to_addr
     msg["Subject"] = betreff
     msg.set_content(body)
 
-    cmd = ["himalaya", "--account", HIMALAYA_ACCOUNT, "message", "send", "--save", "sent"]
+    cmd = ["himalaya", "--account", himalaya_account(), "message", "send", "--save", "sent"]
     p = subprocess.run(cmd, input=msg.as_string(), capture_output=True, text=True, timeout=60)
     if p.returncode != 0:
         raise RuntimeError(f"himalaya send fehlgeschlagen: {(p.stderr or p.stdout).strip()[:250]}")
