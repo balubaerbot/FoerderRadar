@@ -171,7 +171,23 @@ def run_match(conn, kunde_id):
             "DELETE FROM match WHERE kunde_id = %s AND status = 'identifiziert'",
             (kunde_id,),
         )
+        # Doppelversand-Guard: bereits GEMELDETE Foerderungen (status
+        # 'gemeldet' = ein echter Versand hat stattgefunden) werden NICHT
+        # erneut als 'identifiziert' eingefuegt. Sonst braechte jeder weitere
+        # Match-Lauf (z.B. der taegliche Cron-Sweep) denselben Kunden wieder
+        # in offene_kunden() -> zweite Mail an denselben Kunden.
+        # Die Tabelle match hat bewusst KEINEN UNIQUE-Index auf
+        # (kunde_id, foerderung_id); die Idempotenz wird daher hier explizit
+        # sichergestellt. NEUE Foerderungen (noch nicht gemeldet) werden
+        # weiterhin erkannt und gemeldet.
+        cur.execute(
+            "SELECT foerderung_id FROM match WHERE kunde_id = %s AND status = 'gemeldet'",
+            (kunde_id,),
+        )
+        bereits_gemeldet = {r[0] for r in cur.fetchall()}
         for eintrag in ergebnis["top"] + ergebnis["pruefenswert"]:
+            if eintrag["id"] in bereits_gemeldet:
+                continue
             cur.execute(
                 """INSERT INTO match (kunde_id, foerderung_id, kategorie, status)
                    VALUES (%s, %s, %s, 'identifiziert')""",
