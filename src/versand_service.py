@@ -19,6 +19,8 @@ import re
 import subprocess
 from email.message import EmailMessage
 
+from src import ki_mapping
+
 # Absender (Testphase: baluopenclaw@gmail.com; wird beim Livegang umgestellt).
 ABSENDER = os.environ.get("FOERDER_FROM", "baluopenclaw@gmail.com")
 HIMALAYA_ACCOUNT = os.environ.get("HIMALAYA_ACCOUNT", "gmail")
@@ -108,10 +110,19 @@ def kontakt_holen(conn, kunde_id):
 # --------------------------------------------------------------------------
 # Text (Phase 1: Vorlage - Phase 2: LLM)
 # --------------------------------------------------------------------------
-def nachricht_bauen(profil, treffer, katalog):
-    """Betreff + Text aus pseudonymem Profil + verifizierten Treffern. KEIN Klartext."""
+def nachricht_bauen(profil, treffer, katalog, transport=None):
+    """Betreff + Text aus pseudonymem Profil + verifizierten Treffern. KEIN Klartext.
+
+    Phase 2: Zuerst wird versucht, den Mailtext per LLM zu formulieren
+    (ki_mapping.formuliere_mail - strict grounding, s. dort). Schlaegt das aus
+    irgendeinem Grund fehl (kein Key, Timeout, Netzfehler, kaputtes JSON,
+    erfundene Fakten) wird UNVERAENDERT auf die deterministische Vorlage aus
+    Phase 1 zurueckgefallen - kein Verhaltensunterschied, wenn das LLM aus ist.
+    `transport` ist fuer Tests injizierbar (an ki_mapping.formuliere_mail durchgereicht).
+    """
     kat = {f["id"]: f for f in katalog["foerderungen"]}
     zeilen = []
+    fakten = []
     for t in treffer:
         f = kat.get(t["foerderung_id"])
         if not f:
@@ -123,6 +134,21 @@ def nachricht_bauen(profil, treffer, katalog):
             f"  Frist/Status: {f['frist']} (Status: {f['status']})\n"
             f"  Details: {f['quelle']}"
         )
+        fakten.append({
+            "foerderung_id": t["foerderung_id"],
+            "kategorie": t["kategorie"],
+            "name": f["name"],
+            "stelle": f["stelle"],
+            "betrag": f["betrag"],
+            "frist": f["frist"],
+            "status": f["status"],
+            "quelle": f["quelle"],
+        })
+
+    ki_mail = ki_mapping.formuliere_mail(profil, fakten, transport=transport)
+    if ki_mail:
+        return ki_mail["betreff"], ki_mail["body"]
+
     betreff = f"Ihre passenden Foerderungen ({len(zeilen)})"
     body = (
         "Guten Tag,\n\n"
