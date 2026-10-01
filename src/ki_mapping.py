@@ -389,6 +389,23 @@ def _validiere_mail_antwort(obj, treffer):
     }
 
 
+_ANREDE_MUSTER = re.compile(
+    r"^\s*(guten\s+tag|hallo|servus|"
+    r"gr(?:ue|ü)(?:ss|ß)\s+(?:gott|dich|sie)|"
+    r"sehr\s+geehrte[rn]?|liebe[rs]?)\b[^\n]*\n+",
+    re.IGNORECASE,
+)
+
+
+def _ohne_anrede(text):
+    """Entfernt eine fuehrende Anrede, die das LLM trotz Anweisung ergaenzt hat
+    (z.B. "Guten Tag,"), damit sie sich nicht mit der festen Anrede aus dem Code
+    verdoppelt. Ohne erkannte Anrede bleibt der Text unveraendert."""
+    if not text:
+        return text
+    return _ANREDE_MUSTER.sub("", text, count=1).lstrip()
+
+
 def _mail_body_bauen(rahmen, treffer):
     """Baut den finalen Mailtext: LLM-Rahmung drumherum, Katalogfakten in der
     Mitte ausschliesslich aus dem Code (identisches Zeilenformat wie die
@@ -406,9 +423,10 @@ def _mail_body_bauen(rahmen, treffer):
         if hinweis:
             zeile += f"\n  {hinweis}"
         zeilen.append(zeile)
+    einleitung = _ohne_anrede(rahmen["einleitung"])
     return (
         "Guten Tag,\n\n"
-        + rahmen["einleitung"] + "\n\n"
+        + einleitung + "\n\n"
         + "\n".join(zeilen)
         + "\n\nBitte pruefen Sie alle Angaben anhand der jeweiligen Quelle. "
         "Diese Zusammenstellung ist keine Rechts- oder Steuerberatung und ohne Gewaehr.\n\n"
