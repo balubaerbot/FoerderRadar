@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Fördora — Ihre Angaben{% endblock %}
 {% block content %}
+{% set anliegen_platzhalter = {
+  'betrieb': 'Wir wollen unsere Fertigung digitalisieren – die Energiekosten in der Werkstatt sind stark gestiegen.',
+  'privat': 'Ich möchte mein Haus sanieren – welche Förderung gibt es dafür?',
+  'sozial': 'Ich pflege meine Mutter zu Hause und kann die Heizkosten kaum bezahlen.'
+} %}
 <main class="wrap" style="max-width:820px;padding-top:40px">
   <p class="small" style="margin-bottom:6px">Schritt 1 von 1 · dauert ca. 2 Minuten</p>
   <h1 style="font-size:32px">Ihre Angaben</h1>
@@ -182,9 +187,26 @@
       <div class="field"><label for="anliegen">Beschreiben Sie kurz Ihr Anliegen
         <span class="small" style="font-weight:400">(optional)</span></label>
         <textarea id="anliegen" name="anliegen" rows="4"
-          placeholder="{% if typ == 'sozial' %}Ich pflege meine Mutter zu Hause und kann die Heizkosten kaum bezahlen.{% elif typ == 'privat' %}Ich möchte mein Haus sanieren – welche Förderung gibt es dafür?{% else %}Wir wollen unsere Fertigung digitalisieren – die Energiekosten in der Werkstatt sind stark gestiegen.{% endif %}">{{ werte.anliegen or '' }}</textarea>
+          placeholder="{{ anliegen_platzhalter.get(typ, anliegen_platzhalter['betrieb']) }}">{{ werte.anliegen or '' }}</textarea>
         <p class="small" style="margin-top:6px">In eigenen Worten – die KI erkennt daraus Standbein
           und Themen. Die Prüfung selbst machen weiterhin die Regeln.</p></div>
+
+      <script>
+      (function () {
+        // Der Tab-Wechsel ist rein per CSS; der Platzhalter muss per JS mitziehen.
+        var texte = {{ anliegen_platzhalter | tojson }};
+        function sync() {
+          var ta = document.getElementById("anliegen");
+          var sel = document.querySelector('input[name="typ"]:checked');
+          if (ta && sel && texte[sel.value]) { ta.placeholder = texte[sel.value]; }
+        }
+        document.addEventListener("DOMContentLoaded", sync);
+        Array.prototype.forEach.call(
+          document.querySelectorAll('input[name="typ"]'),
+          function (r) { r.addEventListener("change", sync); }
+        );
+      })();
+      </script>
 
       <hr style="border:0;border-top:1px solid var(--line);margin:24px 0">
 
