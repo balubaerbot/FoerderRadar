@@ -1,6 +1,6 @@
 {
   "meta": {
-    "stand": "2026-10-01",
+    "stand": "2026-10-05",
     "hinweis": "TESTDATEN-Prototyp. Betraege/Fristen aus Live-Recherche, vor echtem Einsatz verifizieren.",
     "quellen": [
       "aws.at",
@@ -20,7 +20,8 @@
       "www.sozialministeriumservice.gv.at",
       "www.tirol.gv.at",
       "www.umweltfoerderung.at",
-      "www.wko.at"
+      "www.wko.at",
+      "www.wko.at/foerderungen/energiesparen-energienutzung-betriebe-oberoesterreich"
     ]
   },
   "foerderungen": [
@@ -87,7 +88,7 @@
           "uebernahme"
         ]
       },
-      "frist": "laufend",
+      "frist": "Förderzeitraum 01.01.2026–31.12.2026",
       "status": "offen",
       "quelle": "https://www.land-oberoesterreich.gv.at/555126.htm"
     },
@@ -363,7 +364,7 @@
         "wirtschaft"
       ],
       "betrag": "Investitionsvolumen 20.000–700.000 Euro (Fördersatz laut Richtlinie, nicht auf Seite beziffert)",
-      "frist": "k.A. (laufende Einreichung laut Transparenzportal)",
+      "frist": "Antrag vor Investitionsbeginn, spätestens 31.12.2027 (Richtlinie gilt bis 30.06.2028)",
       "status": "offen",
       "quelle": "https://transparenzportal.gv.at/tdb/tp/leistung/1061266.html",
       "region": "Tirol",
@@ -524,7 +525,7 @@
         "wirtschaft"
       ],
       "betrag": "k.A.",
-      "frist": "k.A.",
+      "frist": "Geltungsdauer 1.1.2023–31.12.2026 (nach Maßgabe der vorhandenen Mittel)",
       "status": "offen",
       "quelle": "https://www.wko.at/foerderungen/energiesparen-energienutzung-betriebe-oberoesterreich",
       "region": "OÖ",
