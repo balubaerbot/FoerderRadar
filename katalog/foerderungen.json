@@ -1,6 +1,6 @@
 {
   "meta": {
-    "stand": "2026-10-05",
+    "stand": "2026-10-08",
     "hinweis": "TESTDATEN-Prototyp. Betraege/Fristen aus Live-Recherche, vor echtem Einsatz verifizieren.",
     "quellen": [
       "aws.at",
@@ -678,6 +678,25 @@
           "eigentum"
         ]
       }
+    },
+    {
+      "id": "energieeffizienz_ausschreibung_juli_2026",
+      "name": "Energieeffizienz-Ausschreibung Juli 2026",
+      "stelle": "BMWET / Kommunalkredit Public Consulting",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "energie",
+        "wirtschaft"
+      ],
+      "region": null,
+      "betrag": "Max. 180 EUR je eingesparter MWh/Jahr, max. 50 % der förderfähigen Kosten und max. 2,5 Mio. EUR pro Projekt",
+      "voraussetzungen": {},
+      "frist": "Einreichfrist bis 12.10.2026, 12:00 Uhr CEST",
+      "status": "offen",
+      "quelle": "https://www.umweltfoerderung.at/betriebe/energieeffizienz-2-2026",
+      "hinweise": [
+        "Investitionssumme mindestens 1,0 Mio. EUR; mindestens 1,0 GWh anrechenbare Endenergieeinsparung pro Jahr."
+      ]
     }
   ]
 }
