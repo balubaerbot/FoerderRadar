@@ -1,6 +1,6 @@
 {
   "meta": {
-    "stand": "2026-10-08",
+    "stand": "2026-10-12",
     "hinweis": "TESTDATEN-Prototyp. Betraege/Fristen aus Live-Recherche, vor echtem Einsatz verifizieren.",
     "quellen": [
       "aws.at",
@@ -47,6 +47,9 @@
       },
       "frist": "Antrag 1.6.-2.11.2026",
       "status": "offen",
+      "hinweise": [
+        "Ausschoepfungsgrad 80% (Stand 05.10.2026) - Budget koennte vor Fristende ausgeschoepft sein"
+      ],
       "quelle": "https://foerderungen.wko.at/ooe/digitalplus26"
     },
     {
@@ -330,7 +333,7 @@
         ]
       },
       "frist": "Call-basiert (3. Call: 8.10.-22.10.2026)",
-      "status": "angekuendigt",
+      "status": "offen",
       "quelle": "https://www.eag-abwicklungsstelle.at"
     },
     {
