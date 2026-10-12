@@ -700,6 +700,26 @@
       "hinweise": [
         "Investitionssumme mindestens 1,0 Mio. EUR; mindestens 1,0 GWh anrechenbare Endenergieeinsparung pro Jahr."
       ]
+    },
+    {
+      "id": "ooe_breitband_ftth_betriebe",
+      "name": "Land OÖ: Ultraschnelles Breitband-Glasfaser-Internet (FTTH) für Betriebe",
+      "stelle": "Land Oberösterreich",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
+      "region": "OÖ",
+      "betrag": "Max. 50 % der einmaligen Errichtungs- und Herstellungskosten, höchstens 2.000 EUR pro Standort",
+      "voraussetzungen": {
+        "wko_mitglied": true
+      },
+      "hinweise": [
+        "Gefördert werden einmalige Errichtungs- und Herstellungskosten für ultraschnelle FTTH-Glasfaseranschlüsse. Auch bestimmte freie Berufe sind förderbar."
+      ],
+      "frist": "Geltungsdauer 01.01.2025–31.12.2026",
+      "status": "offen",
+      "quelle": "https://www.wko.at/foerderungen/breitband-glasfaser-betriebe-oberoesterreich"
     }
   ]
 }
