@@ -1,6 +1,6 @@
 {
   "meta": {
-    "stand": "2026-10-12",
+    "stand": "2026-10-15",
     "hinweis": "TESTDATEN-Prototyp. Betraege/Fristen aus Live-Recherche, vor echtem Einsatz verifizieren.",
     "quellen": [
       "aws.at",
@@ -21,7 +21,13 @@
       "www.tirol.gv.at",
       "www.umweltfoerderung.at",
       "www.wko.at",
-      "www.wko.at/foerderungen/energiesparen-energienutzung-betriebe-oberoesterreich"
+      "www.wko.at/foerderungen/energiesparen-energienutzung-betriebe-oberoesterreich",
+      "foerderungen.wko.at/ooe/arbeitnehmerschutz2026",
+      "foerderungen.wko.at/ooe/ATTAG",
+      "foerderungen.wko.at/ooe/gc",
+      "foerderungen.wko.at/ooe/betriebsanlagen2026",
+      "foerderungen.wko.at/ooe/oeko-plus",
+      "www.eag-abwicklungsstelle.at"
     ]
   },
   "foerderungen": [
@@ -48,7 +54,7 @@
       "frist": "Antrag 1.6.-2.11.2026",
       "status": "offen",
       "hinweise": [
-        "Ausschoepfungsgrad 80% (Stand 05.10.2026) - Budget koennte vor Fristende ausgeschoepft sein"
+        "Ausschoepfungsgrad 85% (Stand 12.10.2026); Budget koennte vor Fristende ausgeschoepft sein."
       ],
       "quelle": "https://foerderungen.wko.at/ooe/digitalplus26"
     },
@@ -694,8 +700,8 @@
       "region": null,
       "betrag": "Max. 180 EUR je eingesparter MWh/Jahr, max. 50 % der förderfähigen Kosten und max. 2,5 Mio. EUR pro Projekt",
       "voraussetzungen": {},
-      "frist": "Einreichfrist bis 12.10.2026, 12:00 Uhr CEST",
-      "status": "offen",
+      "frist": "Einreichfrist endete am 12.10.2026, 12:00 Uhr",
+      "status": "fenster_zu",
       "quelle": "https://www.umweltfoerderung.at/betriebe/energieeffizienz-2-2026",
       "hinweise": [
         "Investitionssumme mindestens 1,0 Mio. EUR; mindestens 1,0 GWh anrechenbare Endenergieeinsparung pro Jahr."
