@@ -328,6 +328,14 @@ def sendet_zuruecksetzen(conn, minuten=15):
     return n
 
 
+def loesch_abgelaufene_kontakte(conn):
+    """Call the least-privilege database purge function and return removed profiles."""
+    with conn.cursor() as cur:
+        cur.execute("SELECT public.purge_expired_profiles()")
+        deleted = cur.fetchone()[0]
+    conn.commit()
+    return deleted
+
 def _kontakt_status(conn, kunde_id):
     with conn.cursor() as cur:
         cur.execute(

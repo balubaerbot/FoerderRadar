@@ -1,0 +1,5 @@
+# Test runner, API test client, and opt-in DB integration dependencies.
+pytest>=8,<10
+fastapi
+httpx
+psycopg[binary]

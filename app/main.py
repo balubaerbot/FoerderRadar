@@ -40,12 +40,14 @@ from src import vokabular as vok  # noqa: E402
 
 
 def _lade_env_datei():
-    """Laedt die gemountete `.env` und setzt sie als massgeblich (overrides Env).
+    """Laedt die gemountete `.env`, ausser in explizit isolierten Tests.
 
     Grund: `docker restart` liest `env_file` NICHT neu. Damit neu gesetzte Werte
     (z.B. das eingeschraenkte `DATABASE_URL` = app_web) nach einem normalen Neustart
     ankommen, gilt fuer dieses Projekt die `.env` als Quelle der Wahrheit.
     """
+    if os.environ.get("FOERDER_TESTING") == "1":
+        return
     pfad = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
     if not os.path.exists(pfad):
         return

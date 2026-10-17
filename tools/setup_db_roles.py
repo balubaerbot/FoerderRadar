@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """FoerderRadar - DB-Rollen einrichten (Least Privilege).
 
-Erzeugt zwei Login-Rollen und setzt minimale Grants:
+Erzeugt getrennte Login-Rollen und setzt minimale Grants:
 
-  app_web     - API + Agent/Matching: profil schreiben/lesen, profil_agent lesen,
-                match verwalten, kontakt SCHREIBEN (aber NICHT lesen!)
-  app_worker  - nur Versand-Worker: zusaetzlich kontakt LESEN
+  app_web       - API + Agent/Matching; kein Klartext-Kontakt lesen
+  app_worker    - Versand-Worker; darf Klartext-Kontakt lesen
+  app_retention - darf fällige Profile und verknüpfte Daten löschen, sonst nichts
 
 Der Superuser bleibt fuer Migrationen erhalten (DATABASE_URL_ADMIN in .env).
 
@@ -67,6 +67,10 @@ GRANTS = {
         "GRANT SELECT, INSERT, UPDATE ON versand TO {r}",
         "GRANT USAGE ON SEQUENCE versand_id_seq TO {r}",
     ],
+    "app_retention": [
+        "GRANT USAGE ON SCHEMA public TO {r}",
+        "GRANT EXECUTE ON FUNCTION public.purge_expired_profiles() TO {r}",
+    ],
 }
 
 
@@ -78,7 +82,7 @@ def main():
 
     zugangsdaten = {}
     with psycopg.connect(admin_url, connect_timeout=5, autocommit=True) as conn:
-        for rolle in ("app_web", "app_worker"):
+        for rolle in GRANTS:
             pw = secrets.token_urlsafe(24)
             with conn.cursor() as cur:
                 cur.execute("SELECT 1 FROM pg_roles WHERE rolname=%s", (rolle,))
@@ -103,9 +107,10 @@ def main():
     env["DATABASE_URL_ADMIN"] = admin_url
     env["DATABASE_URL"] = mit_zugang(admin_url, "app_web", zugangsdaten["app_web"])
     env["DATABASE_URL_WORKER"] = mit_zugang(admin_url, "app_worker", zugangsdaten["app_worker"])
+    env["DATABASE_URL_RETENTION"] = mit_zugang(admin_url, "app_retention", zugangsdaten["app_retention"])
     schreibe_env(env)
     print("  .env aktualisiert: DATABASE_URL=app_web, DATABASE_URL_WORKER=app_worker, "
-          "DATABASE_URL_ADMIN=Superuser (nur fuer Migrationen)")
+          "DATABASE_URL_RETENTION=app_retention, DATABASE_URL_ADMIN=Superuser (nur fuer Migrationen)")
     return 0
 
 
