@@ -1,35 +1,19 @@
 # FoerderRadar — Diagramme
 
-Aktueller Stand: **27.09.2026**
+## Aktueller Workflow (Stand 18.10.2026)
 
-Inhalt:
+![Fördora Workflow und Datenfluss](foerdora-zielworkflow.png)
 
-- **Datenfluss & Use Cases (UC1–UC6)** — `foerderradar-usecases.svg` / `.png`
-- **Wann läuft was (Zeitplan)** — `foerderradar-zeitplan.svg` / `.png`
-- **Module, Funktionen & Ablauf** — `foerderradar-module.svg` / `.png`
-- **Datenfluss (erste Version)** — `foerderradar-datenfluss.svg` / `.png`
+- Quelldatei: [foerdora-zielworkflow.html](foerdora-zielworkflow.html)
+- Die Grafik zeigt den aktuellen Datenfluss und offene Go-live-Gates. Sie ist keine Freigabe zum Livegang.
 
-Die `.svg`-Dateien sind reiner Text (bearbeitbar, z. B. mit Inkscape); die `.png` sind die
-gerenderten Vorschauen.
+## Frühere Konzeptdiagramme
 
----
+Stand der Entwürfe: **27.09.2026**; nicht mit dem aktuellen Code-/Deploymentstand abgeglichen.
 
-## Datenfluss & Use Cases
+- **Datenfluss & Use Cases (UC1–UC6)** — [SVG](foerderradar-usecases.svg) / [PNG](foerderradar-usecases.png)
+- **Wann läuft was (Zeitplan)** — [SVG](foerderradar-zeitplan.svg) / [PNG](foerderradar-zeitplan.png)
+- **Module, Funktionen & Ablauf** — [SVG](foerderradar-module.svg) / [PNG](foerderradar-module.png)
+- **Datenfluss (erste Version)** — [SVG](foerderradar-datenfluss.svg) / [PNG](foerderradar-datenfluss.png)
 
-![Datenfluss & Use Cases](foerderradar-usecases.png)
-
-## Wann läuft was (Zeitplan)
-
-![Wann läuft was](foerderradar-zeitplan.png)
-
-## Module, Funktionen & Ablauf
-
-![Module, Funktionen & Ablauf](foerderradar-module.png)
-
-## Datenfluss (erste Version)
-
-![Datenfluss](foerderradar-datenfluss.png)
-
----
-
-**Legende:** 🟦 Akteur/Eingabe · 🟪 Verarbeitung · 🟩 Daten · 🟨 extern/Web · 🟥 Klartext (`kontakt`, Zugriff beschränkt)
+SVG-Dateien sind editierbare Textdateien; PNG-Dateien sind Vorschauen.
