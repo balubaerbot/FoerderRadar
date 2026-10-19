@@ -31,8 +31,8 @@ def _runtime_mode() -> str:
     if os.environ.get("FOERDER_RUN_DB_TESTS") != "1":
         return ""
     mode = os.environ.get("FOERDER_TEST_DB_BACKEND", "docker").lower()
-    if mode not in {"docker", "local"}:
-        pytest.fail("FOERDER_TEST_DB_BACKEND must be 'docker' or 'local'")
+    if mode not in {"docker", "local", "service"}:
+        pytest.fail("FOERDER_TEST_DB_BACKEND must be 'docker', 'local', or 'service'")
     return mode
 
 
@@ -95,6 +95,44 @@ def integration_db():
         pytest.skip("DB integration suite is opt-in: set FOERDER_RUN_DB_TESTS=1")
 
     # Once explicitly enabled, missing infrastructure fails rather than silently skipping CI coverage.
+    if mode == "service":
+        from psycopg import sql
+
+        admin_url = os.environ.get("FOERDER_TEST_DB_ADMIN_URL", "")
+        if not admin_url:
+            pytest.fail("Service backend requires FOERDER_TEST_DB_ADMIN_URL")
+        params = psycopg.conninfo.conninfo_to_dict(admin_url)
+        host = params.get("host")
+        hostaddr = params.get("hostaddr")
+        if (
+            params.get("dbname") != "postgres"
+            or host not in {"127.0.0.1", "localhost"}
+            or (hostaddr is not None and hostaddr not in {"127.0.0.1", "::1"})
+            or params.get("service")
+            or params.get("servicefile")
+        ):
+            pytest.fail("Service backend only accepts a direct loopback URL to the postgres bootstrap database")
+        created = False
+        try:
+            with psycopg.connect(admin_url, autocommit=True) as conn:
+                _assert_safe_test_target_for_db(conn, "postgres")
+                exists = conn.execute("SELECT 1 FROM pg_database WHERE datname = %s", (TEST_DB,)).fetchone()
+                if exists:
+                    pytest.fail(f"Refusing to reuse existing test database {TEST_DB!r}")
+                conn.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(TEST_DB)))
+                created = True
+            url = psycopg.conninfo.make_conninfo(admin_url, dbname=TEST_DB)
+            with psycopg.connect(url) as conn:
+                _assert_safe_test_target(conn)
+                conn.execute(SCHEMA.read_text(encoding="utf-8"))
+            yield url
+        finally:
+            if created:
+                with psycopg.connect(admin_url, autocommit=True) as conn:
+                    _assert_safe_test_target_for_db(conn, "postgres")
+                    conn.execute(sql.SQL("DROP DATABASE {}").format(sql.Identifier(TEST_DB)))
+        return
+
     if mode == "docker":
         if not _docker_available():
             pytest.fail("Docker backend selected but Docker is unavailable; choose FOERDER_TEST_DB_BACKEND=local for installed PostgreSQL")
