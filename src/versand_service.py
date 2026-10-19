@@ -64,8 +64,8 @@ def _ziel_maskiert(kanal, kontakt):
 def offene_kunden(conn):
     """kunde_ids mit mind. einem Match 'identifiziert' UND gueltiger Einwilligung.
 
-    Bedingungen: Einwilligung vorhanden, kein ueberschrittenes Loeschdatum,
-    Kanal gesetzt.
+    Bedingungen: Einwilligung vorhanden, Loeschdatum gesetzt und nicht
+    ueberschritten, Kanal gesetzt. Fehlende Fristen werden fail-closed ausgeschlossen.
     """
     with conn.cursor() as cur:
         cur.execute(
@@ -75,7 +75,8 @@ def offene_kunden(conn):
             JOIN kontakt k ON k.kunde_id = m.kunde_id
             WHERE m.status = 'identifiziert'
               AND k.einwilligung_am IS NOT NULL
-              AND (k.loeschdatum IS NULL OR k.loeschdatum > CURRENT_DATE)
+              AND k.loeschdatum IS NOT NULL
+              AND k.loeschdatum > CURRENT_DATE
               AND k.kanal IN ('email','sms')
             ORDER BY m.kunde_id
             """
