@@ -70,6 +70,8 @@ GRANTS = {
     "app_retention": [
         "GRANT USAGE ON SCHEMA public TO {r}",
         "GRANT EXECUTE ON FUNCTION public.purge_expired_profiles() TO {r}",
+        "GRANT EXECUTE ON FUNCTION public.delete_profile_on_request(uuid) TO {r}",
+        "GRANT INSERT ON public.profile_deletion_audit TO {r}",
     ],
 }
 

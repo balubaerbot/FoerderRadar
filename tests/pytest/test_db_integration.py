@@ -100,6 +100,16 @@ def test_api_default_deny_consent_and_rate_limit(db_connection, monkeypatch):
     monkeypatch.setenv("FOERDER_TESTING", "1")
     monkeypatch.setenv("DATABASE_URL", "")
     monkeypatch.setenv("FOERDER_ADMIN_TOKEN", "pytest-admin-token")
+    monkeypatch.setenv("FOERDER_INTAKE_ENABLED", "1")
+    monkeypatch.setenv("FOERDER_PRIVACY_REVIEWED", "1")
+    monkeypatch.setenv("FOERDER_SPECIAL_CATEGORY_BASIS_CONFIRMED", "1")
+    monkeypatch.setenv("FOERDER_WITHDRAWAL_PROCESS_CONFIRMED", "1")
+    monkeypatch.setenv("FOERDER_RETENTION_SCHEMA_VERIFIED", "1")
+    monkeypatch.setenv("FOERDER_PURGE_SCHEDULE_VERIFIED", "1")
+    monkeypatch.setenv("FOERDER_LEGACY_RETENTION_REVIEWED", "1")
+    monkeypatch.setenv("FOERDER_DATA_CONTROLLER", "Integrationstest-Verantwortlicher")
+    monkeypatch.setenv("FOERDER_PRIVACY_CONTACT", "privacy@example.invalid")
+    monkeypatch.setenv("FOERDER_CONSENT_VERSION", "test-v1")
     import app.main as api
     api = importlib.reload(api)
     client = TestClient(api.app, raise_server_exceptions=False)
@@ -133,6 +143,16 @@ def test_api_profile_insert_and_contact_is_not_returned(db_connection, integrati
     monkeypatch.setenv("FOERDER_TESTING", "1")
     monkeypatch.setenv("DATABASE_URL", "")
     monkeypatch.setenv("FOERDER_ADMIN_TOKEN", "pytest-admin-token")
+    monkeypatch.setenv("FOERDER_INTAKE_ENABLED", "1")
+    monkeypatch.setenv("FOERDER_PRIVACY_REVIEWED", "1")
+    monkeypatch.setenv("FOERDER_SPECIAL_CATEGORY_BASIS_CONFIRMED", "1")
+    monkeypatch.setenv("FOERDER_WITHDRAWAL_PROCESS_CONFIRMED", "1")
+    monkeypatch.setenv("FOERDER_RETENTION_SCHEMA_VERIFIED", "1")
+    monkeypatch.setenv("FOERDER_LEGACY_RETENTION_REVIEWED", "1")
+    monkeypatch.setenv("FOERDER_PURGE_SCHEDULE_VERIFIED", "1")
+    monkeypatch.setenv("FOERDER_DATA_CONTROLLER", "Integrationstest-Verantwortlicher")
+    monkeypatch.setenv("FOERDER_PRIVACY_CONTACT", "privacy@example.invalid")
+    monkeypatch.setenv("FOERDER_CONSENT_VERSION", "test-v1")
     import app.main as api
     api = importlib.reload(api)
     client = TestClient(api.app, raise_server_exceptions=False)
@@ -153,6 +173,12 @@ def test_api_profile_insert_and_contact_is_not_returned(db_connection, integrati
     })
     assert response.status_code == 200
     payload = response.json()
+    consent_version, special_data_opt_in, loeschdatum, expected_loeschdatum = db_connection.execute(
+        "SELECT einwilligung_version, einwilligung_besondere_daten, loeschdatum, (CURRENT_DATE + INTERVAL '2 years')::date "
+        "FROM kontakt WHERE kunde_id=%s",
+        (payload["kunde_id"],),
+    ).fetchone()
+    assert (consent_version, special_data_opt_in, loeschdatum) == ("test-v1", False, expected_loeschdatum)
     assert set(payload) == {"kunde_id"}
     kunde_id = uuid.UUID(payload["kunde_id"])
     row = db_connection.execute(
@@ -221,3 +247,32 @@ def test_retention_cleanup_removes_expired_profile_and_cascades(db_connection):
             db_connection.execute(sql.SQL("DROP OWNED BY {}").format(sql.Identifier(role)))
             db_connection.execute(sql.SQL("DROP ROLE IF EXISTS {}").format(sql.Identifier(role)))
         db_connection.commit()
+
+
+def test_requested_profile_deletion_ignores_retention_deadline(db_connection):
+    from src import versand_service as service
+
+    profile_id = db_connection.execute(
+        "INSERT INTO profil (typ) VALUES (%s) RETURNING kunde_id", ("privat",)
+    ).fetchone()[0]
+    db_connection.execute(
+        "INSERT INTO kontakt (kunde_id, name, email, kanal, einwilligung_am, loeschdatum) VALUES (%s, %s, %s, %s, now(), CURRENT_DATE + 365)",
+        (profile_id, "Delete Test", "delete-test@example.invalid", "email"),
+    )
+    db_connection.execute(
+        "INSERT INTO match (kunde_id, foerderung_id, kategorie) VALUES (%s, %s, %s)",
+        (profile_id, "delete-test-grant", "top"),
+    )
+    db_connection.execute(
+        "INSERT INTO versand (kunde_id, kanal, betreff, body, status) VALUES (%s, %s, %s, %s, %s)",
+        (profile_id, "email", "test", "test", "entwurf"),
+    )
+    db_connection.commit()
+
+    assert service.loesche_kundenprofil_auf_anfrage(db_connection, profile_id) is True
+    db_connection.commit()
+    for table in ("profil", "kontakt", "match", "versand"):
+        assert db_connection.execute(
+            f"SELECT 1 FROM {table} WHERE kunde_id = %s", (profile_id,)
+        ).fetchone() is None
+    assert service.loesche_kundenprofil_auf_anfrage(db_connection, profile_id) is False

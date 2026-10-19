@@ -63,6 +63,44 @@ _lade_env_datei()
 
 app = FastAPI(title="FoerderRadar API", version="0.1.0")
 
+
+def _intake_freigegeben() -> bool:
+    """Fail closed until privacy and retention requirements are approved."""
+    if os.environ.get("FOERDER_INTAKE_ENABLED") != "1":
+        return False
+    if os.environ.get("FOERDER_PRIVACY_REVIEWED") != "1":
+        return False
+    if os.environ.get("FOERDER_SPECIAL_CATEGORY_BASIS_CONFIRMED") != "1":
+        return False
+    if os.environ.get("FOERDER_WITHDRAWAL_PROCESS_CONFIRMED") != "1":
+        return False
+    if os.environ.get("FOERDER_RETENTION_SCHEMA_VERIFIED") != "1":
+        return False
+    if os.environ.get("FOERDER_PURGE_SCHEDULE_VERIFIED") != "1":
+        return False
+    # Legacy rows can have NULL deadlines; do not accept new data until an
+    # operator has reviewed and resolved them under an approved policy.
+    if os.environ.get("FOERDER_LEGACY_RETENTION_REVIEWED") != "1":
+        return False
+    if not os.environ.get("FOERDER_DATA_CONTROLLER", "").strip():
+        return False
+    if not os.environ.get("FOERDER_PRIVACY_CONTACT", "").strip():
+        return False
+    if not os.environ.get("FOERDER_CONSENT_VERSION", "").strip():
+        return False
+    # Betreiberregel: regulär nach zwei Jahren löschen; verifizierte
+    # Kundenanfragen zur Löschung gelten unabhängig vom Datensatzalter.
+    return True
+
+
+def _pruefe_intake_freigabe() -> None:
+    if not _intake_freigegeben():
+        raise HTTPException(
+            status_code=503,
+            detail="Die Datenerfassung ist derzeit deaktiviert.",
+            headers={"Retry-After": "3600"},
+        )
+
 BASIS = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 templates = Jinja2Templates(directory=os.path.join(BASIS, "app", "templates"))
 app.mount("/static", StaticFiles(directory=os.path.join(BASIS, "app", "static")), name="static")
@@ -224,14 +262,21 @@ class ProfilIn(BaseModel):
     kanal: Optional[str] = None  # email | sms
     # Einwilligung zur Datenverarbeitung (Pflicht)
     einwilligung: bool = False
+    besondere_daten_einwilligung: bool = False
 
 
 def _speichere_profil(p: ProfilIn) -> str:
     """Validiert und speichert ein Profil (pseudonym + Kontakt getrennt)."""
+    _pruefe_intake_freigabe()
     if p.typ not in ("betrieb", "privat", "sozial"):
         raise HTTPException(status_code=400, detail="typ muss 'betrieb', 'privat' oder 'sozial' sein")
     if not p.einwilligung:
         raise HTTPException(status_code=400, detail="Einwilligung erforderlich")
+    if (p.pflegestufe is not None or p.behinderung is not None) and not p.besondere_daten_einwilligung:
+        raise HTTPException(
+            status_code=400,
+            detail="Für Pflege-/Behinderungsangaben ist eine gesonderte ausdrückliche Einwilligung erforderlich.",
+        )
     if p.kanal not in (None, "email", "sms"):
         raise HTTPException(status_code=400, detail="kanal muss 'email' oder 'sms' sein")
     if p.email and not EMAIL_RE.fullmatch(p.email):
@@ -270,10 +315,13 @@ def _speichere_profil(p: ProfilIn) -> str:
         kunde_id = cur.fetchone()[0]
         cur.execute(
             """
-            INSERT INTO kontakt (kunde_id, name, email, telefon, kanal, einwilligung_am)
-            VALUES (%s,%s,%s,%s,%s, now())
+            INSERT INTO kontakt (kunde_id, name, email, telefon, kanal, einwilligung_am,
+                einwilligung_version, einwilligung_besondere_daten, loeschdatum)
+            VALUES (%s,%s,%s,%s,%s, now(), %s, %s, (CURRENT_DATE + INTERVAL '2 years')::date)
             """,
-            (kunde_id, p.name, p.email, p.telefon, p.kanal),
+            (kunde_id, p.name, p.email, p.telefon, p.kanal,
+             os.environ["FOERDER_CONSENT_VERSION"].strip(),
+             p.besondere_daten_einwilligung),
         )
         conn.commit()
     # Rueckgabe enthaelt nur die kunde_id - keine Kontaktdaten.
@@ -282,6 +330,7 @@ def _speichere_profil(p: ProfilIn) -> str:
 
 @app.post("/profile")
 def create_profile(p: ProfilIn):
+    _pruefe_intake_freigabe()
     # Antwort enthaelt nur die kunde_id - keine Kontaktdaten.
     return {"kunde_id": _speichere_profil(p)}
 
@@ -361,7 +410,11 @@ def _profil_aus_formular(form) -> ProfilIn:
         region = form.get("region_grob_p")
     else:
         region = form.get("region_grob")
-    pf = (form.get("pflegestufe") or "").strip()
+    # Diese Angaben werden ausschließlich bei einer ausdrücklich gewählten
+    # Sozial-/Alltags-Suche akzeptiert, auch wenn ein Client Felder mitsendet,
+    # die im UI verborgen waren.
+    besondere_daten_ok = sozial and form.get("besondere_daten_einwilligung") == "ja"
+    pf = (form.get("pflegestufe") or "").strip() if besondere_daten_ok else ""
     # Bedarf-Chips (nur Sozial) zaehlen wie Vorhaben zur Thema-Achse; die
     # explizite Standbein-Wahl erzwingt zusaetzlich das grobe Thema 'sozial'.
     vorhaben = list(form.getlist("vorhaben")) + list(form.getlist("bedarf"))
@@ -379,8 +432,8 @@ def _profil_aus_formular(form) -> ProfilIn:
         einkommen_spanne=((form.get("einkommen_spanne_s") if sozial
                            else form.get("einkommen_spanne")) or None) if privat else None,
         heizung=(form.get("heizung") or None) if (privat and not sozial) else None,
-        pflegestufe=(int(pf) if pf.isdigit() else None) if (privat and not sozial) else None,
-        behinderung=_ja_nein(form.get("behinderung")),
+        pflegestufe=(int(pf) if pf.isdigit() else None) if besondere_daten_ok else None,
+        behinderung=_ja_nein(form.get("behinderung")) if besondere_daten_ok else None,
         familienstand=(form.get("familienstand") or None) if (privat and not sozial) else None,
         kinder_im_haushalt=_ja_nein(form.get("kinder_im_haushalt")) if (privat and not sozial) else None,
         lebenssituation=(form.get("lebenssituation") or None) if sozial else None,
@@ -391,6 +444,7 @@ def _profil_aus_formular(form) -> ProfilIn:
         telefon=(form.get("telefon") or "").strip() or None,
         kanal=(form.get("kanal") or None),
         einwilligung=(form.get("einwilligung") == "ja"),
+        besondere_daten_einwilligung=besondere_daten_ok,
     )
 
 
@@ -403,15 +457,23 @@ def _werte_aus_formular(form):
 
 @app.get("/formular")
 def formular(request: Request, typ: str = "betrieb"):
+    _pruefe_intake_freigabe()
     typ = typ if typ in ("betrieb", "privat", "sozial") else "betrieb"
     return _render(request, "formular.html", _formular_kontext(typ=typ))
 
 
 @app.post("/formular")
 async def formular_post(request: Request):
+    _pruefe_intake_freigabe()
     form = await request.form()
     p = _profil_aus_formular(form)
+    if p.typ != "sozial":
+        p.pflegestufe = None
+        p.behinderung = None
     werte = _werte_aus_formular(form)
+    if p.typ != "sozial":
+        werte["pflegestufe"] = ""
+        werte["behinderung"] = ""
     # Fuer Re-Rendering bei Fehlern: typ_anzeige spiegelt den vom Nutzer
     # gewaehlten Tab (identisch zu p.typ, seit 'sozial' ein echter Wert ist).
     typ_anzeige = (form.get("typ") or "betrieb").strip()

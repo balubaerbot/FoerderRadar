@@ -94,7 +94,7 @@
               {% endfor %}
             </select></div>
         </div>
-        <div class="grid2">
+        <div class="grid2 nicht-sozial">
           <div class="field"><label for="heizung">Heizung</label>
             <select id="heizung" name="heizung">
               <option value="">– bitte wählen –</option>
@@ -102,7 +102,7 @@
               <option value="{{ x }}" {% if x == werte.heizung %}selected{% endif %}>{{ x }}</option>
               {% endfor %}
             </select></div>
-          <div class="field"><label for="pflegestufe">Pflegestufe</label>
+          <div class="field nur-sozial"><label for="pflegestufe">Pflegestufe</label>
             <select id="pflegestufe" name="pflegestufe">
               <option value="">– keine –</option>
               <option value="0" {% if werte.pflegestufe == "0" %}selected{% endif %}>Keine</option>
@@ -110,7 +110,7 @@
               <option value="{{ n }}" {% if werte.pflegestufe == n|string %}selected{% endif %}>Stufe {{ n }}</option>
               {% endfor %}
             </select></div>
-          <div class="field"><label for="behinderung">Behinderung / Beeinträchtigung</label>
+          <div class="field nur-sozial"><label for="behinderung">Behinderung / Beeinträchtigung</label>
             <select id="behinderung" name="behinderung">
               <option value="">– keine Angabe –</option>
               <option value="ja" {% if werte.behinderung == "ja" %}selected{% endif %}>Ja (bei mir oder Kind im Haushalt)</option>
@@ -136,7 +136,16 @@
 
       <!-- ---------------- Sozial & Alltag ---------------- -->
       <div class="nur-sozial">
-        <div class="grid2">
+        <div class="field" style="margin-bottom:12px">
+          <label class="chip" style="display:flex;gap:10px;align-items:flex-start">
+            <input type="checkbox" name="besondere_daten_einwilligung" value="ja">
+            Ich möchte Förderungen suchen, bei denen Pflege oder Behinderung berücksichtigt wird.
+            Ich willige ausdrücklich ein, dass Fördora meine Angaben zu Pflegestufe und/oder
+            Behinderung/Beeinträchtigung nur für diese Fördersuche verarbeitet. Diese Angabe ist
+            freiwillig und wird ohne Auswahl nicht erfasst.
+          </label>
+        </div>
+        <div class="grid2 nur-besondere-daten">
           <div class="field"><label for="bundesland_s">Bundesland *</label>
             <select id="bundesland_s" name="region_grob_s">
               {% for b in bundeslaender %}
@@ -231,15 +240,20 @@
         <input id="einwilligung" type="checkbox" name="einwilligung" value="ja"
           {% if werte.einwilligung %}checked{% endif %} required>
         <label for="einwilligung" class="small" style="color:#134e4a;margin:0">
-          Ich willige ein, dass Fördora meine Angaben zur Prüfung möglicher Förderungen
-          verarbeitet und mich per E-Mail/SMS kontaktiert. Diese Einwilligung kann ich
-          jederzeit widerrufen. *</label>
+          Ich willige ein, dass Fördora die von mir ausgewählten Angaben zur Ermittlung passender
+          Fördermöglichkeiten verarbeitet. Pflege- und Behinderungsangaben werden nur verarbeitet,
+          wenn ich im Bereich „Sozial &amp; Alltag“ zusätzlich ausdrücklich zustimme. Ich kann die
+          Einwilligung jederzeit für die Zukunft widerrufen. *</label>
       </div>
 
       <button class="btn btn-p" type="submit" style="width:100%;padding:16px;font-size:17px">
         Förderungen finden</button>
-      <p class="small center" style="margin-top:14px">Keine Registrierung. Ihre Daten werden nur zur
-        Prüfung verwendet.</p>
+      <p class="small center" style="margin-top:14px">Die Angaben werden zur Ermittlung passender
+        Fördermöglichkeiten verwendet. Widerruf oder Löschanfrage: <a href="mailto:team@foerdora.cloud">team@foerdora.cloud</a>;
+        bitte Name und, falls vorhanden, die für die Anfrage verwendete E-Mail-Adresse angeben.
+        Eine Löschung kann jederzeit per E-Mail beantragt werden; unabhängig davon werden
+        die Daten spätestens nach zwei Jahren gelöscht. Bitte keine Gesundheits- oder
+        Behinderungsangaben per E-Mail senden.</p>
     </div>
   </form>
   <div style="height:40px"></div>

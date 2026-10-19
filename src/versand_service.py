@@ -336,13 +336,17 @@ def loesch_abgelaufene_kontakte(conn):
     conn.commit()
     return deleted
 
-def _kontakt_status(conn, kunde_id):
+
+def loesche_kundenprofil_auf_anfrage(conn, kunde_id):
+    """Delete a verified customer's complete profile regardless of its age.
+
+    The caller must verify the requester's identity before calling this helper.
+    Foreign-key cascades remove contact and related records atomically. This
+    helper leaves transaction commit/rollback to its caller.
+    """
     with conn.cursor() as cur:
-        cur.execute(
-            "SELECT einwilligung_am, loeschdatum, kanal FROM kontakt WHERE kunde_id = %s",
-            (kunde_id,),
-        )
-        return cur.fetchone()
+        cur.execute("SELECT public.delete_profile_on_request(%s)", (kunde_id,))
+        return cur.fetchone()[0]
 
 
 def _hat_offene_treffer(conn, kunde_id):
@@ -363,10 +367,14 @@ def _versandblocker(conn, kunde_id):
     info = _kontakt_status(conn, kunde_id)
     if not info:
         return "kein Kontakt vorhanden"
-    einwilligung_am, loeschdatum, kanal = info
+    einwilligung_am, loeschdatum, kanal, widerrufen_am = info
     if einwilligung_am is None:
         return "Einwilligung fehlt"
-    if loeschdatum is not None and loeschdatum <= datetime.date.today():
+    if widerrufen_am is not None:
+        return "Einwilligung widerrufen"
+    if loeschdatum is None:
+        return "Loeschfrist unbekannt"
+    if loeschdatum <= datetime.date.today():
         return "Loeschfrist abgelaufen"
     if kanal not in ("email", "sms"):
         return f"Kanal '{kanal}' nicht versendbar"

@@ -50,8 +50,18 @@ CREATE TABLE IF NOT EXISTS kontakt (
     telefon         TEXT,
     kanal           TEXT CHECK (kanal IN ('email','sms')),
     einwilligung_am TIMESTAMPTZ,
-    loeschdatum     DATE
+    einwilligung_version TEXT,
+    einwilligung_besondere_daten BOOLEAN NOT NULL DEFAULT FALSE,
+    einwilligung_widerrufen_am TIMESTAMPTZ,
+    loeschdatum     DATE NOT NULL DEFAULT ((CURRENT_DATE + INTERVAL '2 years')::date)
 );
+
+-- Idempotent additions for existing DB volumes; also supplied as a standalone
+-- migration so deployments do not depend on initdb re-running this file.
+ALTER TABLE kontakt ADD COLUMN IF NOT EXISTS einwilligung_version TEXT;
+ALTER TABLE kontakt ADD COLUMN IF NOT EXISTS einwilligung_besondere_daten BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE kontakt ADD COLUMN IF NOT EXISTS einwilligung_widerrufen_am TIMESTAMPTZ;
+ALTER TABLE kontakt ALTER COLUMN loeschdatum SET DEFAULT ((CURRENT_DATE + INTERVAL '2 years')::date);
 
 CREATE TABLE IF NOT EXISTS match (
     id             BIGSERIAL PRIMARY KEY,
@@ -120,3 +130,32 @@ BEGIN
 END;
 $purge$;
 REVOKE ALL ON FUNCTION public.purge_expired_profiles() FROM PUBLIC;
+
+-- Operator-only customer-request deletion; callers must verify identity before invoking.
+-- Audit row contains only the profile UUID and time, not contact data.
+CREATE TABLE IF NOT EXISTS public.profile_deletion_audit (
+    kunde_id UUID NOT NULL,
+    requested_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    deleted_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+REVOKE ALL ON TABLE public.profile_deletion_audit FROM PUBLIC;
+
+CREATE OR REPLACE FUNCTION public.delete_profile_on_request(p_kunde_id UUID)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, public
+AS $delete$
+DECLARE
+    deleted_count BIGINT;
+BEGIN
+    DELETE FROM public.profil WHERE kunde_id = p_kunde_id;
+    GET DIAGNOSTICS deleted_count = ROW_COUNT;
+    IF deleted_count = 0 THEN
+        RETURN FALSE;
+    END IF;
+    INSERT INTO public.profile_deletion_audit (kunde_id) VALUES (p_kunde_id);
+    RETURN TRUE;
+END;
+$delete$;
+REVOKE ALL ON FUNCTION public.delete_profile_on_request(UUID) FROM PUBLIC;

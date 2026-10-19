@@ -95,6 +95,8 @@ body:has(input[name="typ"][value="privat"]:checked) .nur-betrieb{display:none}
 body:has(input[name="typ"][value="privat"]:checked) .nur-privat{display:block}
 body:has(input[name="typ"][value="sozial"]:checked) .nur-betrieb{display:none}
 body:has(input[name="typ"][value="sozial"]:checked) .nur-sozial{display:block}
+.nur-besondere-daten{display:none}
+body:has(input[name="besondere_daten_einwilligung"]:checked) .nur-besondere-daten{display:grid}
 body:has(input[name="typ"][value="sozial"]:checked) .nicht-sozial{display:none}
 
 /* Mobil */
