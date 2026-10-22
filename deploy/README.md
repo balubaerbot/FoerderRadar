@@ -114,20 +114,21 @@ ssh -L 8100:127.0.0.1:8100 hostinger-openclaw
 Zum Testen der App ggf. `FOERDER_ADMIN_TOKEN` als Bearer-Header mitschicken -
 die Middleware ist Default-Deny (siehe `PUBLIC` in `app/main.py`).
 
-## Wichtig: Proxy-Header in der App
+## Proxy-Header und Rate-Limit
 
-Damit die App die echte Client-IP und `https` als Schema sieht (Rate-Limit pro
-IP!), startet uvicorn mit:
+Uvicorn startet absichtlich **ohne** `--proxy-headers`. Die App ignoriert
+`X-Forwarded-For` fuer die Rate-Limit-Identitaet, bis die tatsaechliche
+Proxy-Kette auf dem Host verifiziert und eine eng begrenzte Trust-Konfiguration
+eingerichtet ist. Andernfalls koennte ein Client den Header faelschen und das
+Limit umgehen. Die Beispielkonfigurationen ueberschreiben den eingehenden
+`X-Forwarded-For`-Wert mit der jeweiligen Peer-IP; das allein aktiviert noch
+kein Vertrauen in Uvicorn.
 
-```
---proxy-headers --forwarded-allow-ips=*
-```
-
-Das steht als `command:` in `docker-compose.yml` (nicht im Dockerfile - so
-genuegt ein Recreate, kein Rebuild). `*` ist hier vertretbar, weil der Port
-ausschliesslich an 127.0.0.1 gebunden ist - nur Host-Prozesse (der Proxy) koennen
-ueberhaupt verbinden. Waere der Port oeffentlich, muesste man den Docker-Gateway
-(172.18.0.1) explizit eintragen.
+**Wichtig:** Hinter Docker kann `request.client` fuer alle externen Nutzer dieselbe
+Proxy-/Bridge-Adresse anzeigen. Bis die Host-Kette verifiziert ist, ist das
+Rate-Limit daher moeglicherweise gemeinsam statt pro Endnutzer-IP. Das ist die
+sichere, aber restriktivere Voreinstellung; nicht als per-IP-Limit bewerben.
+`--forwarded-allow-ips=*` darf nicht wieder aktiviert werden.
 
 **Container neu erstellen** (vom Host, kein Rebuild noetig):
 

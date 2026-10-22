@@ -20,7 +20,10 @@ foerdora.cloud {
 	encode zstd gzip
 
 	# App im Container, vom Host aus erreichbar auf 127.0.0.1:8100
-	reverse_proxy 127.0.0.1:8100
+	reverse_proxy 127.0.0.1:8100 {
+		# Discard client-supplied forwarding chains.
+		header_up X-Forwarded-For {http.request.remote.host}
+	}
 
 	# ------------------------------------------------------------------
 	# ENTWICKLUNGSPHASE: Zugang nur mit Passwort.

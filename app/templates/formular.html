@@ -227,12 +227,11 @@
           <input id="email" name="email" type="email" value="{{ werte.email }}" autocomplete="email"></div>
       </div>
       <div class="grid2">
-        <div class="field"><label for="telefon">Telefon (optional, für SMS)</label>
+        <div class="field"><label for="telefon">Telefon (optional)</label>
           <input id="telefon" name="telefon" value="{{ werte.telefon }}" autocomplete="tel"></div>
         <div class="field"><label for="kanal">Kontaktweg</label>
           <select id="kanal" name="kanal">
-            <option value="email" {% if werte.kanal != "sms" %}selected{% endif %}>E-Mail</option>
-            <option value="sms" {% if werte.kanal == "sms" %}selected{% endif %}>SMS</option>
+            <option value="email" selected>E-Mail</option>
           </select></div>
       </div>
 

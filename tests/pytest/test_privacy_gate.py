@@ -2,6 +2,8 @@
 
 import importlib
 from pathlib import Path
+from types import SimpleNamespace
+
 from starlette.datastructures import FormData
 from fastapi.testclient import TestClient
 
@@ -95,6 +97,120 @@ def test_privacy_contact_and_optional_sensitive_field_scope_are_visible():
     assert 'class="field nur-sozial"><label for="behinderung"' in form
     assert 'body:has(input[name="typ"][value="sozial"]:checked) .nur-sozial{display:block}' in css
     assert 'body:has(input[name="besondere_daten_einwilligung"]:checked) .nur-besondere-daten{display:grid}' in css
+
+
+def test_compose_explicitly_disables_uvicorn_proxy_header_trust():
+    compose = (Path(__file__).resolve().parents[2] / "docker-compose.yml").read_text()
+    assert "--no-proxy-headers" in compose
+    assert "--forwarded-allow-ips=*" not in compose
+
+
+def test_rate_limit_identity_ignores_forwarded_for_unless_proxy_trust_is_enabled(monkeypatch):
+    monkeypatch.setenv("FOERDER_TESTING", "1")
+    import app.main as api
+    importlib.reload(api)
+
+    request = SimpleNamespace(
+        headers={"x-forwarded-for": "203.0.113.99, 10.0.0.5"},
+        client=SimpleNamespace(host="127.0.0.1"),
+    )
+    assert api._client_ip(request) == "127.0.0.1"
+
+
+def test_client_ip_ignores_forwarded_for_even_if_legacy_flag_is_set(monkeypatch):
+    monkeypatch.setenv("FOERDER_TESTING", "1")
+    monkeypatch.setenv("FOERDER_TRUST_PROXY", "1")
+    import app.main as api
+    importlib.reload(api)
+
+    request = SimpleNamespace(
+        headers={"x-forwarded-for": "203.0.113.99"},
+        client=SimpleNamespace(host="127.0.0.1"),
+    )
+    assert api._client_ip(request) == "127.0.0.1"
+
+
+def test_rate_limit_cannot_be_bypassed_by_rotating_forwarded_for(monkeypatch):
+    monkeypatch.setenv("FOERDER_TESTING", "1")
+    monkeypatch.setenv("FOERDER_INTAKE_ENABLED", "1")
+    monkeypatch.setenv("FOERDER_PRIVACY_REVIEWED", "1")
+    monkeypatch.setenv("FOERDER_SPECIAL_CATEGORY_BASIS_CONFIRMED", "1")
+    monkeypatch.setenv("FOERDER_LEGACY_RETENTION_REVIEWED", "1")
+    monkeypatch.setenv("FOERDER_DATA_CONTROLLER", "Testverantwortlicher")
+    monkeypatch.setenv("FOERDER_PRIVACY_CONTACT", "privacy@example.invalid")
+    monkeypatch.setenv("FOERDER_CONSENT_VERSION", "test-v1")
+    monkeypatch.setenv("FOERDER_WITHDRAWAL_PROCESS_CONFIRMED", "1")
+    monkeypatch.setenv("FOERDER_RETENTION_SCHEMA_VERIFIED", "1")
+    monkeypatch.setenv("FOERDER_PURGE_SCHEDULE_VERIFIED", "1")
+    monkeypatch.setenv("FOERDER_TRUST_PROXY", "1")
+    import app.main as api
+    importlib.reload(api)
+
+    def accept_profile(_profile):
+        return "00000000-0000-0000-0000-000000000001"
+
+    monkeypatch.setattr(api, "_speichere_profil", accept_profile)
+    payload = {"typ": "betrieb", "einwilligung": True}
+    responses = [
+        TestClient(api.app).post(
+            "/profile", json=payload,
+            headers={"X-Forwarded-For": f"203.0.113.{n}"},
+        )
+        for n in range(6)
+    ]
+    assert [r.status_code for r in responses] == [200, 200, 200, 200, 200, 429]
+
+
+def test_health_is_not_available_without_admin_token(monkeypatch):
+    monkeypatch.setenv("FOERDER_TESTING", "1")
+    monkeypatch.setenv("FOERDER_ADMIN_TOKEN", "test-token")
+    import app.main as api
+    importlib.reload(api)
+
+    response = TestClient(api.app).get("/health")
+    assert response.status_code == 401
+    assert response.json() == {"detail": "nicht autorisiert"}
+
+
+def test_health_hides_database_role_and_error_details(monkeypatch):
+    monkeypatch.setenv("FOERDER_TESTING", "1")
+    import app.main as api
+    importlib.reload(api)
+    monkeypatch.setattr(api, "db", lambda: (_ for _ in ()).throw(RuntimeError("secret db host")))
+
+    assert api.health() == {"status": "degraded"}
+
+
+def test_sms_submission_is_rejected_before_database_write(monkeypatch):
+    monkeypatch.setenv("FOERDER_TESTING", "1")
+    for key, value in {
+        "FOERDER_INTAKE_ENABLED": "1",
+        "FOERDER_PRIVACY_REVIEWED": "1",
+        "FOERDER_SPECIAL_CATEGORY_BASIS_CONFIRMED": "1",
+        "FOERDER_LEGACY_RETENTION_REVIEWED": "1",
+        "FOERDER_DATA_CONTROLLER": "Testverantwortlicher",
+        "FOERDER_PRIVACY_CONTACT": "privacy@example.invalid",
+        "FOERDER_CONSENT_VERSION": "test-v1",
+        "FOERDER_WITHDRAWAL_PROCESS_CONFIRMED": "1",
+        "FOERDER_RETENTION_SCHEMA_VERIFIED": "1",
+        "FOERDER_PURGE_SCHEDULE_VERIFIED": "1",
+    }.items():
+        monkeypatch.setenv(key, value)
+    import app.main as api
+    importlib.reload(api)
+
+    response = TestClient(api.app).post(
+        "/profile",
+        json={"typ": "betrieb", "kanal": "sms", "telefon": "+431234567", "einwilligung": True},
+    )
+    assert response.status_code == 400
+    assert "SMS" in response.json()["detail"]
+
+
+def test_sms_is_not_offered_in_intake_form():
+    form = (Path(__file__).resolve().parents[2] / "app/templates/formular.html").read_text()
+    assert 'option value="sms"' not in form
+    assert "SMS" not in form
 
 
 def test_customer_can_request_deletion_at_any_time():

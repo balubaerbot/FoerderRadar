@@ -1,10 +1,8 @@
 """FoerderRadar API - Phase 1 (Skelett).
 
-Sicherheit: Default-Deny. Oeffentlich ist NUR:
-  - GET  /            (Info)
-  - GET  /health      (Monitoring, nur intern erreichbar)
-  - POST /profile     (Website; Consent Pflicht + Rate-Limit)
-Alle anderen Endpunkte (Lesen/Matching) erfordern den Admin-Token:
+Sicherheit: Default-Deny. Ohne Token zugaenglich sind nur die Routen in
+PUBLIC (Info, Formularseiten; schreibende Pfade sind Intake-Gates unterworfen).
+/health und alle sonstigen geschuetzten Endpunkte erfordern den Admin-Token:
   Header:  Authorization: Bearer <FOERDER_ADMIN_TOKEN>
 
 Trennung: `profil` = pseudonym (Agent darf lesen), `kontakt` = Klartext
@@ -110,7 +108,7 @@ ADMIN_TOKEN = os.environ.get("FOERDER_ADMIN_TOKEN", "")
 
 # Oeffentliche Routen. Alles andere ist default-deny -> Token noetig.
 PUBLIC = {
-    ("GET", "/"), ("GET", "/info"), ("GET", "/health"), ("POST", "/profile"),
+    ("GET", "/"), ("GET", "/info"), ("POST", "/profile"),
     ("GET", "/formular"), ("POST", "/formular"), ("GET", "/danke"),
     ("GET", "/impressum"), ("GET", "/datenschutz"),
 }
@@ -176,14 +174,10 @@ def db():
 def _client_ip(request):
     """Client-IP fuer das Rate-Limit.
 
-    X-Forwarded-For NUR auswerten, wenn ein vertrauenswuerdiger Proxy
-    konfiguriert ist (FOERDER_TRUST_PROXY=1). Sonst koennte jeder das Limit
-    mit einem gefaelschten Header umgehen.
+    Forwarding-Header werden bis zur Verifikation der tatsächlichen Host-
+    Proxy-Kette nicht ausgewertet. So kann ein Client das Limit nicht über
+    einen selbst gesetzten X-Forwarded-For-Wert umgehen.
     """
-    if os.environ.get("FOERDER_TRUST_PROXY") == "1":
-        xff = request.headers.get("x-forwarded-for")
-        if xff:
-            return xff.split(",")[0].strip()
     return request.client.host if request.client else "?"
 
 
@@ -228,11 +222,9 @@ def health():
         with db() as conn, conn.cursor() as cur:
             cur.execute("SELECT 1")
             ok = cur.fetchone()[0] == 1
-            cur.execute("SELECT current_user")
-            rolle = cur.fetchone()[0]
-        return {"status": "ok", "db": ok, "role": rolle}
-    except Exception as e:  # noqa: BLE001
-        return {"status": "degraded", "db": False, "error": str(e)[:200]}
+        return {"status": "ok" if ok else "degraded"}
+    except Exception:  # noqa: BLE001 - Details bleiben serverseitig.
+        return {"status": "degraded"}
 
 
 class ProfilIn(BaseModel):
@@ -259,7 +251,7 @@ class ProfilIn(BaseModel):
     name: Optional[str] = None
     email: Optional[str] = None
     telefon: Optional[str] = None
-    kanal: Optional[str] = None  # email | sms
+    kanal: Optional[str] = None  # email only; sms is not implemented
     # Einwilligung zur Datenverarbeitung (Pflicht)
     einwilligung: bool = False
     besondere_daten_einwilligung: bool = False
@@ -277,15 +269,13 @@ def _speichere_profil(p: ProfilIn) -> str:
             status_code=400,
             detail="Für Pflege-/Behinderungsangaben ist eine gesonderte ausdrückliche Einwilligung erforderlich.",
         )
-    if p.kanal not in (None, "email", "sms"):
-        raise HTTPException(status_code=400, detail="kanal muss 'email' oder 'sms' sein")
+    if p.kanal not in (None, "email"):
+        raise HTTPException(status_code=400, detail="SMS-Versand ist derzeit nicht verfügbar")
     if p.email and not EMAIL_RE.fullmatch(p.email):
         raise HTTPException(status_code=400, detail="Ungueltige E-Mail-Adresse.")
-    # Kanal 'email' verlangt eine Adresse; 'sms' eine Telefonnummer.
+    # Der Versand unterstützt derzeit ausschließlich E-Mail.
     if p.kanal == "email" and not p.email:
         raise HTTPException(status_code=400, detail="Fuer den Kanal 'email' wird eine E-Mail-Adresse benoetigt.")
-    if p.kanal == "sms" and not p.telefon:
-        raise HTTPException(status_code=400, detail="Fuer den Kanal 'sms' wird eine Telefonnummer benoetigt.")
 
     # Freitext begrenzen (Kosten-/Missbrauchsschutz) und Thema-Achse ableiten.
     anliegen = (p.anliegen or "").strip()[: ki.MAX_ZEICHEN] or None
