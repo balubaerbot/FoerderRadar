@@ -9,20 +9,19 @@
         <path d="M20 6 9 17l-5-5"/></svg>
     </div>
     <h1 style="font-size:30px">Danke{% if vorname %}, {{ vorname }}{% endif %}!</h1>
-    <p class="lead" style="margin:0 auto 22px;font-size:16.5px">Wir prüfen Ihre Angaben jetzt gegen
-      alle aktuellen Förderprogramme für Österreich.</p>
+    <p class="lead" style="margin:0 auto 22px;font-size:16.5px">Ihre Anfrage wurde entgegengenommen. Ein automatischer Abgleich oder eine Förderzusage erfolgt dadurch noch nicht.</p>
     {% if email_maskiert %}
     <div style="background:var(--p3);border:1px solid #a7f3d0;border-radius:12px;
                 padding:16px;text-align:left;margin-bottom:22px">
-      <p class="small" style="margin:0;color:#134e4a"><b>Ihre Treffer kommen per E-Mail an</b><br>
+      <p class="small" style="margin:0;color:#134e4a"><b>Kontakt für Ihre Anfrage</b><br>
       {{ email_maskiert }}</p>
     </div>
     {% endif %}
     <p class="small" style="text-align:left"><b>Wie es weitergeht:</b></p>
     <ul class="small" style="text-align:left;line-height:1.9;margin:6px 0 20px;padding-left:20px">
       <li>Wir gleichen Ihr Profil mit dem Katalog ab</li>
-      <li>Sie erhalten die passenden Förderungen mit Betrag, Frist und Link</li>
-      <li>Läuft eine Frist ab, melden wir uns rechtzeitig</li>
+      <li>Die Angaben können im nächsten Schritt mit dem Förderkatalog abgeglichen werden.</li>
+      <li>Prüfen Sie Voraussetzungen und Fristen bei der jeweiligen Förderstelle.</li>
     </ul>
     <div class="note" style="text-align:left">Diese Zusammenstellung ersetzt keine Förder-,
       Rechts- oder Steuerberatung.</div>

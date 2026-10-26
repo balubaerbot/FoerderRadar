@@ -41,6 +41,7 @@ label{display:block;font-size:14px;font-weight:600;margin:0 0 6px}
 input,select,textarea{width:100%;padding:12px 14px;border:1.5px solid var(--line);
   border-radius:10px;font-size:15.5px;background:#fff;font-family:inherit;color:var(--ink)}
 input:focus,select:focus,textarea:focus{outline:0;border-color:var(--p2)}
+textarea{resize:none}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .field{margin-bottom:18px}
 .err{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;border-radius:12px;
@@ -59,6 +60,16 @@ input:focus,select:focus,textarea:focus{outline:0;border-color:var(--p2)}
       background:#fff;cursor:pointer;font-weight:500;color:var(--ink);margin:0}
 .chip input{position:absolute;opacity:0;width:0;height:0}
 .chip:has(input:checked){border-color:var(--p);background:var(--p3);color:var(--p);font-weight:600}
+
+/* Sozialfilter kompakt als Auswahl-Chips */
+.bedarf-field{min-width:0;border:0;padding:0;margin:2px 0 16px}
+.bedarf-field legend{padding:0;margin:0 0 8px;color:var(--mut);font-size:14px;font-weight:650}
+.bedarf-chips{gap:7px;margin-top:0}
+.bedarf-chips .chip{padding:7px 10px;font-size:13px;line-height:1.25}
+.bedarf-chips .chip input{width:14px;height:14px}
+footer a{white-space:nowrap}
+@media(max-width:520px){footer{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:center;padding:18px 20px}footer span{float:none!important;width:100%}}
+
 
 .consent{display:flex;gap:12px;align-items:flex-start;background:var(--p3);
          border:1px solid #a7f3d0;border-radius:12px;padding:16px;margin:22px 0}
@@ -112,3 +123,7 @@ body:has(input[name="typ"][value="sozial"]:checked) .nicht-sozial{display:none}
   .grid2{grid-template-columns:1fr}
   .tabs{flex-direction:column}
 }
+
+/* Einwilligungs-Chip (Sozial) kompakt */
+.chip.chip-consent{display:flex;gap:8px;align-items:flex-start;border-radius:12px;padding:8px 12px;font-size:12.5px;line-height:1.35;font-weight:500}
+.chip.chip-consent input{position:static;opacity:1;width:14px;height:14px;flex:none;margin:2px 0 0;accent-color:var(--p)}
