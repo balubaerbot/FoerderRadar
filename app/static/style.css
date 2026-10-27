@@ -127,3 +127,4 @@ body:has(input[name="typ"][value="sozial"]:checked) .nicht-sozial{display:none}
 /* Einwilligungs-Chip (Sozial) kompakt */
 .chip.chip-consent{display:flex;gap:8px;align-items:flex-start;border-radius:12px;padding:8px 12px;font-size:12.5px;line-height:1.35;font-weight:500}
 .chip.chip-consent input{position:static;opacity:1;width:14px;height:14px;flex:none;margin:2px 0 0;accent-color:var(--p)}
+.field-hint{margin:6px 0 0;font-size:12px;line-height:1.35;color:#64748b}

@@ -76,6 +76,20 @@ def ist_bundesweit(region) -> bool:
     return str(region).strip().lower() in _BUND_ALIASE
 
 
+# Bundeslaender, fuer die der Katalog Landesprogramme enthaelt (Stand 2026-10-27).
+# Fuer alle anderen Bundeslaender gelten nur bundesweite Programme.
+LANDESKATALOG = ("O\u00d6", "Tirol")
+
+
+def landeskatalog_luecke(region):
+    """True, wenn region ein Bundesland ist, fuer das es KEINE Landesprogramme gibt.
+
+    Bundesweit/leer/unbekannt -> False (kein Hinweis noetig).
+    """
+    r = normalisiere_region(region)
+    return r is not None and r not in LANDESKATALOG
+
+
 if __name__ == "__main__":
     for probe in ["OOe-Steyr", "OÖ", "ooe", "Oberösterreich", "NÖ", "noe-wien",
                   "Wien", "Steiermark", "graz", "Tirol", "", None, "München"]:

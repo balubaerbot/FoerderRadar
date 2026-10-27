@@ -119,7 +119,30 @@ def kontakt_holen(conn, kunde_id):
 # --------------------------------------------------------------------------
 # Text (Phase 1: Vorlage - Phase 2: LLM)
 # --------------------------------------------------------------------------
+LANDES_HINWEIS = (
+    "Hinweis: Landesprogramme haben wir derzeit nur fuer Oberoesterreich und Tirol. "
+    "Fuer Ihr Bundesland sind daher nur bundesweite Programme enthalten. Das heisst "
+    "nicht, dass es bei Ihnen keine Landesfoerderungen gibt - bitte informieren Sie "
+    "sich zusaetzlich bei Ihrem Land."
+)
+
+
 def nachricht_bauen(profil, treffer, katalog, transport=None):
+    """Wie _nachricht_bauen_roh, ergaenzt um einen festen Hinweis, wenn fuer das
+    Bundesland des Profils keine Landesprogramme im Katalog sind (Code, kein LLM)."""
+    from src import region as regionmod
+    betreff, body = _nachricht_bauen_roh(profil, treffer, katalog, transport=transport)
+    reg = (profil or {}).get("region_grob") or (profil or {}).get("region")
+    if regionmod.landeskatalog_luecke(reg) and LANDES_HINWEIS not in body:
+        i = body.rfind("\n\nFreundliche Gr")
+        if i == -1:
+            body = body.rstrip() + "\n\n" + LANDES_HINWEIS
+        else:
+            body = body[:i] + "\n\n" + LANDES_HINWEIS + body[i:]
+    return betreff, body
+
+
+def _nachricht_bauen_roh(profil, treffer, katalog, transport=None):
     """Betreff + Text aus pseudonymem Profil + verifizierten Treffern. KEIN Klartext.
 
     Phase 2: Zuerst wird versucht, den Mailtext per LLM zu formulieren

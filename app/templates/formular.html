@@ -35,7 +35,8 @@
               {% for b in bundeslaender %}
               <option value="{{ b }}" {% if b == werte.region_grob %}selected{% endif %}>{{ b }}</option>
               {% endfor %}
-            </select></div>
+            </select>
+            <p class="field-hint">Landesprogramme haben wir derzeit für Oberösterreich und Tirol. Für andere Bundesländer zeigen wir bundesweite Programme.</p></div>
           <div class="field"><label for="branche">Branche</label>
             <select id="branche" name="branche">
               <option value="">– bitte wählen –</option>
@@ -69,7 +70,8 @@
               {% for b in bundeslaender %}
               <option value="{{ b }}" {% if b == werte.region_grob %}selected{% endif %}>{{ b }}</option>
               {% endfor %}
-            </select></div>
+            </select>
+            <p class="field-hint">Landesprogramme haben wir derzeit für Oberösterreich und Tirol. Für andere Bundesländer zeigen wir bundesweite Programme.</p></div>
           <div class="field"><label for="wohnsituation">Wohnsituation</label>
             <select id="wohnsituation" name="wohnsituation">
               <option value="">– bitte wählen –</option>
