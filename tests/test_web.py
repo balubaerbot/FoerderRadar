@@ -107,6 +107,8 @@ r = c.post("/formular", data={"typ": "betrieb", "name": "Max Muster",
 check("POST ohne Bundesland -> 400", r.status_code == 400)
 check("Bundesland-Fehler sichtbar", "Bundesland" in r.text)
 
+import app.main as _am
+_am._hits.clear()  # Rate-Limit (5/min) fuer den Durchlauf zuruecksetzen
 # --- Formular-POST: erfolgreicher Durchlauf (braucht DB) ---
 daten = {
     "typ": "betrieb", "region_grob": "Oberösterreich", "branche": "IT / Digitalisierung",
