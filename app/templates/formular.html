@@ -32,6 +32,7 @@
         <div class="grid2">
           <div class="field"><label for="bundesland_b">Bundesland *</label>
             <select id="bundesland_b" name="region_grob">
+              <option value="" disabled {% if not werte.region_grob %}selected{% endif %}>– bitte wählen –</option>
               {% for b in bundeslaender %}
               <option value="{{ b }}" {% if b == werte.region_grob %}selected{% endif %}>{{ b }}</option>
               {% endfor %}
@@ -67,6 +68,7 @@
         <div class="grid2">
           <div class="field"><label for="bundesland_p">Bundesland *</label>
             <select id="bundesland_p" name="region_grob_p">
+              <option value="" disabled {% if not werte.region_grob_p %}selected{% endif %}>– bitte wählen –</option>
               {% for b in bundeslaender %}
               <option value="{{ b }}" {% if b == werte.region_grob %}selected{% endif %}>{{ b }}</option>
               {% endfor %}
@@ -150,6 +152,7 @@
         <div class="grid2 nur-besondere-daten">
           <div class="field"><label for="bundesland_s">Bundesland *</label>
             <select id="bundesland_s" name="region_grob_s">
+              <option value="" disabled {% if not werte.region_grob_s %}selected{% endif %}>– bitte wählen –</option>
               {% for b in bundeslaender %}
               <option value="{{ b }}" {% if b == werte.region_grob_s %}selected{% endif %}>{{ b }}</option>
               {% endfor %}

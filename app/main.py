@@ -479,6 +479,8 @@ async def formular_post(request: Request):
         return _zurueck("Bitte Name und E-Mail angeben.")
     if not p.einwilligung:
         return _zurueck("Ohne Einwilligung koennen wir Ihre Angaben nicht verarbeiten.")
+    if p.region_grob not in BUNDESLAENDER:
+        return _zurueck("Bitte ein Bundesland auswaehlen.")
     try:
         _speichere_profil(p)
     except HTTPException as e:

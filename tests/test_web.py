@@ -15,6 +15,21 @@ for line in (BASE / ".env").read_text().splitlines():
         k, v = line.split("=", 1)
         os.environ.setdefault(k.strip(), v.strip())
 
+# Intake-Freigabe ist fail-closed (bbdede5). Dieser Test schaltet sie nur
+# prozessintern ein - die echte Freigabe bleibt Betreiberentscheidung in .env.
+os.environ.update({
+    "FOERDER_INTAKE_ENABLED": "1",
+    "FOERDER_PRIVACY_REVIEWED": "1",
+    "FOERDER_SPECIAL_CATEGORY_BASIS_CONFIRMED": "1",
+    "FOERDER_WITHDRAWAL_PROCESS_CONFIRMED": "1",
+    "FOERDER_RETENTION_SCHEMA_VERIFIED": "1",
+    "FOERDER_PURGE_SCHEDULE_VERIFIED": "1",
+    "FOERDER_LEGACY_RETENTION_REVIEWED": "1",
+    "FOERDER_DATA_CONTROLLER": "Test",
+    "FOERDER_PRIVACY_CONTACT": "test@example.invalid",
+    "FOERDER_CONSENT_VERSION": "test",
+})
+
 from fastapi.testclient import TestClient  # noqa: E402
 from app.main import app  # noqa: E402
 
@@ -77,10 +92,20 @@ check("POST ungueltige E-Mail -> 400", r.status_code == 400)
 check("E-Mail-Formatfehler sichtbar", "E-Mail-Adresse" in r.text)
 
 r = c.post("/formular", data={"typ": "betrieb", "name": "Max Mustermann",
+                              "region_grob": "Oberösterreich",
                               "email": "max@beispiel.at", "kanal": "sms",
                               "telefon": "", "einwilligung": "ja"})
 check("POST kanal=sms ohne Telefon -> 400", r.status_code == 400)
 check("SMS-Telefon-Fehler sichtbar", "sms" in r.text.lower())
+
+# --- Bundesland: keine Vorauswahl, serverseitig Pflicht ---
+r = c.get("/formular")
+check("Bundesland hat Platzhalter ohne Vorauswahl", "bitte wählen" in r.text and 'value="" disabled' in r.text)
+r = c.post("/formular", data={"typ": "betrieb", "name": "Max Muster",
+                              "email": "max@beispiel.at", "kanal": "email",
+                              "einwilligung": "ja"})
+check("POST ohne Bundesland -> 400", r.status_code == 400)
+check("Bundesland-Fehler sichtbar", "Bundesland" in r.text)
 
 # --- Formular-POST: erfolgreicher Durchlauf (braucht DB) ---
 daten = {
