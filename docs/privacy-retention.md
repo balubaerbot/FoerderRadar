@@ -22,7 +22,7 @@ Migration und Purge-Scheduler werden nicht automatisch auf einer Installation au
 
 ## Betreiberangaben und Umsetzung (18.10.2026)
 
-- Betreiber/Datenschutzkontakt: balu, team@foerdora.cloud. Zweck: passende Fördermöglichkeiten ermitteln.
+- Betreiber/Datenschutzkontakt: privat, team@foerdora.cloud. Zweck: passende Fördermöglichkeiten ermitteln.
 - Widerruf/Löschanfrage: E-Mail mit Name an team@foerdora.cloud; falls vorhanden, die zur Anfrage gehörende E-Mail-Adresse zur Zuordnung. Keine Gesundheits-/Behinderungsangaben per E-Mail anfordern.
 - Pflege-/Behinderungsangaben erscheinen nur unter „Sozial & Alltag“ und werden nur bei separater ausdrücklicher Zustimmung angenommen; der Server ignoriert diese Angaben andernfalls. Einwilligungsflag wird mit der Einwilligungsversion getrennt gespeichert. Dies ersetzt keine Prüfung der Art.-9-Rechtsgrundlage.
 - Aufbewahrung: regulär spätestens zwei Jahre nach der Erfassung löschen. Kundinnen und Kunden können jederzeit per E-Mail an team@foerdora.cloud die vollständige Löschung beantragen; nach verifizierter Zuordnung wird unabhängig vom Alter gelöscht.
