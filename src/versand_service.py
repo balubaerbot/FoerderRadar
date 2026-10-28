@@ -373,6 +373,16 @@ def loesche_kundenprofil_auf_anfrage(conn, kunde_id):
         return cur.fetchone()[0]
 
 
+def _kontakt_status(conn, kunde_id):
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT einwilligung_am, loeschdatum, kanal, einwilligung_widerrufen_am "
+            "FROM kontakt WHERE kunde_id = %s",
+            (kunde_id,),
+        )
+        return cur.fetchone()
+
+
 def _hat_offene_treffer(conn, kunde_id):
     with conn.cursor() as cur:
         cur.execute(
