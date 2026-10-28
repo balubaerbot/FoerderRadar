@@ -1,13 +1,33 @@
 {
   "meta": {
-    "stand": "2026-09-25",
+    "stand": "2026-10-15",
     "hinweis": "TESTDATEN-Prototyp. Betraege/Fristen aus Live-Recherche, vor echtem Einsatz verifizieren.",
     "quellen": [
-      "foerderungen.wko.at/ooe/digitalplus26",
       "aws.at",
+      "eag-abwicklungsstelle.at",
+      "foerderungen.wko.at/ooe/digitalplus26",
+      "foerderungen.wko.at/ooe/erfolgplus",
       "land-oberoesterreich.gv.at",
+      "pflege.gv.at",
+      "sanierungsoffensive.gv.at",
+      "transparenzportal.gv.at",
       "umweltfoerderung.at",
-      "eag-abwicklungsstelle.at"
+      "www.aws.at",
+      "www.bundeskanzleramt.gv.at",
+      "www.ffg.at",
+      "www.ffg.at/programm/impactinnovation",
+      "www.land-oberoesterreich.gv.at",
+      "www.sozialministeriumservice.gv.at",
+      "www.tirol.gv.at",
+      "www.umweltfoerderung.at",
+      "www.wko.at",
+      "www.wko.at/foerderungen/energiesparen-energienutzung-betriebe-oberoesterreich",
+      "foerderungen.wko.at/ooe/arbeitnehmerschutz2026",
+      "foerderungen.wko.at/ooe/ATTAG",
+      "foerderungen.wko.at/ooe/gc",
+      "foerderungen.wko.at/ooe/betriebsanlagen2026",
+      "foerderungen.wko.at/ooe/oeko-plus",
+      "www.eag-abwicklungsstelle.at"
     ]
   },
   "foerderungen": [
@@ -16,15 +36,26 @@
       "name": "DIGITAL.PLUS 26",
       "stelle": "Land OÖ / WKOÖ",
       "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
       "region": "OÖ",
       "betrag": "35 % der Kosten, max. 7.000 EUR",
       "voraussetzungen": {
         "wko_mitglied": true,
         "projektkosten_min": 12000,
-        "themen": ["digitalisierung", "automatisierung", "ki", "cybersecurity"]
+        "themen": [
+          "digitalisierung",
+          "automatisierung",
+          "ki",
+          "cybersecurity"
+        ]
       },
       "frist": "Antrag 1.6.-2.11.2026",
       "status": "offen",
+      "hinweise": [
+        "Ausschoepfungsgrad 85% (Stand 12.10.2026); Budget koennte vor Fristende ausgeschoepft sein."
+      ],
       "quelle": "https://foerderungen.wko.at/ooe/digitalplus26"
     },
     {
@@ -32,10 +63,16 @@
       "name": "KMU.DIGITAL",
       "stelle": "Bund / aws",
       "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
       "region": null,
       "betrag": "Beratung bis 3.000 EUR, Umsetzung 30 % max. 6.000 EUR",
       "voraussetzungen": {
-        "themen": ["digitalisierung", "beratung"],
+        "themen": [
+          "digitalisierung",
+          "beratung"
+        ],
         "projektkosten_min": 2000
       },
       "frist": "aktuell kein Antrag (Budget ausgeschoepft)",
@@ -47,41 +84,90 @@
       "name": "Gruenderfonds fuer die ooe. Wirtschaft",
       "stelle": "Land OÖ",
       "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
       "region": "OÖ",
       "betrag": "stille Beteiligung bis 75.000 EUR + Anschlusskredit bis 75.000 EUR",
       "voraussetzungen": {
-        "themen": ["investition", "modernisierung", "gruendung", "uebernahme"]
+        "themen": [
+          "investition",
+          "modernisierung",
+          "gruendung",
+          "uebernahme"
+        ]
       },
-      "frist": "laufend",
+      "frist": "Förderzeitraum 01.01.2026–31.12.2026",
       "status": "offen",
-      "quelle": "https://www.startmatch.dev/de-at/foerderungen/land-oberoesterreich/gruenderfonds-fuer-die-ooe-wirtschaft"
+      "quelle": "https://www.land-oberoesterreich.gv.at/555126.htm"
     },
     {
       "id": "innovative_skills",
       "name": "Innovative Skills fuer KMUs",
       "stelle": "Land OÖ",
       "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft",
+        "bildung"
+      ],
       "region": "OÖ",
       "betrag": "30 % der Weiterbildungskosten, max. 1.000 EUR pro Person/Kurs",
       "voraussetzungen": {
         "wko_mitglied": true,
-        "themen": ["schulung", "weiterbildung"]
+        "themen": [
+          "schulung",
+          "weiterbildung"
+        ]
       },
       "frist": "laufend",
       "status": "offen",
       "quelle": "https://www.land-oberoesterreich.gv.at"
     },
     {
+      "id": "erfolgplus26",
+      "name": "ERFOLG.PLUS 26",
+      "stelle": "WKOÖ",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
+      "region": "OÖ",
+      "betrag": "50 % des Beratungshonorars (netto), max. 750 EUR",
+      "voraussetzungen": {
+        "wko_mitglied": true,
+        "themen": [
+          "beratung",
+          "innovation",
+          "ki",
+          "cybersecurity"
+        ]
+      },
+      "hinweise": [
+        "Ausschoepfungsgrad 98 % (Stand 25.9.2026); Budget laut WKOÖ-Seite ausgeschöpft (Stand 01.10.2026)"
+      ],
+      "frist": "Beantragung nicht mehr möglich – Budget ausgeschöpft (geplanter Antrag 1.2.-15.12.2026)",
+      "status": "ausgeschoepft",
+      "quelle": "https://foerderungen.wko.at/ooe/erfolgplus"
+    },
+    {
       "id": "kpc_energieeffizienz",
       "name": "Umweltfoerderung im Inland (Energieeffizienz)",
       "stelle": "KPC / Klimafonds",
       "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft",
+        "energie"
+      ],
       "region": null,
       "betrag": "je Ausschreibung (Betriebs-Energieeffizienz, PV)",
       "voraussetzungen": {
-        "themen": ["energieeffizienz", "pv", "umwelt"]
+        "themen": [
+          "energieeffizienz",
+          "pv",
+          "umwelt"
+        ]
       },
-      "frist": "Ausschreibung Juli 2026",
+      "frist": "Ausschreibung 1.7.-12.10.2026",
       "status": "offen",
       "quelle": "https://www.umweltfoerderung.at/betriebe"
     },
@@ -90,13 +176,23 @@
       "name": "Heizkostenzuschuss OÖ",
       "stelle": "Land OÖ",
       "zielgruppe": "privat",
+      "thema": [
+        "sozial",
+        "energie"
+      ],
       "region": "OÖ",
       "betrag": "200 EUR pro Haushalt",
       "voraussetzungen": {
-        "wohnsituation": ["eigenheim", "miete"],
+        "wohnsituation": [
+          "eigenheim",
+          "miete"
+        ],
         "einkommen_max": 30913,
-        "hauptwohnsitz_seit": "2026-03-01"
+        "einkommen_einheit": "jahr"
       },
+      "hinweise": [
+        "Hauptwohnsitz in OÖ seit mind. 01.03.2026"
+      ],
       "frist": "Antrag 16.3.-15.5.2026",
       "status": "fenster_zu",
       "quelle": "https://www.land-oberoesterreich.gv.at"
@@ -106,12 +202,20 @@
       "name": "Wohnbeihilfe OÖ",
       "stelle": "Land OÖ",
       "zielgruppe": "privat",
+      "thema": [
+        "sozial",
+        "wohnen"
+      ],
       "region": "OÖ",
       "betrag": "laufende Beihilfe (Einkommensgrenzen je Haushaltsgroesse)",
       "voraussetzungen": {
-        "wohnsituation": ["miete"],
-        "einkommen_max": 2227
+        "wohnsituation": [
+          "miete"
+        ],
+        "einkommen_max": 2227,
+        "einkommen_einheit": "monat"
       },
+      "hinweise": [],
       "frist": "laufend",
       "status": "offen",
       "quelle": "https://www.land-oberoesterreich.gv.at/wohnbeihilfe.htm"
@@ -121,14 +225,23 @@
       "name": "Raus aus Oel und Gas (Heizungstausch)",
       "stelle": "Bund (Klimaministerium)",
       "zielgruppe": "privat",
+      "thema": [
+        "energie",
+        "wohnen"
+      ],
       "region": null,
       "betrag": "30 % Grundfoerderung + Boni (Klimageschwindigkeit 16 %, Einkommensbonus je Einkommen), max. 80 %, foerderfaehig bis 28.000 EUR",
       "voraussetzungen": {
-        "heizung_alt": ["oel", "gas"],
-        "wohnsituation": ["eigenheim"]
+        "heizung_alt": [
+          "oel",
+          "gas"
+        ],
+        "wohnsituation": [
+          "eigenheim"
+        ]
       },
-      "frist": "laufend, vorbehaltlich Budget",
-      "status": "offen",
+      "frist": "Registrierung 2026 beendet (Budget ausgeschoepft)",
+      "status": "ausgeschoepft",
       "quelle": "https://www.sanierungsoffensive.gv.at"
     },
     {
@@ -136,13 +249,24 @@
       "name": "OÖ Heizungstausch (Land + Bund)",
       "stelle": "Land OÖ",
       "zielgruppe": "privat",
+      "thema": [
+        "energie",
+        "wohnen"
+      ],
       "region": "OÖ",
       "betrag": "bis 11.400 EUR gesamt",
       "voraussetzungen": {
-        "heizung_alt": ["oel", "gas"],
-        "wohnsituation": ["eigenheim"],
-        "energieberatung": true
+        "heizung_alt": [
+          "oel",
+          "gas"
+        ],
+        "wohnsituation": [
+          "eigenheim"
+        ]
       },
+      "hinweise": [
+        "Verpflichtende Energieberatung vor Antragstellung"
+      ],
       "frist": "laufend",
       "status": "offen",
       "quelle": "https://www.land-oberoesterreich.gv.at"
@@ -152,11 +276,21 @@
       "name": "OÖ Sanierungsfoerderung",
       "stelle": "Land OÖ",
       "zielgruppe": "privat",
+      "thema": [
+        "energie",
+        "wohnen"
+      ],
       "region": "OÖ",
       "betrag": "Zuschuss bis 2.250 EUR (Einzelbauteil) / bis 50.000 EUR (umfassend) + Oekoboni",
       "voraussetzungen": {
-        "wohnsituation": ["eigenheim"],
-        "themen": ["sanierung", "daemmung", "fenster"]
+        "wohnsituation": [
+          "eigenheim"
+        ],
+        "themen": [
+          "sanierung",
+          "daemmung",
+          "fenster"
+        ]
       },
       "frist": "laufend",
       "status": "offen",
@@ -167,12 +301,20 @@
       "name": "Handwerkerbonus",
       "stelle": "Bund",
       "zielgruppe": "privat",
+      "thema": [
+        "wohnen"
+      ],
       "region": null,
       "betrag": "20 % der Arbeitskosten, max. 1.500 EUR",
       "voraussetzungen": {
-        "wohnsituation": ["eigenheim", "miete"],
-        "nachweis": "Rechnung mit ausgewiesenen Arbeitskosten, oesterreichisches Gewerbe"
+        "wohnsituation": [
+          "eigenheim",
+          "miete"
+        ]
       },
+      "hinweise": [
+        "Rechnung mit ausgewiesenen Arbeitskosten, oesterreichisches Gewerbe"
+      ],
       "frist": "Frist 28.2.2026 (fuer Leistungen 2025)",
       "status": "fenster_zu",
       "quelle": "https://www.handwerkerbonus.gv.at"
@@ -182,14 +324,22 @@
       "name": "EAG-Investitionszuschuss Photovoltaik",
       "stelle": "EAG-Abwicklungsstelle / Klimaministerium",
       "zielgruppe": "privat",
+      "thema": [
+        "energie"
+      ],
       "region": null,
       "betrag": "150 EUR/kWp (<=10 kWp) / 140 EUR/kWp (10-20 kWp); Speicher 150 EUR/kWh; max. 30 % der Kosten; +10 % Made-in-Europe",
       "voraussetzungen": {
-        "themen": ["pv", "speicher"],
-        "wohnsituation": ["eigenheim"]
+        "themen": [
+          "pv",
+          "speicher"
+        ],
+        "wohnsituation": [
+          "eigenheim"
+        ]
       },
-      "frist": "Call-basiert (z. B. 9.10.-22.10.2026)",
-      "status": "call_angekuendigt",
+      "frist": "Call-basiert (3. Call: 8.10.-22.10.2026)",
+      "status": "offen",
       "quelle": "https://www.eag-abwicklungsstelle.at"
     },
     {
@@ -197,15 +347,385 @@
       "name": "OÖ Wohnraumanpassung bei Pflegebedarf",
       "stelle": "Land OÖ",
       "zielgruppe": "privat",
+      "thema": [
+        "sozial",
+        "wohnen"
+      ],
       "region": "OÖ",
       "betrag": "15 % der Kosten, max. 2.250 EUR je Wohnung",
       "voraussetzungen": {
-        "wohnsituation": ["eigenheim", "miete"],
+        "wohnsituation": [
+          "eigenheim",
+          "miete"
+        ],
         "pflegestufe_min": 1
       },
       "frist": "laufend",
       "status": "offen",
       "quelle": "https://www.ris.bka.gv.at"
+    },
+    {
+      "id": "tirol_investitionsfoerderung_ku",
+      "name": "Tiroler Investitionsförderung für Kleinst- und Kleinunternehmen",
+      "stelle": "Land Tirol – Abteilung Wirtschaftsförderung und Fördertransparenz",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
+      "betrag": "Investitionsvolumen 20.000–700.000 Euro (Fördersatz laut Richtlinie, nicht auf Seite beziffert)",
+      "frist": "Antrag vor Investitionsbeginn, spätestens 31.12.2027 (Richtlinie gilt bis 30.06.2028)",
+      "status": "offen",
+      "quelle": "https://transparenzportal.gv.at/tdb/tp/leistung/1061266.html",
+      "region": "Tirol",
+      "hinweise": [
+        "Beherbergungs- und Gastronomiebetriebe sind hier nicht antragsberechtigt, siehe 'Tiroler Tourismus und Regionalität'."
+      ],
+      "voraussetzungen": {
+        "projektkosten_min": 20000
+      }
+    },
+    {
+      "id": "tirol_kleininvestitionsfoerderung",
+      "name": "Tiroler Kleininvestitionsförderung",
+      "stelle": "Land Tirol – Abteilung Wirtschaftsförderung und Fördertransparenz",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
+      "betrag": "Nicht rückzahlbarer Einmalzuschuss, i.d.R. max. 50% der förderbaren Kosten; Bemessungsgrundlage 5.000–20.000 Euro (Zuschuss faktisch ca. 2.500–10.000 Euro)",
+      "frist": "Förderansuchen bis 31.12.2027 (Richtlinie gültig 01.01.2026–30.06.2028)",
+      "status": "offen",
+      "quelle": "https://www.tirol.gv.at/fileadmin/themen/arbeit-wirtschaft/wirtschaftsfoerderung/Dateistruktur_2024/Foerderungen/Richtlinien/RL_Tiroler_Kleininvestitionsf%C3%B6rderung.pdf",
+      "region": "Tirol",
+      "voraussetzungen": {
+        "projektkosten_min": 5000
+      }
+    },
+    {
+      "id": "tirol_digitalisierungsfoerderung",
+      "name": "Tiroler Digitalisierungsförderung",
+      "stelle": "Land Tirol (Abwicklung), WKO Tirol (Information)",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
+      "betrag": "Zuschuss: Kleinstunternehmen max. 30% (Projektkosten bis 100.000€); Kleine Unternehmen max. 20% (bis 300.000€); Mittlere/Große Unternehmen max. 10% (bis 750.000€)",
+      "frist": "Antrag bis 31.12.2027 (Geltungsdauer 01.01.2023–30.06.2028)",
+      "status": "offen",
+      "quelle": "https://www.wko.at/foerderungen/tiroler-digitalisierungsfoerderung",
+      "region": "Tirol"
+    },
+    {
+      "id": "tirol_tourismusfoerderung",
+      "name": "Tiroler Tourismusförderung",
+      "stelle": "Land Tirol (Abwicklung teils über ÖHT), WKO Tirol (Information)",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
+      "betrag": "k.A. (Zuschuss, Höhe je Investitionsschwerpunkt unterschiedlich)",
+      "frist": "Anträge bis 31.12.2027 (Geltungsdauer 1.1.2023–30.6.2028)",
+      "status": "offen",
+      "quelle": "https://www.wko.at/foerderungen/tourismusfoerderung-tirol",
+      "region": "Tirol"
+    },
+    {
+      "id": "tirol_rahmenrichtlinie_wirtschaft",
+      "name": "Förderungen nach der Rahmenrichtlinie für die Tiroler Wirtschaftsförderung",
+      "stelle": "Land Tirol",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
+      "betrag": "k.A. (Einzelfallentscheidung je Vorhaben, EU-Beihilfenrecht ist einzuhalten)",
+      "frist": "k.A. (laufend)",
+      "status": "offen",
+      "quelle": "https://transparenzportal.gv.at/tdb/tp/leistung/1061555.html",
+      "region": "Tirol",
+      "hinweise": [
+        "Auffangschiene für besonders berücksichtigungswürdige Vorhaben, die nicht unter eine spezielle Tiroler Wirtschaftsförderungsrichtlinie fallen."
+      ]
+    },
+    {
+      "id": "aws_garantie",
+      "name": "aws Garantie",
+      "stelle": "Austria Wirtschaftsservice (aws)",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
+      "betrag": "Garantie bis zu 30 Mio. Euro pro Projekt, max. 50 Mio. Euro pro Unternehmen/Gruppe",
+      "frist": "laufend, Einreichung jederzeit",
+      "status": "offen",
+      "quelle": "https://www.aws.at/aws-garantie/",
+      "region": "Bund"
+    },
+    {
+      "id": "aws_wachstumsinvestition",
+      "name": "aws Wachstumsinvestition",
+      "stelle": "Austria Wirtschaftsservice (aws)",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
+      "betrag": "Zuschuss, durchschnittlich 300.000–400.000 Euro (teilweise auch darüber)",
+      "frist": "laufend, Einreichung jederzeit",
+      "status": "offen",
+      "quelle": "https://www.aws.at/aws-wachstumsinvestition/",
+      "region": "Bund",
+      "voraussetzungen": {
+        "projektkosten_min": 300000
+      }
+    },
+    {
+      "id": "ffg_impact_innovation",
+      "name": "FFG Impact Innovation",
+      "stelle": "Forschungsförderungsgesellschaft (FFG) / BMK",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
+      "betrag": "k.A. (kombinierbar mit Innovationsscheck bis 10.000 Euro)",
+      "frist": "Ausschreibung Impact Innovation 2026 seit 12.03.2026 geschlossen (Budget ausgeschöpft)",
+      "status": "ausgeschoepft",
+      "quelle": "https://www.ffg.at/programm/impactinnovation",
+      "region": "Bund",
+      "hinweise": [
+        "Antragsberechtigt sind Organisationen jeder Größe (KMU und Großunternehmen), Vereine sowie Einzel-Forscher:innen und Startups."
+      ]
+    },
+    {
+      "id": "kpc_gebaeudesanierung_betriebe",
+      "name": "Umweltförderung: Umfassende Gebäudesanierung für Betriebe",
+      "stelle": "Kommunalkredit Public Consulting (KPC) im Auftrag des BMK",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "energie",
+        "wirtschaft"
+      ],
+      "betrag": "k.A. (Details im Informationsblatt der Förderstelle)",
+      "frist": "laufend",
+      "status": "offen",
+      "quelle": "https://www.umweltfoerderung.at/betriebe/umfassende-gebaeudesanierung",
+      "region": "Bund"
+    },
+    {
+      "id": "kpc_energiezentralen_betriebe",
+      "name": "Umweltförderung: Innerbetriebliche Energiezentralen (Energiesparen)",
+      "stelle": "Kommunalkredit Public Consulting (KPC) im Auftrag des BMK",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "energie",
+        "wirtschaft"
+      ],
+      "betrag": "k.A.",
+      "frist": "Förderungsaktion per 30.06.2025 eingestellt; bis dahin eingereichte Anträge werden noch bearbeitet",
+      "status": "fenster_zu",
+      "quelle": "https://www.umweltfoerderung.at/betriebe/innerbetriebliche-energiezentralen/energiesparen",
+      "region": "Bund"
+    },
+    {
+      "id": "ooe_energiesparen_betriebe",
+      "name": "Oberösterreich: Energiesparen in Betrieben und effiziente Energienutzung",
+      "stelle": "Land Oberösterreich (Information via WKO OÖ)",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "energie",
+        "wirtschaft"
+      ],
+      "betrag": "k.A.",
+      "frist": "Geltungsdauer 1.1.2023–31.12.2026 (nach Maßgabe der vorhandenen Mittel)",
+      "status": "offen",
+      "quelle": "https://www.wko.at/foerderungen/energiesparen-energienutzung-betriebe-oberoesterreich",
+      "region": "OÖ",
+      "hinweise": [
+        "Förderung für Unternehmen, Vereine, konfessionelle Einrichtungen und unternehmerisch tätige Organisationen."
+      ]
+    },
+    {
+      "id": "bund_24h_betreuung_foerderung",
+      "name": "Förderung für 24-Stunden-Betreuung",
+      "stelle": "Sozialministeriumservice",
+      "zielgruppe": "sozial",
+      "thema": [
+        "sozial"
+      ],
+      "betrag": "800 Euro/Monat für zwei selbstständige Betreuungspersonen; bis zu 1.600 Euro/Monat für zwei angestellte Betreuungspersonen",
+      "frist": "laufend",
+      "status": "offen",
+      "quelle": "https://pflege.gv.at/de/foerderung-fuer-24-stunden-betreuung",
+      "region": "Bund",
+      "voraussetzungen": {
+        "pflegestufe_min": 3,
+        "einkommen_max": 2500,
+        "einkommen_einheit": "monat"
+      }
+    },
+    {
+      "id": "bund_erhoehte_familienbeihilfe",
+      "name": "Erhöhte Familienbeihilfe",
+      "stelle": "Finanzamt Österreich (Gutachten: Sozialministeriumservice)",
+      "zielgruppe": "sozial",
+      "thema": [
+        "sozial"
+      ],
+      "betrag": "189,20 Euro monatlich zusätzlich zur regulären Familienbeihilfe (ab 1. Jänner 2026)",
+      "frist": "laufend; rückwirkende Auszahlung bis maximal 5 Jahre möglich",
+      "status": "offen",
+      "quelle": "https://www.sozialministeriumservice.gv.at/Menschen_mit_Behinderung/Finanzielle_Unterstuetzung/erhoehte_Familienbeihilfe/Erhoehte-Familienbeihilfe.de.html",
+      "region": "Bund",
+      "voraussetzungen": {
+        "behinderung": true
+      }
+    },
+    {
+      "id": "bund_schuelerbeihilfe",
+      "name": "Schülerbeihilfe, Heimbeihilfe und Besondere Schulbeihilfe",
+      "stelle": "Bildungsministerium / Schülerbeihilfenbehörde",
+      "zielgruppe": "sozial",
+      "thema": [
+        "bildung",
+        "sozial"
+      ],
+      "betrag": "k.A. (einkommensabhängige Transferzahlung); Heimfahrtbeihilfe zwischen 19 € und 58 € pro Monat je nach Entfernung",
+      "frist": "Antrag bis 31. Dezember bzw. 31. Mai (bei semesterweise geführten Schulen) des laufenden Schuljahres",
+      "status": "offen",
+      "quelle": "https://transparenzportal.gv.at/tdb/tp/leistung/1006097.html",
+      "region": "Bund"
+    },
+    {
+      "id": "bund_schulstartgeld",
+      "name": "Schulstartgeld",
+      "stelle": "Bundeskanzleramt / Finanzamt Österreich",
+      "zielgruppe": "sozial",
+      "thema": [
+        "bildung",
+        "sozial"
+      ],
+      "betrag": "121,40 Euro im August pro Kind im Alter von 6 bis 15 Jahren",
+      "frist": "kein gesonderter Antrag nötig; automatische Auszahlung mit der Familienbeihilfe im August",
+      "status": "offen",
+      "quelle": "https://www.bundeskanzleramt.gv.at/agenda/familie/familienbeihilfe/schulstartgeld.html",
+      "region": "Bund"
+    },
+    {
+      "id": "ooe_sozialhilfe",
+      "name": "Oö. Sozialhilfe – Unterstützung des Lebensunterhalts und Wohnbedarfs",
+      "stelle": "Land Oberösterreich",
+      "zielgruppe": "sozial",
+      "thema": [
+        "sozial"
+      ],
+      "betrag": "pauschalierte Richtsätze; Reduktion um bis zu 302,25 Euro/Monat bei geringen Wohnkosten",
+      "frist": "laufend",
+      "status": "offen",
+      "quelle": "https://www.land-oberoesterreich.gv.at/23004.htm",
+      "region": "OÖ"
+    },
+    {
+      "id": "ooe_soziale_rehabilitation",
+      "name": "Soziale Rehabilitation – Förderungen für Menschen mit Behinderung (OÖ)",
+      "stelle": "Land Oberösterreich",
+      "zielgruppe": "sozial",
+      "thema": [
+        "sozial"
+      ],
+      "betrag": "k.A. (Einzelfallzuschuss, z.B. Kfz-Adaptierung, Wohnraumadaptierung, Kommunikationshilfsmittel, elektronische Hilfsmittel, Gebärdensprach-Dolmetschkosten, finanzielle Notlagen)",
+      "frist": "laufend",
+      "status": "offen",
+      "quelle": "https://www.land-oberoesterreich.gv.at/276889.htm",
+      "region": "OÖ",
+      "voraussetzungen": {
+        "behinderung": true
+      }
+    },
+    {
+      "id": "tirol_mindestsicherung",
+      "name": "Tiroler Mindestsicherung",
+      "stelle": "Land Tirol – Bezirkshauptmannschaften / Stadtmagistrat Innsbruck, Amt für Soziales",
+      "zielgruppe": "sozial",
+      "thema": [
+        "sozial"
+      ],
+      "betrag": "922,42 €/Monat (Alleinstehende/Alleinerziehende); 691,81 €/Monat (Volljährige in Bedarfsgemeinschaft); gestaffelte Sätze für Kinder (304,40 € bis 147,59 €/Monat); zzgl. Wohnbedarf je nach Bezirk",
+      "frist": "laufend",
+      "status": "offen",
+      "quelle": "https://www.tirol.gv.at/fileadmin/themen/gesellschaft-soziales/soziales/Formulare/Mindestsicherung/Informationsblatt_offene_Mindestsicherung_J%C3%A4nner_2026.pdf",
+      "region": "Tirol"
+    },
+    {
+      "id": "tirol_heizkostenzuschuss",
+      "name": "Heizkostenzuschuss Tirol 2026",
+      "stelle": "Land Tirol – Abteilung Soziales / Tiroler Hilfswerk",
+      "zielgruppe": "sozial",
+      "thema": [
+        "energie",
+        "sozial"
+      ],
+      "betrag": "k.A. (einkommens- und haushaltsgrößenabhängig, siehe Online-Zuschussrechner)",
+      "frist": "01.05.2026 – 31.10.2026",
+      "status": "offen",
+      "quelle": "https://www.tirol.gv.at/gesellschaft-soziales/soziales/heizkostenzuschuss/",
+      "region": "Tirol"
+    },
+    {
+      "id": "tirol_wohnbeihilfe",
+      "name": "Wohnbeihilfe Tirol",
+      "stelle": "Land Tirol – Wohnbauförderung",
+      "zielgruppe": "privat",
+      "thema": [
+        "wohnen"
+      ],
+      "betrag": "k.A. (Differenz zwischen anrechenbarem Wohnungsaufwand und zumutbarer Wohnungsaufwandsbelastung nach Haushaltsgröße/Einkommen)",
+      "frist": "laufend",
+      "status": "offen",
+      "quelle": "https://www.tirol.gv.at/bauen-wohnen/wohnbaufoerderung/beihilfe/wohnbeihilfe/wohnbeihilfe-information/",
+      "region": "Tirol",
+      "voraussetzungen": {
+        "wohnsituation": [
+          "miete",
+          "eigentum"
+        ]
+      }
+    },
+    {
+      "id": "energieeffizienz_ausschreibung_juli_2026",
+      "name": "Energieeffizienz-Ausschreibung Juli 2026",
+      "stelle": "BMWET / Kommunalkredit Public Consulting",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "energie",
+        "wirtschaft"
+      ],
+      "region": null,
+      "betrag": "Max. 180 EUR je eingesparter MWh/Jahr, max. 50 % der förderfähigen Kosten und max. 2,5 Mio. EUR pro Projekt",
+      "voraussetzungen": {},
+      "frist": "Einreichfrist endete am 12.10.2026, 12:00 Uhr",
+      "status": "fenster_zu",
+      "quelle": "https://www.umweltfoerderung.at/betriebe/energieeffizienz-2-2026",
+      "hinweise": [
+        "Investitionssumme mindestens 1,0 Mio. EUR; mindestens 1,0 GWh anrechenbare Endenergieeinsparung pro Jahr."
+      ]
+    },
+    {
+      "id": "ooe_breitband_ftth_betriebe",
+      "name": "Land OÖ: Ultraschnelles Breitband-Glasfaser-Internet (FTTH) für Betriebe",
+      "stelle": "Land Oberösterreich",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
+      "region": "OÖ",
+      "betrag": "Max. 50 % der einmaligen Errichtungs- und Herstellungskosten, höchstens 2.000 EUR pro Standort",
+      "voraussetzungen": {
+        "wko_mitglied": true
+      },
+      "hinweise": [
+        "Gefördert werden einmalige Errichtungs- und Herstellungskosten für ultraschnelle FTTH-Glasfaseranschlüsse. Auch bestimmte freie Berufe sind förderbar."
+      ],
+      "frist": "Geltungsdauer 01.01.2025–31.12.2026",
+      "status": "offen",
+      "quelle": "https://www.wko.at/foerderungen/breitband-glasfaser-betriebe-oberoesterreich"
     }
   ]
 }

@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+{% block title %}Fördora — Ihre Angaben{% endblock %}
+{% block content %}
+{% set anliegen_platzhalter = {
+  'betrieb': 'Wir wollen unsere Fertigung digitalisieren – die Energiekosten in der Werkstatt sind stark gestiegen.',
+  'privat': 'Ich möchte mein Haus sanieren – welche Förderung gibt es dafür?',
+  'sozial': 'Ich pflege meine Mutter zu Hause und kann die Heizkosten kaum bezahlen.'
+} %}
+<main class="wrap" style="max-width:820px;padding-top:40px">
+  <p class="small" style="margin-bottom:6px">Schritt 1 von 1 · dauert ca. 2 Minuten</p>
+  <h1 style="font-size:32px">Ihre Angaben</h1>
+  <p class="lead" style="font-size:16.5px;margin-bottom:26px">Je genauer, desto besser die Treffer.
+     Pflichtfelder sind mit * markiert.</p>
+
+  {% if fehler %}
+  <div class="err">{{ fehler }}</div>
+  {% endif %}
+
+  <form method="post" action="/formular" novalidate>
+    <div class="tabs">
+      <label class="tab"><input type="radio" name="typ" value="betrieb"
+        {% if typ not in ("privat", "sozial") %}checked{% endif %}>Betrieb</label>
+      <label class="tab"><input type="radio" name="typ" value="privat"
+        {% if typ == "privat" %}checked{% endif %}>Privatperson</label>
+      <label class="tab"><input type="radio" name="typ" value="sozial"
+        {% if typ == "sozial" %}checked{% endif %}>Sozial &amp; Alltag</label>
+    </div>
+
+    <div class="card">
+      <!-- ---------------- Betrieb ---------------- -->
+      <div class="nur-betrieb">
+        <div class="grid2">
+          <div class="field"><label for="bundesland_b">Bundesland *</label>
+            <select id="bundesland_b" name="region_grob">
+              <option value="" disabled {% if not werte.region_grob %}selected{% endif %}>– bitte wählen –</option>
+              {% for b in bundeslaender %}
+              <option value="{{ b }}" {% if b == werte.region_grob %}selected{% endif %}>{{ b }}</option>
+              {% endfor %}
+            </select>
+            <p class="field-hint">Landesprogramme haben wir derzeit für Oberösterreich und Tirol. Für andere Bundesländer zeigen wir bundesweite Programme.</p></div>
+          <div class="field"><label for="branche">Branche</label>
+            <select id="branche" name="branche">
+              <option value="">– bitte wählen –</option>
+              {% for x in branchen %}
+              <option value="{{ x }}" {% if x == werte.branche %}selected{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label for="mitarbeiter">Mitarbeiter</label>
+            <select id="mitarbeiter" name="mitarbeiterklasse">
+              <option value="">– bitte wählen –</option>
+              {% for x in mitarbeiterklassen %}
+              <option value="{{ x }}" {% if x == werte.mitarbeiterklasse %}selected{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select></div>
+          <div class="field"><label for="wko">WKO-Mitglied?</label>
+            <select id="wko" name="wko_mitglied">
+              <option value="">– bitte wählen –</option>
+              <option value="ja" {% if werte.wko_mitglied == "ja" %}selected{% endif %}>Ja</option>
+              <option value="nein" {% if werte.wko_mitglied == "nein" %}selected{% endif %}>Nein</option>
+            </select></div>
+        </div>
+      </div>
+
+      <!-- ---------------- Privatperson ---------------- -->
+      <div class="nur-privat">
+        <div class="grid2">
+          <div class="field"><label for="bundesland_p">Bundesland *</label>
+            <select id="bundesland_p" name="region_grob_p">
+              <option value="" disabled {% if not werte.region_grob_p %}selected{% endif %}>– bitte wählen –</option>
+              {% for b in bundeslaender %}
+              <option value="{{ b }}" {% if b == werte.region_grob %}selected{% endif %}>{{ b }}</option>
+              {% endfor %}
+            </select>
+            <p class="field-hint">Landesprogramme haben wir derzeit für Oberösterreich und Tirol. Für andere Bundesländer zeigen wir bundesweite Programme.</p></div>
+          <div class="field"><label for="wohnsituation">Wohnsituation</label>
+            <select id="wohnsituation" name="wohnsituation">
+              <option value="">– bitte wählen –</option>
+              {% for x in wohnsituationen %}
+              <option value="{{ x }}" {% if x == werte.wohnsituation %}selected{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label for="haushaltsgroesse">Haushaltsgröße</label>
+            <select id="haushaltsgroesse" name="haushaltsgroesse">
+              <option value="">– bitte wählen –</option>
+              {% for x in haushaltsgroessen %}
+              <option value="{{ x }}" {% if x == werte.haushaltsgroesse %}selected{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select></div>
+          <div class="field"><label for="einkommen">Einkommen (netto/Monat)</label>
+            <select id="einkommen" name="einkommen_spanne">
+              <option value="">– bitte wählen –</option>
+              {% for x in einkommensspannen %}
+              <option value="{{ x }}" {% if x == werte.einkommen_spanne %}selected{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select></div>
+        </div>
+        <div class="grid2 nicht-sozial">
+          <div class="field"><label for="heizung">Heizung</label>
+            <select id="heizung" name="heizung">
+              <option value="">– bitte wählen –</option>
+              {% for x in heizungen %}
+              <option value="{{ x }}" {% if x == werte.heizung %}selected{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select></div>
+          <div class="field nur-sozial"><label for="pflegestufe">Pflegestufe</label>
+            <select id="pflegestufe" name="pflegestufe">
+              <option value="">– keine –</option>
+              <option value="0" {% if werte.pflegestufe == "0" %}selected{% endif %}>Keine</option>
+              {% for n in [1,2,3,4,5,6,7] %}
+              <option value="{{ n }}" {% if werte.pflegestufe == n|string %}selected{% endif %}>Stufe {{ n }}</option>
+              {% endfor %}
+            </select></div>
+          <div class="field nur-sozial"><label for="behinderung">Behinderung / Beeinträchtigung</label>
+            <select id="behinderung" name="behinderung">
+              <option value="">– keine Angabe –</option>
+              <option value="ja" {% if werte.behinderung == "ja" %}selected{% endif %}>Ja (bei mir oder Kind im Haushalt)</option>
+              <option value="nein" {% if werte.behinderung == "nein" %}selected{% endif %}>Nein</option>
+            </select></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label for="familienstand">Familienstand</label>
+            <select id="familienstand" name="familienstand">
+              <option value="">– bitte wählen –</option>
+              {% for x in familienstaende %}
+              <option value="{{ x }}" {% if x == werte.familienstand %}selected{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select></div>
+          <div class="field"><label for="kinder">Kinder im Haushalt?</label>
+            <select id="kinder" name="kinder_im_haushalt">
+              <option value="">– bitte wählen –</option>
+              <option value="ja" {% if werte.kinder_im_haushalt == "ja" %}selected{% endif %}>Ja</option>
+              <option value="nein" {% if werte.kinder_im_haushalt == "nein" %}selected{% endif %}>Nein</option>
+            </select></div>
+        </div>
+      </div>
+
+      <!-- ---------------- Sozial & Alltag ---------------- -->
+      <div class="nur-sozial">
+        <div class="field" style="margin-bottom:12px">
+          <label class="chip chip-consent">
+            <input type="checkbox" name="besondere_daten_einwilligung" value="ja">
+            Ich möchte Förderungen suchen, bei denen Pflege oder Behinderung berücksichtigt wird.
+            Ich willige ausdrücklich ein, dass Fördora meine Angaben zu Pflegestufe und/oder
+            Behinderung/Beeinträchtigung nur für diese Fördersuche verarbeitet. Diese Angabe ist
+            freiwillig und wird ohne Auswahl nicht erfasst.
+          </label>
+        </div>
+        <div class="grid2 nur-besondere-daten">
+          <div class="field"><label for="bundesland_s">Bundesland *</label>
+            <select id="bundesland_s" name="region_grob_s">
+              <option value="" disabled {% if not werte.region_grob_s %}selected{% endif %}>– bitte wählen –</option>
+              {% for b in bundeslaender %}
+              <option value="{{ b }}" {% if b == werte.region_grob_s %}selected{% endif %}>{{ b }}</option>
+              {% endfor %}
+            </select></div>
+          <div class="field"><label for="lebenssituation">Lebenssituation</label>
+            <select id="lebenssituation" name="lebenssituation">
+              <option value="">– bitte wählen –</option>
+              {% for x in lebenssituationen %}
+              <option value="{{ x }}" {% if x == werte.lebenssituation %}selected{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label for="haushaltsgroesse_s">Haushaltsgröße</label>
+            <select id="haushaltsgroesse_s" name="haushaltsgroesse_s">
+              <option value="">– bitte wählen –</option>
+              {% for x in haushaltsgroessen %}
+              <option value="{{ x }}" {% if x == werte.haushaltsgroesse_s %}selected{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select></div>
+          <div class="field"><label for="einkommen_spanne_s">Haushaltseinkommen (netto/Monat)</label>
+            <select id="einkommen_spanne_s" name="einkommen_spanne_s">
+              <option value="">– bitte wählen –</option>
+              {% for x in einkommensspannen %}
+              <option value="{{ x }}" {% if x == werte.einkommen_spanne_s %}selected{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select></div>
+        </div>
+        <fieldset class="field bedarf-field">
+          <legend>Förderungen suchen, bei denen …</legend>
+          <div class="chips bedarf-chips">
+            {% for v in bedarf_optionen %}
+            <label class="chip"><input type="checkbox" name="bedarf" value="{{ v }}"
+              {% if v in werte.bedarf %}checked{% endif %}>{{ v }}</label>
+            {% endfor %}
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="field nicht-sozial"><label>Ihr Vorhaben (Mehrfachauswahl)</label>
+        <div class="chips">
+          {% for v in vorhaben_optionen %}
+          <label class="chip"><input type="checkbox" name="vorhaben" value="{{ v }}"
+            {% if v in werte.vorhaben %}checked{% endif %}>{{ v }}</label>
+          {% endfor %}
+        </div></div>
+
+      <div class="field"><label for="anliegen">Beschreiben Sie kurz Ihr Anliegen
+        <span class="small" style="font-weight:400">(optional)</span></label>
+        <textarea id="anliegen" name="anliegen" rows="4"
+          placeholder="{{ anliegen_platzhalter.get(typ, anliegen_platzhalter['betrieb']) }}">{{ werte.anliegen or '' }}</textarea>
+        <p class="small" style="margin-top:6px">In eigenen Worten – die KI erkennt daraus Standbein
+          und Themen. Die Prüfung selbst machen weiterhin die Regeln.</p></div>
+
+      <script>
+      (function () {
+        // Der Tab-Wechsel ist rein per CSS; der Platzhalter muss per JS mitziehen.
+        var texte = {{ anliegen_platzhalter | tojson }};
+        function sync() {
+          var ta = document.getElementById("anliegen");
+          var sel = document.querySelector('input[name="typ"]:checked');
+          if (ta && sel && texte[sel.value]) { ta.placeholder = texte[sel.value]; }
+        }
+        document.addEventListener("DOMContentLoaded", sync);
+        Array.prototype.forEach.call(
+          document.querySelectorAll('input[name="typ"]'),
+          function (r) { r.addEventListener("change", sync); }
+        );
+      })();
+      </script>
+
+      <hr style="border:0;border-top:1px solid var(--line);margin:24px 0">
+
+      <h2 style="font-size:17px;margin-bottom:14px">Kontakt</h2>
+      <div class="grid2">
+        <div class="field"><label for="name">Name *</label>
+          <input id="name" name="name" value="{{ werte.name }}" autocomplete="name"></div>
+        <div class="field"><label for="email">E-Mail *</label>
+          <input id="email" name="email" type="email" value="{{ werte.email }}" autocomplete="email"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label for="telefon">Telefon (optional)</label>
+          <input id="telefon" name="telefon" value="{{ werte.telefon }}" autocomplete="tel"></div>
+        <div class="field"><label for="kanal">Kontaktweg</label>
+          <select id="kanal" name="kanal">
+            <option value="email" selected>E-Mail</option>
+          </select></div>
+      </div>
+
+      <div class="consent">
+        <input id="einwilligung" type="checkbox" name="einwilligung" value="ja"
+          {% if werte.einwilligung %}checked{% endif %} required>
+        <label for="einwilligung" class="small" style="color:#134e4a;margin:0">
+          Ich willige ein, dass Fördora die von mir ausgewählten Angaben zur Ermittlung passender
+          Fördermöglichkeiten verarbeitet. Pflege- und Behinderungsangaben werden nur verarbeitet,
+          wenn ich im Bereich „Sozial &amp; Alltag“ zusätzlich ausdrücklich zustimme. Ich kann die
+          Einwilligung jederzeit für die Zukunft widerrufen. *</label>
+      </div>
+
+      <button class="btn btn-p" type="submit" style="width:100%;padding:16px;font-size:17px">
+        Förderungen finden</button>
+      <p class="small center" style="margin-top:14px">Die Angaben werden zur Ermittlung passender
+        Fördermöglichkeiten verwendet. Widerruf oder Löschanfrage: <a href="mailto:team@foerdora.cloud">team@foerdora.cloud</a>;
+        bitte Name und, falls vorhanden, die für die Anfrage verwendete E-Mail-Adresse angeben.
+        Eine Löschung kann jederzeit per E-Mail beantragt werden; unabhängig davon werden
+        die Daten spätestens nach zwei Jahren gelöscht. Bitte keine Gesundheits- oder
+        Behinderungsangaben per E-Mail senden.</p>
+    </div>
+  </form>
+  <div style="height:40px"></div>
+</main>
+{% endblock %}

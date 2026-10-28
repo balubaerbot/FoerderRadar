@@ -3,7 +3,7 @@
 
 CREATE TABLE IF NOT EXISTS profil (
     kunde_id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    typ                TEXT NOT NULL CHECK (typ IN ('betrieb','privat')),
+    typ                TEXT NOT NULL CHECK (typ IN ('betrieb','privat','sozial')),
     region_grob        TEXT,
     -- nur Betrieb
     branche            TEXT,
@@ -15,12 +15,33 @@ CREATE TABLE IF NOT EXISTS profil (
     einkommen_spanne   TEXT,
     heizung            TEXT,
     pflegestufe        INTEGER,
+    behinderung        BOOLEAN,
     familienstand      TEXT,
     kinder_im_haushalt BOOLEAN,
     -- beide
     vorhaben           TEXT[],
     erstellt_am        TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Phase 2 (KI-Mapping): Freitext-Anliegen + daraus abgeleitete grobe Thema-Achse.
+-- Idempotent (IF NOT EXISTS), damit bestehende Datenbanken beim Re-Init mitwandern.
+-- `anliegen` ist ein pseudonymes Feld (Kundentext, keine Kontaktdaten).
+-- `thema` speichert das Ergebnis EINMAL (reproduzierbar), statt bei jedem
+-- Matching-Lauf erneut das LLM zu fragen.
+ALTER TABLE profil ADD COLUMN IF NOT EXISTS anliegen TEXT;
+ALTER TABLE profil ADD COLUMN IF NOT EXISTS thema TEXT[];
+
+-- Phase 3 (Standbein "Sozial & Alltag"): Lebenssituation als eigenes Feld.
+ALTER TABLE profil ADD COLUMN IF NOT EXISTS lebenssituation TEXT;
+
+-- Phase 4: `typ` fuehrt 'sozial' als echten dritten Wert (ersetzt den
+-- frueheren Workaround typ='privat' + thema='sozial'). Idempotente Migration
+-- fuer bereits initialisierte DBs: CHECK-Constraint droppen + neu anlegen
+-- (ein CHECK laesst sich nicht per ALTER aendern, nur ersetzen).
+ALTER TABLE profil DROP CONSTRAINT IF EXISTS profil_typ_check;
+ALTER TABLE profil ADD CONSTRAINT profil_typ_check CHECK (typ IN ('betrieb','privat','sozial'));
+
+CREATE INDEX IF NOT EXISTS profil_thema_idx ON profil USING GIN (thema);
 
 CREATE TABLE IF NOT EXISTS kontakt (
     kunde_id        UUID PRIMARY KEY REFERENCES profil(kunde_id) ON DELETE CASCADE,
@@ -29,8 +50,18 @@ CREATE TABLE IF NOT EXISTS kontakt (
     telefon         TEXT,
     kanal           TEXT CHECK (kanal IN ('email','sms')),
     einwilligung_am TIMESTAMPTZ,
-    loeschdatum     DATE
+    einwilligung_version TEXT,
+    einwilligung_besondere_daten BOOLEAN NOT NULL DEFAULT FALSE,
+    einwilligung_widerrufen_am TIMESTAMPTZ,
+    loeschdatum     DATE NOT NULL DEFAULT ((CURRENT_DATE + INTERVAL '2 years')::date)
 );
+
+-- Idempotent additions for existing DB volumes; also supplied as a standalone
+-- migration so deployments do not depend on initdb re-running this file.
+ALTER TABLE kontakt ADD COLUMN IF NOT EXISTS einwilligung_version TEXT;
+ALTER TABLE kontakt ADD COLUMN IF NOT EXISTS einwilligung_besondere_daten BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE kontakt ADD COLUMN IF NOT EXISTS einwilligung_widerrufen_am TIMESTAMPTZ;
+ALTER TABLE kontakt ALTER COLUMN loeschdatum SET DEFAULT ((CURRENT_DATE + INTERVAL '2 years')::date);
 
 CREATE TABLE IF NOT EXISTS match (
     id             BIGSERIAL PRIMARY KEY,
@@ -42,9 +73,89 @@ CREATE TABLE IF NOT EXISTS match (
     eingefroren_am TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- Versand-Queue: Textentwuerfe + Sendeprotokoll.
+-- Der Agent schreibt den Text (ohne Kontaktdaten); der Worker liest `kontakt`
+-- selbst und verschickt. So bleibt die Klartext-Trennung gewahrt.
+CREATE TABLE IF NOT EXISTS versand (
+    id          BIGSERIAL PRIMARY KEY,
+    kunde_id    UUID NOT NULL REFERENCES profil(kunde_id) ON DELETE CASCADE,
+    kanal       TEXT CHECK (kanal IN ('email','sms')),
+    betreff     TEXT,
+    body        TEXT NOT NULL,
+    status      TEXT NOT NULL DEFAULT 'entwurf' CHECK (status IN ('entwurf','sendet','gesendet','fehler')),
+    fehler_text TEXT,
+    erstellt_am TIMESTAMPTZ NOT NULL DEFAULT now(),
+    gesendet_am TIMESTAMPTZ,
+    -- Zeitpunkt des atomaren Claims ('sendet') -> Watchdog kann haengende
+    -- Versuche nach einer Frist zuruecksetzen.
+    sendet_seit TIMESTAMPTZ,
+    -- Zeitpunkt des letzten Test-Versands (Prototyp: eigenes Postfach).
+    -- Verhindert, dass ein Cron denselben unveraenderten Entwurf wiederholt
+    -- test-versendet; wird bei Textaenderung auf NULL zurueckgesetzt.
+    test_gesendet_am TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS versand_status_idx ON versand (status);
+CREATE INDEX IF NOT EXISTS match_status_idx ON match (status);
+-- Hoechstens EIN offener (nicht abgeschlossener) Versand pro Kunde -> kein Doppelversand.
+CREATE UNIQUE INDEX IF NOT EXISTS versand_ein_offener ON versand (kunde_id)
+    WHERE status IN ('entwurf','sendet');
+
 -- Pseudonyme Sicht: genau das, was der Agent/Dienst lesen darf (keine Kontaktdaten!)
 CREATE OR REPLACE VIEW profil_agent AS
 SELECT kunde_id, typ, region_grob, branche, mitarbeiterklasse, wko_mitglied,
        wohnsituation, haushaltsgroesse, einkommen_spanne, heizung, pflegestufe,
-       familienstand, kinder_im_haushalt, vorhaben
+       behinderung, familienstand, kinder_im_haushalt, lebenssituation, vorhaben,
+       thema, anliegen
 FROM profil;
+
+-- Retention purge exposed as a narrowly scoped SECURITY DEFINER function.
+-- Fixed search_path and schema-qualified tables prevent search_path hijacking.
+CREATE OR REPLACE FUNCTION public.purge_expired_profiles()
+RETURNS BIGINT
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, public
+AS $purge$
+DECLARE
+    deleted_count BIGINT;
+BEGIN
+    DELETE FROM public.profil AS p
+    USING public.kontakt AS k
+    WHERE k.kunde_id = p.kunde_id
+      AND k.loeschdatum IS NOT NULL
+      AND k.loeschdatum <= CURRENT_DATE;
+    GET DIAGNOSTICS deleted_count = ROW_COUNT;
+    RETURN deleted_count;
+END;
+$purge$;
+REVOKE ALL ON FUNCTION public.purge_expired_profiles() FROM PUBLIC;
+
+-- Operator-only customer-request deletion; callers must verify identity before invoking.
+-- Audit row contains only the profile UUID and time, not contact data.
+CREATE TABLE IF NOT EXISTS public.profile_deletion_audit (
+    kunde_id UUID NOT NULL,
+    requested_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    deleted_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+REVOKE ALL ON TABLE public.profile_deletion_audit FROM PUBLIC;
+
+CREATE OR REPLACE FUNCTION public.delete_profile_on_request(p_kunde_id UUID)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, public
+AS $delete$
+DECLARE
+    deleted_count BIGINT;
+BEGIN
+    DELETE FROM public.profil WHERE kunde_id = p_kunde_id;
+    GET DIAGNOSTICS deleted_count = ROW_COUNT;
+    IF deleted_count = 0 THEN
+        RETURN FALSE;
+    END IF;
+    INSERT INTO public.profile_deletion_audit (kunde_id) VALUES (p_kunde_id);
+    RETURN TRUE;
+END;
+$delete$;
+REVOKE ALL ON FUNCTION public.delete_profile_on_request(UUID) FROM PUBLIC;

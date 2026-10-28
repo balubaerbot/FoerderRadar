@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 940" width="1100" height="940" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+    <marker id="aRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626"/>
+    </marker>
+  </defs>
+  <style>
+    text{fill:#172033}
+    .title{font-size:21px;font-weight:700}
+    .sub{font-size:12px;fill:#5b6475}
+    .uc{font-size:13px;font-weight:700;fill:#334155}
+    .label{font-size:13px;font-weight:600}
+    .small{font-size:11px;fill:#5b6475}
+    .tiny{font-size:10.5px;fill:#5b6475}
+    .node{stroke:#64748b;stroke-width:1}
+    .input{fill:#bfdbfe}
+    .process{fill:#c7d2fe}
+    .storage{fill:#99f6e4}
+    .external{fill:#fde68a}
+    .risk{fill:#fecaca}
+    .edge{stroke:#64748b;stroke-width:1.6;fill:none}
+    .edge-red{stroke:#dc2626;stroke-width:1.6;fill:none}
+  </style>
+
+  <text class="title" x="40" y="38">FoerderRadar — Datenfluss &amp; Use Cases</text>
+  <text class="sub" x="40" y="58">Stand 27.09.2026 · API abgesichert (Default-Deny) · DB-Rollen getrennt (app_web / app_worker)</text>
+
+  <!-- ============ UC1 ============ -->
+  <text class="uc" x="140" y="100">UC1 · Profil erfassen (öffentlich)</text>
+  <path class="edge" d="M 300 140 H 396" marker-end="url(#a)"/>
+  <text class="tiny" x="348" y="132" text-anchor="middle">Consent</text>
+  <path class="edge" d="M 590 140 H 666" marker-end="url(#a)"/>
+  <text class="tiny" x="628" y="132" text-anchor="middle">INSERT</text>
+  <rect class="node input" x="140" y="112" width="160" height="56" rx="8"/>
+  <text class="label" x="220" y="137" text-anchor="middle">Kunde / Formular</text>
+  <text class="small" x="220" y="155" text-anchor="middle">Erfassung</text>
+  <rect class="node process" x="400" y="112" width="190" height="56" rx="8"/>
+  <text class="label" x="495" y="137" text-anchor="middle">API · POST /profile</text>
+  <text class="small" x="495" y="155" text-anchor="middle">app_web · öffentlich · 5/min</text>
+  <rect class="node" x="670" y="112" width="280" height="56" rx="8" fill="#fecaca" stroke="#dc2626" stroke-width="1.2"/>
+  <text class="label" x="690" y="133">profil + kontakt</text>
+  <text class="tiny" x="690" y="150" fill="#7f1d1d">profil = pseudonym · kontakt = Klartext</text>
+  <text class="tiny" x="690" y="164" fill="#7f1d1d">kontakt: nur schreiben (kein Lesen)</text>
+
+  <!-- ============ UC2 ============ -->
+  <text class="uc" x="140" y="232">UC2 · Matching (intern, Token)</text>
+  <path class="edge" d="M 370 272 H 466" marker-end="url(#a)"/>
+  <text class="tiny" x="418" y="264" text-anchor="middle">bewerten</text>
+  <path class="edge" d="M 670 272 H 776" marker-end="url(#a)"/>
+  <text class="tiny" x="723" y="264" text-anchor="middle">INSERT</text>
+  <rect class="node storage" x="140" y="244" width="230" height="56" rx="8"/>
+  <text class="label" x="255" y="269" text-anchor="middle">Katalog + profil_agent</text>
+  <text class="small" x="255" y="287" text-anchor="middle">Regeln + pseudonymes Profil</text>
+  <rect class="node process" x="470" y="244" width="200" height="56" rx="8"/>
+  <text class="label" x="570" y="269" text-anchor="middle">Matching</text>
+  <text class="small" x="570" y="287" text-anchor="middle">src/match.py · app_web</text>
+  <rect class="node storage" x="780" y="244" width="170" height="56" rx="8"/>
+  <text class="label" x="865" y="269" text-anchor="middle">match</text>
+  <text class="small" x="865" y="287" text-anchor="middle">Treffer (top/prüfw.)</text>
+
+  <!-- ============ UC3 ============ -->
+  <text class="uc" x="140" y="364">UC3 · Kunde informieren (E-Mail/SMS)</text>
+  <path class="edge-red" d="M 350 404 H 436" marker-end="url(#aRed)"/>
+  <text class="tiny" x="393" y="396" text-anchor="middle" fill="#7f1d1d">app_worker liest</text>
+  <path class="edge" d="M 640 404 H 756" marker-end="url(#a)"/>
+  <text class="tiny" x="698" y="396" text-anchor="middle">E-Mail / SMS</text>
+  <rect class="node" x="140" y="376" width="210" height="56" rx="8" fill="#fecaca" stroke="#dc2626" stroke-width="1.2"/>
+  <text class="label" x="160" y="399">match + kontakt</text>
+  <text class="tiny" x="160" y="417" fill="#7f1d1d">kontakt: nur app_worker lesbar</text>
+  <rect class="node process" x="440" y="376" width="200" height="56" rx="8"/>
+  <text class="label" x="540" y="401" text-anchor="middle">Versand-Worker</text>
+  <text class="small" x="540" y="419" text-anchor="middle">dry-run / Test-Umleitung</text>
+  <rect class="node input" x="760" y="376" width="170" height="56" rx="8"/>
+  <text class="label" x="845" y="401" text-anchor="middle">Kunde</text>
+  <text class="small" x="845" y="419" text-anchor="middle">Postfach</text>
+
+  <!-- ============ UC4 ============ -->
+  <text class="uc" x="140" y="496">UC4 · Katalog aktuell halten (Job)</text>
+  <path class="edge" d="M 340 536 H 436" marker-end="url(#a)"/>
+  <text class="tiny" x="388" y="528" text-anchor="middle">monatlich</text>
+  <path class="edge" d="M 640 536 H 756" marker-end="url(#a)"/>
+  <text class="tiny" x="698" y="528" text-anchor="middle">Quality Gate</text>
+  <rect class="node external" x="140" y="508" width="200" height="56" rx="8"/>
+  <text class="label" x="240" y="533" text-anchor="middle">Web-Recherche</text>
+  <text class="small" x="240" y="551" text-anchor="middle">Quellen prüfen</text>
+  <rect class="node process" x="440" y="508" width="200" height="56" rx="8"/>
+  <text class="label" x="540" y="533" text-anchor="middle">Katalog-Job</text>
+  <text class="small" x="540" y="551" text-anchor="middle">nur belegte Änderungen</text>
+  <rect class="node storage" x="760" y="508" width="200" height="56" rx="8"/>
+  <text class="label" x="860" y="533" text-anchor="middle">Katalog → develop</text>
+  <text class="small" x="860" y="551" text-anchor="middle">validator-geprüft</text>
+
+  <!-- ============ UC5 ============ -->
+  <text class="uc" x="140" y="624">UC5 · Sichtbarkeit (Sicherheit)</text>
+  <path class="edge" d="M 300 665 H 426" marker-end="url(#a)"/>
+  <text class="tiny" x="363" y="657" text-anchor="middle">erlaubt</text>
+  <path class="edge-red" d="M 300 715 H 676" marker-end="url(#aRed)"/>
+  <text class="tiny" x="488" y="707" text-anchor="middle" fill="#7f1d1d">VERWEIGERT (app_web)</text>
+  <rect class="node process" x="140" y="640" width="160" height="90" rx="8"/>
+  <text class="label" x="220" y="680" text-anchor="middle">Agent</text>
+  <text class="small" x="220" y="698" text-anchor="middle">Matching/Recherche</text>
+  <rect class="node storage" x="430" y="640" width="200" height="50" rx="8"/>
+  <text class="label" x="530" y="670" text-anchor="middle">profil_agent (VIEW)</text>
+  <rect class="node" x="680" y="690" width="200" height="50" rx="8" fill="#fecaca" stroke="#dc2626" stroke-width="1.2"/>
+  <text class="label" x="780" y="720" text-anchor="middle">kontakt</text>
+
+  <!-- ============ UC6 ============ -->
+  <text class="uc" x="140" y="780">UC6 · Betrieb / Admin</text>
+  <path class="edge" d="M 310 818 H 426" marker-end="url(#a)"/>
+  <text class="tiny" x="368" y="810" text-anchor="middle">Bearer Token</text>
+  <rect class="node input" x="140" y="790" width="170" height="56" rx="8"/>
+  <text class="label" x="225" y="815" text-anchor="middle">Admin / Betrieb</text>
+  <text class="small" x="225" y="833" text-anchor="middle">du</text>
+  <rect class="node process" x="430" y="790" width="280" height="56" rx="8"/>
+  <text class="label" x="570" y="815" text-anchor="middle">/profiles · /match · /health</text>
+  <text class="small" x="570" y="833" text-anchor="middle">default-deny: alles andere → 401</text>
+
+  <!-- ============ Legende ============ -->
+  <rect class="node input" x="40" y="880" width="14" height="14" rx="3"/>
+  <text class="small" x="60" y="892">Akteur/Eingabe</text>
+  <rect class="node process" x="175" y="880" width="14" height="14" rx="3"/>
+  <text class="small" x="195" y="892">Verarbeitung</text>
+  <rect class="node storage" x="300" y="880" width="14" height="14" rx="3"/>
+  <text class="small" x="320" y="892">Daten</text>
+  <rect class="node external" x="380" y="880" width="14" height="14" rx="3"/>
+  <text class="small" x="400" y="892">extern (Web)</text>
+  <rect class="node risk" x="500" y="880" width="14" height="14" rx="3"/>
+  <text class="small" x="520" y="892">Klartext (kontakt) — Zugriff beschränkt</text>
+</svg>

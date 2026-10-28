@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Fördora — Finden Sie heraus, welche Förderungen Ihnen zustehen{% endblock %}
+{% block content %}
+<main class="wrap">
+  <section class="hero">
+    <div class="eyebrow">Prototyp · Förderinfos aus einem Quellenverzeichnis</div>
+    <h1>Finden Sie heraus, welche<br>Förderungen Ihnen zustehen.</h1>
+    <p class="lead">Fördora gleicht Ihre Angaben mit dem Förderkatalog ab und zeigt mögliche Treffer
+       mit den hinterlegten Quellen. Ob ein Antrag möglich ist und welche Fristen gelten,
+       bestätigt die jeweilige Förderstelle.</p>
+    <div class="cta">
+      <a class="btn btn-p" href="/formular?typ=betrieb">Für Betriebe</a>
+      <a class="btn btn-o" href="/formular?typ=privat">Für Privatpersonen</a>
+      <a class="btn btn-o" href="/formular?typ=sozial">Sozial &amp; Alltag</a>
+    </div>
+    <div class="trust">
+      <span><b>✓</b> Kostenlos*</span>
+      <span><b>✓</b> Quellen zum Nachprüfen</span>
+      <span><b>✓</b> Ohne Registrierung</span>
+      <span class="small">* Derzeit ohne Gebühr; keine Förderzusage.</span>
+    </div>
+  </section>
+
+  <section class="steps" id="wie">
+    <div class="card"><div class="step-n">1</div><h2 style="font-size:19px">Angaben machen</h2>
+      <p class="small">Sie wählen Ihren Bereich und machen Angaben zu Ihrem Vorhaben oder Ihrer Situation.
+      Die mit * markierten Angaben und Ihre Einwilligung sind erforderlich.</p></div>
+    <div class="card"><div class="step-n">2</div><h2 style="font-size:19px">Automatisch abgleichen</h2>
+      <p class="small">Ein regelbasierter Abgleich vergleicht Ihre Angaben mit den im Förderkatalog
+      hinterlegten Programmen. Der Katalog kann unvollständig oder nicht tagesaktuell sein.</p></div>
+    <div class="card"><div class="step-n">3</div><h2 style="font-size:19px">Treffer erhalten</h2>
+      <p class="small">Derzeit werden Treffer nicht automatisch per E-Mail zugesandt. Prüfen Sie mögliche Förderungen und Fristen direkt bei der zuständigen Stelle.</p></div>
+  </section>
+
+  <h2 class="sec-title" id="vorteile">So funktioniert der Fördora-Prototyp</h2>
+  <p class="sec-sub">Fördora ergänzt die eigene Recherche durch einen regelbasierten Abgleich des Projektkatalogs.
+     Die Ergebnisse sind eine erste Orientierung und müssen selbst geprüft werden.</p>
+  <section class="usp">
+    <div class="card"><div class="ico">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round"><path d="M22 6 12 13 2 6"/>
+        <rect x="2" y="4" width="20" height="16" rx="2"/></svg></div>
+      <div><h2 style="font-size:19px">Treffer selbst prüfen</h2>
+      <p class="small">Sie können mögliche Treffer samt Quelle prüfen. Eine automatische Benachrichtigung
+      bei neuen Förderungen oder vor Fristablauf ist derzeit nicht verfügbar.</p></div></div>
+
+    <div class="card"><div class="ico">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <div><h2 style="font-size:19px">Nachweisbar, keine Blackbox</h2>
+      <p class="small">Der Abgleich nutzt hinterlegte Kriterien und Quellen. Ein Treffer ist keine
+      Förderzusage und ersetzt nicht die Prüfung durch die zuständige Förderstelle.</p></div></div>
+
+    <div class="card"><div class="ico">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div><h2 style="font-size:19px">Datenschutz ohne Konto</h2>
+      <p class="small">Für die Anfrage ist kein Benutzerkonto erforderlich. Kontaktdaten und Profildaten
+      werden technisch getrennt verarbeitet; die Kontaktangaben dienen der Rückmeldung.</p></div></div>
+
+    <div class="card"><div class="ico">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V6a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/>
+        <path d="M8 8h8M8 12h6"/></svg></div>
+      <div><h2 style="font-size:19px">Nur geprüfte Quellen</h2>
+      <p class="small">Im Förderkatalog werden Quellen zu Programmen hinterlegt. Bitte prüfen Sie
+      Aktualität und Bedingungen direkt bei der jeweiligen Förderstelle.</p></div></div>
+  </section>
+
+  <section class="aibox">
+    <div>
+      <h2>Intelligenz, die nur beim Verstehen hilft.</h2>
+      <p>Eine KI kann Freitext thematisch einordnen. Der Abgleich mit den im Katalog
+         hinterlegten Kriterien erfolgt regelbasiert. Das Ergebnis ist nur eine erste
+         Orientierung: Förderfähigkeit und Antrag entscheidet die zuständige Förderstelle.\n         Der Katalog enthält Testdaten (Stand 8. Oktober 2026); Angaben können unvollständig oder veraltet sein.</p>
+      <div class="row">
+        <div class="tag"><b>KI</b> versteht Ihre Angaben</div>
+        <div class="tag"><b>Code</b> prüft die Bedingungen</div>
+        <div class="tag">Quellenhinweise im Katalog</div>
+      </div>
+    </div>
+    <div class="flow">
+      <div><span>1</span>KI ordnet Freitext thematisch ein</div>
+      <div><span>2</span>Regeln prüfen jede Förderung</div>
+      <div><span>3</span>Sie prüfen mögliche Treffer und Quellen</div>
+    </div>
+  </section>
+</main>
+{% endblock %}

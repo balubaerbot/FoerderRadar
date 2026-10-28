@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1150 720" width="1150" height="720" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+  </defs>
+  <style>
+    text{fill:#172033}
+    .title{font-size:21px;font-weight:700}
+    .sub{font-size:12px;fill:#5b6475}
+    .uc{font-size:13px;font-weight:700;fill:#334155}
+    .fn{font-size:12.5px;font-weight:600}
+    .mod{font-size:10.5px;fill:#5b6475}
+    .tiny{font-size:10.5px;fill:#5b6475}
+    .node{stroke:#64748b;stroke-width:1}
+    .input{fill:#bfdbfe}
+    .process{fill:#c7d2fe}
+    .storage{fill:#99f6e4}
+    .external{fill:#fde68a}
+    .edge{stroke:#64748b;stroke-width:1.6;fill:none}
+  </style>
+
+  <text class="title" x="40" y="38">FoerderRadar — Module, Funktionen &amp; Ablauf</text>
+  <text class="sub" x="40" y="58">Auf Programmebene · Stand 27.09.2026</text>
+
+  <!-- ===== Ablauf 1 ===== -->
+  <text class="uc" x="60" y="92">1 · Erfassung  (POST /profile)</text>
+  <path class="edge" d="M 264 134 H 316" marker-end="url(#a)"/>
+  <path class="edge" d="M 524 134 H 576" marker-end="url(#a)"/>
+  <rect class="node input" x="60" y="104" width="200" height="60" rx="8"/>
+  <text class="fn" x="160" y="130" text-anchor="middle">create_profile()</text>
+  <text class="mod" x="160" y="148" text-anchor="middle">app/main.py</text>
+  <rect class="node process" x="320" y="104" width="200" height="60" rx="8"/>
+  <text class="fn" x="420" y="130" text-anchor="middle">normalisiere_region()</text>
+  <text class="mod" x="420" y="148" text-anchor="middle">src/region.py</text>
+  <rect class="node storage" x="580" y="104" width="200" height="60" rx="8"/>
+  <text class="fn" x="680" y="130" text-anchor="middle">INSERT profil + kontakt</text>
+  <text class="mod" x="680" y="148" text-anchor="middle">PostgreSQL</text>
+
+  <!-- ===== Ablauf 2 ===== -->
+  <text class="uc" x="60" y="224">2 · Matching  (POST /match)</text>
+  <path class="edge" d="M 264 266 H 316" marker-end="url(#a)"/>
+  <path class="edge" d="M 524 266 H 576" marker-end="url(#a)"/>
+  <path class="edge" d="M 784 266 H 836" marker-end="url(#a)"/>
+  <rect class="node input" x="60" y="236" width="200" height="60" rx="8"/>
+  <text class="fn" x="160" y="262" text-anchor="middle">match_profile()</text>
+  <text class="mod" x="160" y="280" text-anchor="middle">app/main.py</text>
+  <rect class="node process" x="320" y="236" width="200" height="60" rx="8"/>
+  <text class="fn" x="420" y="262" text-anchor="middle">run_match()</text>
+  <text class="mod" x="420" y="280" text-anchor="middle">src/matching_service.py</text>
+  <rect class="node process" x="580" y="236" width="200" height="60" rx="8"/>
+  <text class="fn" x="680" y="262" text-anchor="middle">bewerte() → pruefe()</text>
+  <text class="mod" x="680" y="280" text-anchor="middle">src/match.py</text>
+  <rect class="node storage" x="840" y="236" width="200" height="60" rx="8"/>
+  <text class="fn" x="940" y="262" text-anchor="middle">INSERT match</text>
+  <text class="mod" x="940" y="280" text-anchor="middle">PostgreSQL</text>
+  <text class="tiny" x="320" y="322">run_match() liest: lade_profil() ← profil_agent  ·  load_katalog() ← katalog/foerderungen.json</text>
+
+  <!-- ===== Ablauf 3 ===== -->
+  <text class="uc" x="60" y="356">3 · Versand  (worker/versand_worker.py)</text>
+  <path class="edge" d="M 280 398 H 316" marker-end="url(#a)"/>
+  <path class="edge" d="M 550 398 H 586" marker-end="url(#a)"/>
+  <path class="edge" d="M 820 398 H 856" marker-end="url(#a)"/>
+  <rect class="node input" x="50" y="368" width="230" height="60" rx="8"/>
+  <text class="fn" x="165" y="394" text-anchor="middle">entwuerfe_anlegen()</text>
+  <text class="mod" x="165" y="412" text-anchor="middle">worker/versand_worker.py</text>
+  <rect class="node process" x="320" y="368" width="230" height="60" rx="8"/>
+  <text class="fn" x="435" y="394" text-anchor="middle">run_match() · nachricht_bauen()</text>
+  <text class="mod" x="435" y="412" text-anchor="middle">matching_service · versand_service</text>
+  <rect class="node process" x="590" y="368" width="230" height="60" rx="8"/>
+  <text class="fn" x="705" y="394" text-anchor="middle">versenden() · kontakt_holen()</text>
+  <text class="mod" x="705" y="412" text-anchor="middle">src/versand_service.py</text>
+  <rect class="node external" x="860" y="368" width="230" height="60" rx="8"/>
+  <text class="fn" x="975" y="394" text-anchor="middle">_senden_email()</text>
+  <text class="mod" x="975" y="412" text-anchor="middle">himalaya (SMTP)</text>
+
+  <!-- ===== Ablauf 4 ===== -->
+  <text class="uc" x="60" y="488">4 · Katalog prüfen  (tools/validate_katalog.py)</text>
+  <path class="edge" d="M 264 530 H 316" marker-end="url(#a)"/>
+  <path class="edge" d="M 524 530 H 576" marker-end="url(#a)"/>
+  <rect class="node external" x="60" y="500" width="200" height="60" rx="8"/>
+  <text class="fn" x="160" y="526" text-anchor="middle">Web-Recherche</text>
+  <text class="mod" x="160" y="544" text-anchor="middle">Katalog-Job (Agent)</text>
+  <rect class="node process" x="320" y="500" width="200" height="60" rx="8"/>
+  <text class="fn" x="420" y="526" text-anchor="middle">validate()</text>
+  <text class="mod" x="420" y="544" text-anchor="middle">tools/validate_katalog.py</text>
+  <rect class="node storage" x="580" y="500" width="200" height="60" rx="8"/>
+  <text class="fn" x="680" y="526" text-anchor="middle">foerderungen.json</text>
+  <text class="mod" x="680" y="544" text-anchor="middle">katalog (→ develop)</text>
+
+  <!-- ===== Legende ===== -->
+  <rect class="node input" x="60" y="620" width="14" height="14" rx="3"/>
+  <text class="tiny" x="80" y="632">Einstieg (app/ · worker/ · tools/)</text>
+  <rect class="node process" x="300" y="620" width="14" height="14" rx="3"/>
+  <text class="tiny" x="320" y="632">Fachlogik (src/)</text>
+  <rect class="node storage" x="470" y="620" width="14" height="14" rx="3"/>
+  <text class="tiny" x="490" y="632">Daten (Postgres / JSON)</text>
+  <rect class="node external" x="680" y="620" width="14" height="14" rx="3"/>
+  <text class="tiny" x="700" y="632">extern (Web / SMTP)</text>
+  <text class="tiny" x="60" y="668">src/match.py ist reine Logik (kein DB-/Netz-Zugriff) → leicht testbar.  ·  src/region.py wird von API UND Matching genutzt.</text>
+</svg>

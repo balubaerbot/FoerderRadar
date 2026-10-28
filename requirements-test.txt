@@ -1,0 +1,8 @@
+# Test runner, API test client, and opt-in DB integration dependencies.
+# app.main is imported by the API tests, so install its direct runtime needs too.
+pytest>=8,<10
+fastapi
+jinja2
+python-multipart
+httpx
+psycopg[binary]
