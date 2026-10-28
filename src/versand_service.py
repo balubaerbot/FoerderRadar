@@ -127,6 +127,20 @@ LANDES_HINWEIS = (
 )
 
 
+GESCHLOSSENE_STATUS = ("fenster_zu", "ausgeschoepft")
+
+
+def offene_treffer_filtern(treffer, katalog):
+    """Entfernt Treffer, deren Katalogstatus aktuell nicht beantragbar ist.
+
+    Match behaelt sie als 'knapp' (Antragsfenster zu); in der Kundenmail sind sie
+    irrefuehrend, vor allem bei eingestellten Aktionen.
+    """
+    kat = {f["id"]: f for f in katalog["foerderungen"]}
+    return [t for t in treffer
+            if (kat.get(t["foerderung_id"]) or {}).get("status") not in GESCHLOSSENE_STATUS]
+
+
 def nachricht_bauen(profil, treffer, katalog, transport=None):
     """Wie _nachricht_bauen_roh, ergaenzt um einen festen Hinweis, wenn fuer das
     Bundesland des Profils keine Landesprogramme im Katalog sind (Code, kein LLM)."""

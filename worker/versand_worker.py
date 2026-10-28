@@ -99,7 +99,7 @@ def entwuerfe_anlegen(conn, katalog, nur_kunde=None):
         if not profil:
             continue
         # Treffer stammen aus dem Matching-Lauf oben (aktueller Katalog).
-        treffer = vs.treffer_fuer(conn, kunde_id)
+        treffer = vs.offene_treffer_filtern(vs.treffer_fuer(conn, kunde_id), katalog)
         if not treffer:
             continue
         kanal = "email"  # Phase 1: nur E-Mail
