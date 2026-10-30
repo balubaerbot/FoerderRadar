@@ -206,9 +206,12 @@ DATABASE_URL_RETENTION=<app_retention URL> python3 tools/delete_profile_on_reque
 
 ### Operator steps per request (live)
 
-1. **Check the sender.** The request should come from the mail address stored in
-   `kontakt`, or the requester confirms that address by reply. If in doubt, ask for
-   confirmation; never ask for health or disability details.
+1. **Check the sender.** Operator rule: a deletion request is only accepted from the
+   same mail address the customer used to register with Fördora (the address stored in
+   `kontakt`). A request from another address is not acted on; reply that it must be
+   sent from the registered address, or that the requester must confirm their identity
+   in another way if the address is no longer used (the operator decides the proof case
+   by case). Never ask for health or disability details.
 2. **Find the profile** by mail address (see above). Exactly one match is expected;
    otherwise stop and clarify.
 3. **Delete** with the `--live` command above.
