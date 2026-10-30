@@ -144,9 +144,12 @@
           <label class="chip chip-consent">
             <input type="checkbox" name="besondere_daten_einwilligung" value="ja">
             Ich möchte Förderungen suchen, bei denen Pflege oder Behinderung berücksichtigt wird.
-            Ich willige ausdrücklich ein, dass Fördora meine Angaben zu Pflegestufe und/oder
-            Behinderung/Beeinträchtigung nur für diese Fördersuche verarbeitet. Diese Angabe ist
-            freiwillig und wird ohne Auswahl nicht erfasst.
+            Ich willige ausdrücklich ein, dass Fördora meine Gesundheitsangaben nur für diese
+            Fördersuche verarbeitet. Dazu zählen Pflegestufe, Behinderung/Beeinträchtigung, die
+            Lebenssituationen „Pflege eines Angehörigen“ und „Behinderung / Beeinträchtigung“ sowie
+            die Bedarfsfelder „Pflege &amp; Betreuung“, „Behinderung &amp; Rehabilitation“ und
+            „Barrierefreies Wohnen“. Diese Angabe ist freiwillig; ohne Auswahl werden diese Angaben
+            nicht erfasst.
           </label>
         </div>
         <div class="grid2 nur-besondere-daten">
@@ -247,7 +250,7 @@
           {% if werte.einwilligung %}checked{% endif %} required>
         <label for="einwilligung" class="small" style="color:#134e4a;margin:0">
           Ich willige ein, dass Fördora die von mir ausgewählten Angaben zur Ermittlung passender
-          Fördermöglichkeiten verarbeitet. Pflege- und Behinderungsangaben werden nur verarbeitet,
+          Fördermöglichkeiten verarbeitet. Gesundheitsangaben (Pflege, Behinderung, entsprechende Lebenssituation und Bedarfsfelder) werden nur verarbeitet,
           wenn ich im Bereich „Sozial &amp; Alltag“ zusätzlich ausdrücklich zustimme. Ich kann die
           Einwilligung jederzeit für die Zukunft widerrufen. *</label>
       </div>

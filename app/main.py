@@ -144,6 +144,19 @@ BEDARF_OPTIONEN = ["Heizkostenzuschuss", "Wohnbeihilfe", "Pflege & Betreuung",
                    "Mindestsicherung / Sozialhilfe", "Familien- & Schulbeihilfe",
                    "Behinderung & Rehabilitation", "Barrierefreies Wohnen"]
 
+# Optionen mit Gesundheitsbezug (Art. 9 DSGVO): nur mit gesonderter Einwilligung.
+GESUNDHEITS_LEBENSSITUATIONEN = {"Pflege eines Angehörigen", "Behinderung / Beeinträchtigung"}
+GESUNDHEITS_BEDARF = {"Pflege & Betreuung", "Behinderung & Rehabilitation", "Barrierefreies Wohnen"}
+
+
+def _hat_gesundheitsangaben(pflegestufe, behinderung, lebenssituation, vorhaben):
+    return (
+        pflegestufe is not None
+        or behinderung is not None
+        or lebenssituation in GESUNDHEITS_LEBENSSITUATIONEN
+        or any(v in GESUNDHEITS_BEDARF for v in (vorhaben or []))
+    )
+
 
 def _render(request, name, ctx=None, status_code=200):
     """Rendert ein Template - kompatibel mit alter und neuer Starlette-Signatur."""
@@ -264,7 +277,7 @@ def _speichere_profil(p: ProfilIn) -> str:
         raise HTTPException(status_code=400, detail="typ muss 'betrieb', 'privat' oder 'sozial' sein")
     if not p.einwilligung:
         raise HTTPException(status_code=400, detail="Einwilligung erforderlich")
-    if (p.pflegestufe is not None or p.behinderung is not None) and not p.besondere_daten_einwilligung:
+    if _hat_gesundheitsangaben(p.pflegestufe, p.behinderung, p.lebenssituation, p.vorhaben) and not p.besondere_daten_einwilligung:
         raise HTTPException(
             status_code=400,
             detail="Für Pflege-/Behinderungsangaben ist eine gesonderte ausdrückliche Einwilligung erforderlich.",
@@ -408,6 +421,12 @@ def _profil_aus_formular(form) -> ProfilIn:
     # Bedarf-Chips (nur Sozial) zaehlen wie Vorhaben zur Thema-Achse; die
     # explizite Standbein-Wahl erzwingt zusaetzlich das grobe Thema 'sozial'.
     vorhaben = list(form.getlist("vorhaben")) + list(form.getlist("bedarf"))
+    lebenssituation = (form.get("lebenssituation") or None) if sozial else None
+    if not besondere_daten_ok:
+        # Ohne gesonderte Einwilligung werden Optionen mit Gesundheitsbezug verworfen.
+        vorhaben = [v for v in vorhaben if v not in GESUNDHEITS_BEDARF]
+        if lebenssituation in GESUNDHEITS_LEBENSSITUATIONEN:
+            lebenssituation = None
     if sozial and "sozial" not in vorhaben:
         vorhaben.append("sozial")
     return ProfilIn(
@@ -426,7 +445,7 @@ def _profil_aus_formular(form) -> ProfilIn:
         behinderung=_ja_nein(form.get("behinderung")) if besondere_daten_ok else None,
         familienstand=(form.get("familienstand") or None) if (privat and not sozial) else None,
         kinder_im_haushalt=_ja_nein(form.get("kinder_im_haushalt")) if (privat and not sozial) else None,
-        lebenssituation=(form.get("lebenssituation") or None) if sozial else None,
+        lebenssituation=lebenssituation,
         vorhaben=vorhaben,
         anliegen=((form.get("anliegen") or "").strip() or None),
         name=(form.get("name") or "").strip() or None,
