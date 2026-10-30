@@ -180,3 +180,41 @@ Date: 2026-10-19 (Europe/Berlin). Branch `develop`. No commit made.
   The deletion rehearsal above predates these code changes.
 - Cleanup: drill cluster stopped and its scratch directory removed. Rerun the deletion
   rehearsal against the revised CLI before any future operator use.
+
+## 9. Live mode (added 2026-10-30)
+
+The default mode above (loopback test/drill DB only) is unchanged. For a verified
+request on the live database the CLI has an explicit `--live` mode:
+
+```sh
+DATABASE_URL_RETENTION=<app_retention URL> python3 tools/delete_profile_on_request.py <kunde_id> \
+  --live --confirm-id <kunde_id> --confirm-db foerderradar
+```
+
+- It refuses unless `--confirm-id` repeats the UUID, `--confirm-db` repeats `foerderradar`,
+  the URL names the database `foerderradar`, has exactly one host and no query
+  parameters, and `current_database()` matches after connecting.
+- Request flow: request arrives at team@foerdora.cloud -> verify the requester -> find
+  the profile (`select kunde_id from kontakt where lower(email)=lower('<mail>')`, with the
+  admin role, never copy contact data elsewhere) -> run the command above -> reply to the
+  requester. The reply deadline is not set by this tool.
+- Do not request health or disability details by mail.
+- Live test 2026-10-30: a synthetic profile with `kontakt`, `profil_agent`, `match` and
+  `versand` rows was found by its mail address and deleted; all rows were gone, one audit
+  row (UUID + timestamps) remained, total contacts unchanged. A second run reported
+  "No matching profile". This does not replace the operator's own legal review.
+
+### Operator steps per request (live)
+
+1. **Check the sender.** The request should come from the mail address stored in
+   `kontakt`, or the requester confirms that address by reply. If in doubt, ask for
+   confirmation; never ask for health or disability details.
+2. **Find the profile** by mail address (see above). Exactly one match is expected;
+   otherwise stop and clarify.
+3. **Delete** with the `--live` command above.
+4. **Reply to the requester** that the data has been deleted, with the date. Do not
+   include other personal data in the reply.
+5. **Deadline:** answer without undue delay, at the latest within one month (GDPR
+   Art. 12(3); extendable by two months in complex cases if the requester is told within
+   the first month). General information, not legal advice; the tool sends no reply and
+   enforces no deadline.
