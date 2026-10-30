@@ -73,14 +73,69 @@ def _verify_connected_target(conn, expected_database: str, expected_address: str
         return False
 
 
+LIVE_DB_NAME = "foerderradar"
+
+
+def _live_target_ok(url: str, confirm_db: str) -> bool:
+    """Live mode: exactly one host, no query/fragment, fixed DB name, confirmed by flag."""
+    try:
+        parsed = urlsplit(url)
+        if parsed.scheme not in {"postgres", "postgresql"} or parsed.query or parsed.fragment:
+            return False
+        info = conninfo_to_dict(url)
+        host = info.get("host") or ""
+        if not host or "," in host or "," in (info.get("hostaddr") or ""):
+            return False
+        return info.get("dbname") == LIVE_DB_NAME and confirm_db == LIVE_DB_NAME
+    except (psycopg.Error, ValueError, UnicodeError, TypeError):
+        return False
+
+
+def _main_live(args, url: str) -> int:
+    """Delete one profile on the live DB after explicit double confirmation."""
+    if args.confirm_id != args.kunde_id:
+        print("Refusing live deletion: --confirm-id must repeat the profile UUID", file=sys.stderr)
+        return 2
+    if not _live_target_ok(url, args.confirm_db or ""):
+        print(
+            f"Refusing live deletion: DATABASE_URL_RETENTION must name database '{LIVE_DB_NAME}' "
+            "(one host, no query parameters) and --confirm-db must repeat it",
+            file=sys.stderr,
+        )
+        return 2
+    try:
+        with psycopg.connect(url, connect_timeout=5, application_name="foerderradar-delete-profile-live", options="") as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT current_database()")
+                if cur.fetchone()[0] != LIVE_DB_NAME:
+                    print("Refusing live deletion: connected database does not match", file=sys.stderr)
+                    return 2
+                cur.execute("SELECT public.delete_profile_on_request(%s)", (args.kunde_id,))
+                deleted = cur.fetchone()[0]
+            conn.commit()
+    except Exception as exc:  # noqa: BLE001
+        print(f"Deletion failed: {type(exc).__name__}", file=sys.stderr)
+        return 1
+    if not deleted:
+        print("No matching profile; nothing deleted")
+        return 1
+    print(f"Deleted profile {args.kunde_id} on live DB after operator verification")
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("kunde_id", type=uuid.UUID, help="Profile UUID matched after manual identity verification")
+    parser.add_argument("--live", action="store_true", help="Delete on the live database (needs --confirm-id and --confirm-db)")
+    parser.add_argument("--confirm-id", type=uuid.UUID, help="Repeat the profile UUID (live mode)")
+    parser.add_argument("--confirm-db", help=f"Repeat the database name '{LIVE_DB_NAME}' (live mode)")
     args = parser.parse_args()
     url = os.environ.get("DATABASE_URL_RETENTION", "").strip()
     if not url:
         print("DATABASE_URL_RETENTION required; refusing to use DATABASE_URL or .env", file=sys.stderr)
         return 2
+    if args.live:
+        return _main_live(args, url)
     if not _allowed_retention_target(url):
         print(
             "Refusing deletion: DATABASE_URL_RETENTION must point to a loopback PostgreSQL test/drill/disposable/pytest database",
