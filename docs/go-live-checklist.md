@@ -11,7 +11,7 @@ Hinweis: `docs/privacy-retention.md` nennt den Datenschutztext einen Entwurf. Be
 - [ ] Rechtsgrundlagen genannt: Art. 6, für Gesundheitsdaten Art. 9 Abs. 2 lit. a
 - [ ] Empfänger/Auftragsverarbeiter vollständig: Hostinger (Server, Mail), LLM-Anbieter (welche Daten gehen dorthin geprüft), GitHub nur ohne Kundendaten
 - [ ] Drittlandübermittlung erwähnt, falls LLM-Anbieter außerhalb der EU
-- [ ] Speicherdauer im Text = `FOERDER_RETENTION_DAYS` und Purge-Cron
+- [ ] Speicherdauer im Text (zwei Jahre) = Wert im Code (`kontakt.loeschdatum`, zwei Jahre nach Erfassung) und Purge-Cron (derzeit alle 2 Monate). Hinweis: `FOERDER_RETENTION_DAYS` wird im Code nicht gelesen
 - [ ] Betroffenenrechte: Auskunft, Löschung, Widerruf, Beschwerde bei der DSB (Österreich)
 
 ## 2. FOERDER_SPECIAL_CATEGORY_BASIS_CONFIRMED (Gesundheitsdaten)
@@ -25,8 +25,8 @@ Hinweis: `docs/privacy-retention.md` nennt den Datenschutztext einen Entwurf. Be
 ## 3. FOERDER_WITHDRAWAL_PROCESS_CONFIRMED (Widerruf)
 - [ ] Widerrufsweg steht im Datenschutztext und in jeder Mail
 - [ ] Postfach wird mindestens wöchentlich gelesen
-- [ ] Löschablauf bekannt: `tools/delete_profile_on_request.py` mit `DATABASE_URL_RETENTION`
-- [ ] Löschtool vor dem Live-Gang einmal mit einem Testprofil und der Rolle `app_retention` durchgespielt
+- [ ] Löschablauf bekannt: `tools/delete_profile_on_request.py --live --confirm-id <uuid> --confirm-db foerderradar` mit `DATABASE_URL_RETENTION` (siehe `docs/operator-deletion-runbook.md`)
+- [x] Löschtool am 30.10.2026 live mit zwei Testprofilen und der Rolle `app_retention` durchgespielt (inkl. Kaskade und Audit); vor dem Live-Gang bei Bedarf wiederholen
 - [ ] Antwort innerhalb eines Monats
 - [ ] Bekannt: bereits versendete Mails bleiben bei den Empfängern
 
@@ -61,4 +61,4 @@ Hinweis: `docs/privacy-retention.md` nennt den Datenschutztext einen Entwurf. Be
 - [ ] Echter CI-Lauf auf GitHub grün
 - [ ] Integrationstests nach dem Filter-Fix neu gelaufen
 - [ ] Versand an Kunden nur über den Worker; `--send` ohne `--test` ist echter Versand und wird nur auf ausdrückliche Anweisung verwendet
-- [ ] Offene Fragen: `gui.py` löschen? `.gitignore` anpassen? Tirol ausblenden? Tippfehler "Wachstamsvorhaben" im Katalog
+- [x] Entschieden: `gui.py` existiert im Repo nicht (nichts zu löschen); Tirol bleibt sichtbar; Tippfehler "Wachstamsvorhaben" im Katalog nicht gefunden (nur die Katalogeinträge "Wachstumsinvestition", korrekt geschrieben)
