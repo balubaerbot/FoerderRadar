@@ -32,8 +32,9 @@ Hinweis: `docs/privacy-retention.md` nennt den Datenschutztext einen Entwurf. Be
 
 ## 4. FOERDER_LEGACY_RETENTION_REVIEWED (Altdaten)
 - [ ] Entscheidung für Bestandsdaten: löschen / behalten mit Begründung / neue Einwilligung
-- [ ] Testdaten gelöscht (3 Kontakte „Max Mustermann" vom 28.10. noch vorhanden)
-- [ ] Übrige Kontakte stammen von bekannten Personen oder haben eingewilligt
+- [x] Altdaten gelöscht (30.10.2026, 68 Testprofile über delete_profile_on_request, Zustimmung gateway-owner, kein Backup)
+- [x] Übrige Kontakte: entfällt, Datenbank war nach der Löschung leer
+- [x] FOERDER_LEGACY_RETENTION_REVIEWED, FOERDER_DATA_CONTROLLER und FOERDER_PRIVACY_CONTACT in der .env gesetzt (31.10.2026)
 
 ## 5. Technische Freigaben
 - [ ] FOERDER_RETENTION_SCHEMA_VERIFIED: Migrationen `20261018_consent_retention_metadata`, `20261019_request_deletion`, `20261028_purge_expired_profiles` auf der Live-DB
