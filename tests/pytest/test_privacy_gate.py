@@ -23,7 +23,6 @@ def test_retention_approval_uses_fixed_two_year_policy(monkeypatch):
         "FOERDER_CONSENT_VERSION": "test-v1",
     }.items():
         monkeypatch.setenv(key, value)
-    monkeypatch.delenv("FOERDER_RETENTION_DAYS", raising=False)
     import app.main as api
     api = importlib.reload(api)
     try:

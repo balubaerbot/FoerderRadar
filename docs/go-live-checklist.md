@@ -28,7 +28,7 @@ Nicht belegt / offen:
 - [ ] Rechtsgrundlagen genannt: Art. 6, für Gesundheitsdaten Art. 9 Abs. 2 lit. a
 - [ ] Empfänger/Auftragsverarbeiter vollständig: Hostinger (Server, Mail), LLM-Anbieter (welche Daten gehen dorthin geprüft), GitHub nur ohne Kundendaten
 - [ ] Drittlandübermittlung erwähnt, falls LLM-Anbieter außerhalb der EU
-- [ ] Speicherdauer im Text (zwei Jahre) = Wert im Code (`kontakt.loeschdatum`, zwei Jahre nach Erfassung) und Purge-Cron (derzeit alle 2 Monate). Hinweis: `FOERDER_RETENTION_DAYS` wird im Code nicht gelesen
+- [x] Speicherdauer im Text (zwei Jahre) = Wert im Code (`kontakt.loeschdatum`, zwei Jahre nach Erfassung) und Purge-Cron (täglich 04:00 Europe/Berlin, Command-Automation ohne Modellaufruf). Es gibt keine Env-Variable für die Frist; sie steht im DB-Default und in `app/main.py`.
 - [ ] Betroffenenrechte: Auskunft, Löschung, Widerruf, Beschwerde bei der DSB (Österreich)
 
 ## 2. FOERDER_SPECIAL_CATEGORY_BASIS_CONFIRMED (Gesundheitsdaten)
@@ -63,7 +63,7 @@ Nicht belegt / offen:
 ## 6. Stammdaten und Impressum
 - [ ] Betreiber- und Datenschutzkontakt-Variablen gesetzt (Namen in `app/` prüfen)
 - [ ] Impressum mit Anschrift
-- [ ] Löschintervall (aktuell 2 Monate) passt zur Frist im Datenschutztext
+- [x] Löschintervall (täglich) passt zur Frist im Datenschutztext
 
 ## 7. Host (Container)
 - [ ] Neue Umgebungsvariablen kommen im Container an (Compose prüfen)
