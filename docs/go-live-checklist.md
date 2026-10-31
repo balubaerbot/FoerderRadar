@@ -48,7 +48,7 @@ Hinweis: `docs/privacy-retention.md` nennt den Datenschutztext einen Entwurf. Be
 
 ## 7. Host (Container)
 - [ ] Neue Umgebungsvariablen kommen im Container an (Compose prüfen)
-- [ ] Neustart: `cd /docker/openclaw-jpva/data/projects/FoerderRadar && docker compose up -d foerderradar-api`
+- [ ] Neustart: `cd /docker/openclaw-jpva/data/projects/FoerderRadar-live && docker compose -p foerderradar up -d foerderradar-api`
 - [ ] `FOERDER_INTAKE_ENABLED` als letzter Schalter
 
 ## 8. Live-Check über die Domain

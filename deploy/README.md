@@ -133,8 +133,8 @@ sichere, aber restriktivere Voreinstellung; nicht als per-IP-Limit bewerben.
 **Container neu erstellen** (vom Host, kein Rebuild noetig):
 
 ```bash
-cd /docker/openclaw-jpva/data/projects/FoerderRadar
-docker compose up -d foerderradar-api
+cd /docker/openclaw-jpva/data/projects/FoerderRadar-live
+docker compose -p foerderradar up -d foerderradar-api
 ```
 
 ## Verifikation

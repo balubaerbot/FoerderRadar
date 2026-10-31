@@ -78,7 +78,7 @@ select has_function_privilege('app_retention','public.delete_profile_on_request(
 Set the URL only for this command, without echoing it:
 
 ```sh
-cd /data/projects/FoerderRadar
+cd /data/projects/FoerderRadar-live
 env -u DATABASE_URL -u DATABASE_URL_ADMIN -u PGHOST -u PGHOSTADDR \
   -u PGPORT -u PGDATABASE -u PGSERVICE -u PGSERVICEFILE \
   DATABASE_URL_RETENTION="<verified loopback disposable DB URL>" \
