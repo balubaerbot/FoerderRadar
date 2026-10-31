@@ -219,10 +219,17 @@
           var sel = document.querySelector('input[name="typ"]:checked');
           if (ta && sel && texte[sel.value]) { ta.placeholder = texte[sel.value]; }
         }
+        function syncUrl() {
+          var sel = document.querySelector('input[name="typ"]:checked');
+          if (!sel || !window.history || !history.replaceState) { return; }
+          var u = new URL(window.location.href);
+          u.searchParams.set("typ", sel.value);
+          history.replaceState(null, "", u.toString());
+        }
         document.addEventListener("DOMContentLoaded", sync);
         Array.prototype.forEach.call(
           document.querySelectorAll('input[name="typ"]'),
-          function (r) { r.addEventListener("change", sync); }
+          function (r) { r.addEventListener("change", function () { sync(); syncUrl(); }); }
         );
       })();
       </script>
