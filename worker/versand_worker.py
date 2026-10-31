@@ -119,6 +119,21 @@ def entwuerfe_anlegen(conn, katalog, nur_kunde=None):
         if vid is None:  # parallel/zwischenzeitlich angelegt -> nichts doppelt
             continue
         neu.append({"versand_id": vid, "kunde_id": str(kunde_id), "anzahl_treffer": len(treffer)})
+
+    # Keine-Treffer-Mail: Wer noch nie eine Mail bekommen hat und beim Abgleich
+    # leer ausgeht, erhaelt EINMAL eine kurze Rueckmeldung (fester Text, kein LLM).
+    # Kommt spaeter ein Treffer dazu, laeuft er ueber den normalen Weg oben.
+    for kunde_id in vs.kunden_ohne_versand(conn):
+        if nur_kunde and str(kunde_id) != str(nur_kunde):
+            continue
+        if vs.offene_treffer_filtern(vs.treffer_fuer(conn, kunde_id), katalog):
+            continue
+        vid = vs.entwurf_speichern(
+            conn, kunde_id, vs.KEINE_TREFFER_BETREFF, vs.keine_treffer_body(), "email"
+        )
+        if vid is None:
+            continue
+        neu.append({"versand_id": vid, "kunde_id": str(kunde_id), "anzahl_treffer": 0})
     return gematcht, neu, aktualisiert
 
 

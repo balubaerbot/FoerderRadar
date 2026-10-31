@@ -235,6 +235,63 @@ def _nachricht_bauen_roh(profil, treffer, katalog, transport=None):
 
 
 # --------------------------------------------------------------------------
+# Keine-Treffer-Mail (einmalig, wenn ein Profil beim Abgleich leer ausgeht)
+# --------------------------------------------------------------------------
+# Fester Text (kein LLM): Es gibt keine Fakten zu formulieren, und ein Modell
+# koennte hier am ehesten eine Foerderung "erfinden". Der Betreff ist zugleich
+# die Kennung dieses Mailtyps (kein Schema-Feld noetig) - NICHT aendern, sonst
+# werden offene Entwuerfe mit altem Betreff wie Treffer-Mails behandelt.
+KEINE_TREFFER_BETREFF = "Ihre Anfrage bei Fördora: derzeit keine passende Förderung"
+
+
+def ist_keine_treffer_mail(betreff):
+    return betreff == KEINE_TREFFER_BETREFF
+
+
+def keine_treffer_body():
+    return (
+        "Guten Tag,\n\n"
+        "vielen Dank für Ihre Anfrage bei Fördora. Wir haben Ihre Angaben mit allen "
+        "Förderungen in unserem Katalog abgeglichen. Derzeit passt leider keine davon "
+        "zu Ihren Angaben.\n\n"
+        "Solange Ihre Daten bei uns gespeichert sind, gleichen wir sie regelmäßig mit "
+        "neu aufgenommenen Förderungen ab. Finden wir eine passende, melden wir uns "
+        "per E-Mail.\n\n"
+        "Möchten Sie keine weiteren Nachrichten erhalten, schreiben Sie von dieser "
+        f"Adresse eine E-Mail mit dem Betreff „Widerruf“ an {absender()}. "
+        "Ihre Daten werden dann gelöscht.\n\n"
+        "Freundliche Grüße\nIhr Fördora-Team"
+    )
+
+
+def kunden_ohne_versand(conn):
+    """kunde_ids mit gueltiger Einwilligung, die noch NIE eine Mail bekommen haben.
+
+    Kandidaten fuer die Keine-Treffer-Mail. Ob nach dem Katalogfilter wirklich
+    kein Treffer bleibt, prueft der Worker. Ausgeschlossen sind Kunden mit
+    gesendeter, laufender oder offener Mail; ein Fehlversuch ('fehler') wird -
+    wie bei Treffer-Mails - beim naechsten Lauf erneut versucht.
+    """
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT k.kunde_id
+            FROM kontakt k
+            WHERE k.einwilligung_am IS NOT NULL
+              AND k.loeschdatum IS NOT NULL
+              AND k.loeschdatum > CURRENT_DATE
+              AND k.kanal IN ('email','sms')
+              AND NOT EXISTS (
+                  SELECT 1 FROM versand v
+                  WHERE v.kunde_id = k.kunde_id
+                    AND v.status IN ('gesendet','sendet','entwurf'))
+            ORDER BY k.kunde_id
+            """
+        )
+        return [r[0] for r in cur.fetchall()]
+
+
+# --------------------------------------------------------------------------
 # Queue
 # --------------------------------------------------------------------------
 def entwurf_speichern(conn, kunde_id, betreff, body, kanal):
@@ -431,7 +488,7 @@ def _hat_offene_treffer(conn, kunde_id):
         return cur.fetchone() is not None
 
 
-def _versandblocker(conn, kunde_id):
+def _versandblocker(conn, kunde_id, keine_treffer=False):
     """Prueft die Versandbedingungen ERNEUT unmittelbar vor dem Senden.
 
     Ein Entwurf kann veralten: Einwilligung widerrufen, Loeschfrist abgelaufen,
@@ -451,7 +508,10 @@ def _versandblocker(conn, kunde_id):
         return "Loeschfrist abgelaufen"
     if kanal not in ("email", "sms"):
         return f"Kanal '{kanal}' nicht versendbar"
-    if not _hat_offene_treffer(conn, kunde_id):
+    # Keine-Treffer-Mail: Treffer-Pruefung entfaellt (der Worker hat unmittelbar
+    # davor festgestellt, dass keiner passt; kommt spaeter einer dazu, ersetzt der
+    # naechste Lauf den offenen Entwurf durch eine Treffer-Mail).
+    if not keine_treffer and not _hat_offene_treffer(conn, kunde_id):
         return "keine offenen Treffer mehr (Entwurf veraltet)"
     return None
 
@@ -495,7 +555,7 @@ def versenden(conn, versand_id, dry_run=True, test_recipient=None):
             "ziel": ziel,
             "betreff": betreff,
             "body": body,
-            "blocker": _versandblocker(conn, kunde_id),
+            "blocker": _versandblocker(conn, kunde_id, ist_keine_treffer_mail(betreff)),
         }
 
     # --- atomar beanspruchen: verhindert Doppelversand bei parallelen Laeufen ---
@@ -515,7 +575,7 @@ def versenden(conn, versand_id, dry_run=True, test_recipient=None):
     # Entwurf und kein Versand mehr moeglich - siehe sendet_zuruecksetzen).
     try:
         # --- Bedingungen unmittelbar vor dem Versand erneut pruefen ---
-        blocker = _versandblocker(conn, kunde_id)
+        blocker = _versandblocker(conn, kunde_id, ist_keine_treffer_mail(betreff))
         if blocker:
             _status_setzen(conn, versand_id, "fehler", blocker)
             return {"ok": False, "fehler": blocker, "ziel": ziel}
@@ -563,10 +623,13 @@ def versenden(conn, versand_id, dry_run=True, test_recipient=None):
             "UPDATE versand SET status='gesendet', gesendet_am=now(), fehler_text=NULL WHERE id=%s",
             (versand_id,),
         )
-        cur.execute(
-            """UPDATE match SET status='gemeldet', gemeldet_am=now()
-               WHERE kunde_id=%s AND status='identifiziert'""",
-            (kunde_id,),
-        )
+        # Eine Keine-Treffer-Mail meldet keinen Treffer - etwaige (vom Katalogfilter
+        # verworfene) Matches bleiben 'identifiziert'.
+        if not ist_keine_treffer_mail(betreff):
+            cur.execute(
+                """UPDATE match SET status='gemeldet', gemeldet_am=now()
+                   WHERE kunde_id=%s AND status='identifiziert'""",
+                (kunde_id,),
+            )
     conn.commit()
     return {"ok": True, "dry_run": False, "versand_id": versand_id, "ziel": ziel}
