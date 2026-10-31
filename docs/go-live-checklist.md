@@ -12,8 +12,8 @@ Belegt (Code, `.env`, Live-Abfrage):
 - [x] Testsuite: 50 bestanden, 9 abgewählt
 
 Nicht belegt / offen:
-- [ ] **Blocker:** Öffentlich (https://foerdora.cloud) liefern `/formular`, `/start`, `/datenschutz`, `/impressum` 404 (nur `/` = 200, vermutlich Platzhalter). Routing zur API auf dem Host fehlt (nur Betreiber)
-- [ ] Realtest mit Testkonto und anschließendes Löschen (erst nach öffentlichem Zugang)
+- [x] Öffentliches Routing: nginx auf dem Host reicht https://foerdora.cloud seit 2026-10-31 an die API (127.0.0.1:8100) durch; `/`, `/formular`, `/datenschutz`, `/impressum`, `/danke` = 200, `/profiles` = 401, http→https 301. Konfiguration: `deploy/nginx.conf`.
+- [x] Realtest mit Testkonto und anschließendes Löschen (2026-10-31: öffentliche Einsendung → Profil in Live-DB mit Löschdatum +2 Jahre; Widerrufsmail → `process_withdrawals.py --apply` gelöscht, Bestätigung zugestellt)
 - [ ] Testmail nicht im Spam. DNS-Stand 31.10.: SPF `include:_spf.mail.hostinger.com ~all` ok, DKIM-CNAMEs hostingermail-a/b/c ok, DMARC nur `v=DMARC1; p=none` → `rua=mailto:…` ergänzen (Hostinger-DNS, nur Betreiber)
 - [x] Integrationstests lokal: 9/9 grün (Wegwerf-Postgres)
 - [x] CI auf GitHub grün (Run 41217679015, d56f3ea)
@@ -74,7 +74,7 @@ Nicht belegt / offen:
 - [ ] Footer "© 2026 Fördora · v1.0 alpha (Testversion)" und Header-Badge sichtbar (Optik im Browser prüfen)
 - [ ] `/datenschutz`, `/impressum` erreichbar
 - [ ] `/formular` antwortet nicht mehr mit 503
-- [ ] Realtest mit Testkonto, danach Testdaten per Löschtool entfernen
+- [x] Realtest mit Testkonto, danach Testdaten per Widerruf-Workflow entfernt (2026-10-31)
 - [ ] Testmail landet nicht im Spam (Gmail: "Kein Spam"; DMARC `rua` ergänzen, später `p=quarantine`)
 
 ## 9. Sonstiges
