@@ -14,9 +14,12 @@ Belegt (Code, `.env`, Live-Abfrage):
 Nicht belegt / offen:
 - [ ] **Blocker:** Öffentlich (https://foerdora.cloud) liefern `/formular`, `/start`, `/datenschutz`, `/impressum` 404 (nur `/` = 200, vermutlich Platzhalter). Routing zur API auf dem Host fehlt (nur Betreiber)
 - [ ] Realtest mit Testkonto und anschließendes Löschen (erst nach öffentlichem Zugang)
-- [ ] Testmail nicht im Spam, DMARC `rua` ergänzen
-- [ ] CI auf GitHub grün, 9 abgewählte Tests (Integration) neu laufen lassen
-- [ ] Inhaltliche Prüfung Datenschutztext, Einwilligung, Widerruf durch den Betreiber (Haken in Abschnitt 1 bis 3 setzt nur er)
+- [ ] Testmail nicht im Spam. DNS-Stand 31.10.: SPF `include:_spf.mail.hostinger.com ~all` ok, DKIM-CNAMEs hostingermail-a/b/c ok, DMARC nur `v=DMARC1; p=none` → `rua=mailto:…` ergänzen (Hostinger-DNS, nur Betreiber)
+- [x] Integrationstests lokal: 9/9 grün (Wegwerf-Postgres)
+- [ ] CI auf GitHub grün (erst nach Push von `develop`)
+- [x] Texte für die Testphase akzeptiert (siehe Entscheidung Betreiber). Volle Prüfung erst vor Entfernen der Kennzeichnung „Testversion“
+
+**Entscheidung Betreiber (gateway-owner, 31.10.2026):** Datenschutz-, Einwilligungs- und Widerrufstexte sind für die aktuelle, öffentlich als Testversion gekennzeichnete Phase akzeptiert. Nicht erneut nachfragen. Die inhaltliche Prüfung (Abschnitte 1 bis 3) ist erst fällig, bevor die Kennzeichnung „Testversion" entfernt wird.
 
 ## 1. FOERDER_PRIVACY_REVIEWED (Datenschutzerklärung)
 - [ ] `/datenschutz` komplett gelesen
@@ -74,6 +77,6 @@ Nicht belegt / offen:
 
 ## 9. Sonstiges
 - [ ] Echter CI-Lauf auf GitHub grün
-- [ ] Integrationstests nach dem Filter-Fix neu gelaufen
+- [x] Integrationstests nach dem Filter-Fix neu gelaufen (31.10.2026: 9/9 grün, lokale Wegwerf-Postgres, `FOERDER_TEST_DB_BACKEND=local`)
 - [ ] Versand an Kunden nur über den Worker; `--send` ohne `--test` ist echter Versand und wird nur auf ausdrückliche Anweisung verwendet
 - [x] Entschieden: `gui.py` existiert im Repo nicht (nichts zu löschen); Tirol bleibt sichtbar; Tippfehler "Wachstamsvorhaben" im Katalog nicht gefunden (nur die Katalogeinträge "Wachstumsinvestition", korrekt geschrieben)
