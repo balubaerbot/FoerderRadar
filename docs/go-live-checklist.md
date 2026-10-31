@@ -4,6 +4,20 @@ Stand: 30.10.2026. Die Freigabe-Variablen (`FOERDER_*`) setzt ausschließlich de
 
 Hinweis: `docs/privacy-retention.md` nennt den Datenschutztext einen Entwurf. Betreiberidentität, Anschrift, Rechtsgrundlagen (Art. 6/9), Empfänger und Pflichtinformationen müssen rechtlich vervollständigt werden.
 
+## Abgleich Ist-Stand (31.10.2026, 16:45, durch Scully)
+
+Belegt (Code, `.env`, Live-Abfrage):
+- [x] Alle Freigabe-Variablen in der `.env` gesetzt: INTAKE_ENABLED, PRIVACY_REVIEWED, SPECIAL_CATEGORY_BASIS_CONFIRMED, WITHDRAWAL_PROCESS_CONFIRMED, RETENTION_SCHEMA_VERIFIED, PURGE_SCHEDULE_VERIFIED, LEGACY_RETENTION_REVIEWED, CONSENT_VERSION=2026-10-31 (nur Variablen, keine inhaltliche Prüfung)
+- [x] API intern (Container): `/datenschutz`, `/impressum`, `/formular` antworten 200, kein 503
+- [x] Testsuite: 50 bestanden, 9 abgewählt
+
+Nicht belegt / offen:
+- [ ] **Blocker:** Öffentlich (https://foerdora.cloud) liefern `/formular`, `/start`, `/datenschutz`, `/impressum` 404 (nur `/` = 200, vermutlich Platzhalter). Routing zur API auf dem Host fehlt (nur Betreiber)
+- [ ] Realtest mit Testkonto und anschließendes Löschen (erst nach öffentlichem Zugang)
+- [ ] Testmail nicht im Spam, DMARC `rua` ergänzen
+- [ ] CI auf GitHub grün, 9 abgewählte Tests (Integration) neu laufen lassen
+- [ ] Inhaltliche Prüfung Datenschutztext, Einwilligung, Widerruf durch den Betreiber (Haken in Abschnitt 1 bis 3 setzt nur er)
+
 ## 1. FOERDER_PRIVACY_REVIEWED (Datenschutzerklärung)
 - [ ] `/datenschutz` komplett gelesen
 - [ ] Name und Kontaktadresse korrekt, Adresse wird gelesen
