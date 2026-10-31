@@ -221,3 +221,11 @@ DATABASE_URL_RETENTION=<app_retention URL> python3 tools/delete_profile_on_reque
    Art. 12(3); extendable by two months in complex cases if the requester is told within
    the first month). General information, not legal advice; the tool sends no reply and
    enforces no deadline.
+
+## 10. Automatische Widerrufe per Mail (added 2026-10-31)
+
+- Migration: `db/migrations/20261031_withdraw_by_email.sql` (idempotent, nach Backup, Admin-Rolle), danach
+  `GRANT EXECUTE ON FUNCTION public.withdraw_by_email(text) TO app_retention;`
+- Lauf: `DATABASE_URL_RETENTION=… python3 tools/process_withdrawals.py` = Dry-Run; `--apply` löscht, bestätigt und merkt.
+- Exit-Codes: 0 ok, 3 = Mails zur manuellen Prüfung vorhanden (nichts gelöscht), 1 = Fehler.
+- Manuelle Fälle wie bisher nach Abschnitt 9 bearbeiten.

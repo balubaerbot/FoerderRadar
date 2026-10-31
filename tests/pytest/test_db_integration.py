@@ -276,3 +276,55 @@ def test_requested_profile_deletion_ignores_retention_deadline(db_connection):
             f"SELECT 1 FROM {table} WHERE kunde_id = %s", (profile_id,)
         ).fetchone() is None
     assert service.loesche_kundenprofil_auf_anfrage(db_connection, profile_id) is False
+
+
+def test_withdraw_by_email_deletes_only_matching_profiles(db_connection):
+    from psycopg import sql
+
+    match_id, other_id = uuid.uuid4(), uuid.uuid4()
+    role = "fr_withdraw_" + uuid.uuid4().hex[:12]
+    for kunde_id in (match_id, other_id):
+        db_connection.execute("INSERT INTO profil (kunde_id, typ) VALUES (%s, 'privat')", (kunde_id,))
+    db_connection.execute(
+        "INSERT INTO kontakt (kunde_id, email, kanal, einwilligung_am) "
+        "VALUES (%s, ' Kunde@Example.invalid ', 'email', now()), (%s, 'andere@example.invalid', 'email', now())",
+        (match_id, other_id),
+    )
+    db_connection.execute(
+        "INSERT INTO match (kunde_id, foerderung_id, kategorie) VALUES (%s, 'test-grant', 'top')", (match_id,)
+    )
+    db_connection.commit()
+
+    role_created = False
+    try:
+        db_connection.execute(sql.SQL("CREATE ROLE {} LOGIN").format(sql.Identifier(role)))
+        role_created = True
+        db_connection.execute(sql.SQL("GRANT USAGE ON SCHEMA public TO {}").format(sql.Identifier(role)))
+        db_connection.execute(
+            sql.SQL("GRANT EXECUTE ON FUNCTION public.withdraw_by_email(text) TO {}").format(sql.Identifier(role))
+        )
+        assert db_connection.execute(
+            "SELECT has_function_privilege('public', 'public.withdraw_by_email(text)', 'EXECUTE')"
+        ).fetchone()[0] is False
+        assert db_connection.execute("SELECT has_table_privilege(%s, 'kontakt', 'SELECT')", (role,)).fetchone()[0] is False
+        db_connection.execute(sql.SQL("SET ROLE {}").format(sql.Identifier(role)))
+        assert db_connection.execute("SELECT public.withdraw_by_email('kunde@example.INVALID')").fetchone()[0] == 1
+        assert db_connection.execute("SELECT public.withdraw_by_email('kunde@example.invalid')").fetchone()[0] == 0
+        assert db_connection.execute("SELECT public.withdraw_by_email('niemand')").fetchone()[0] == 0
+        assert db_connection.execute("SELECT public.withdraw_by_email(NULL)").fetchone()[0] == 0
+        db_connection.execute("RESET ROLE")
+        db_connection.commit()
+    finally:
+        db_connection.rollback()
+        db_connection.execute("RESET ROLE")
+        if role_created:
+            db_connection.execute(sql.SQL("DROP OWNED BY {}").format(sql.Identifier(role)))
+            db_connection.execute(sql.SQL("DROP ROLE {}").format(sql.Identifier(role)))
+        db_connection.commit()
+
+    for table in ("profil", "kontakt", "match"):
+        assert db_connection.execute(f"SELECT 1 FROM {table} WHERE kunde_id = %s", (match_id,)).fetchone() is None
+    assert db_connection.execute("SELECT 1 FROM kontakt WHERE kunde_id = %s", (other_id,)).fetchone() is not None
+    assert db_connection.execute(
+        "SELECT count(*) FROM profile_deletion_audit WHERE kunde_id = %s", (match_id,)
+    ).fetchone()[0] == 1

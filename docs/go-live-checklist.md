@@ -40,6 +40,8 @@ Nicht belegt / offen:
 - [ ] Bewusste Entscheidung, ggf. Beratung eingeholt
 
 ## 3. FOERDER_WITHDRAWAL_PROCESS_CONFIRMED (Widerruf)
+
+- [ ] Widerruf-Automatik live: Migration `20261031_withdraw_by_email.sql` + GRANT auf Live-DB, täglicher Job `tools/process_withdrawals.py --apply` aktiv, ein Ende-zu-Ende-Test (Testprofil → Widerrufsmail → gelöscht + Bestätigung). Code/Tests: develop, 31.10.
 - [ ] Widerrufsweg steht im Datenschutztext und in jeder Mail
 - [ ] Postfach wird mindestens wöchentlich gelesen
 - [ ] Löschablauf bekannt: `tools/delete_profile_on_request.py --live --confirm-id <uuid> --confirm-db foerderradar` mit `DATABASE_URL_RETENTION` (siehe `docs/operator-deletion-runbook.md`)
