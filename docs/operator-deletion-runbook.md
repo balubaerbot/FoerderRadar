@@ -226,6 +226,7 @@ DATABASE_URL_RETENTION=<app_retention URL> python3 tools/delete_profile_on_reque
 
 - Migration: `db/migrations/20261031_withdraw_by_email.sql` (idempotent, nach Backup, Admin-Rolle), danach
   `GRANT EXECUTE ON FUNCTION public.withdraw_by_email(text) TO app_retention;`
-- Lauf: `DATABASE_URL_RETENTION=… python3 tools/process_withdrawals.py` = Dry-Run; `--apply` löscht, bestätigt und merkt.
+- Lauf: `FOERDER_FROM=team@foerdora.cloud HIMALAYA_ACCOUNT=foerdora DATABASE_URL_RETENTION=… python3 tools/process_withdrawals.py` = Dry-Run; `--apply` löscht, bestätigt und merkt.
+- Mit `--apply` bricht das Skript vor jeder Löschung ab (Exit 2), wenn `FOERDER_FROM` nicht auf foerdora.cloud zeigt.
 - Exit-Codes: 0 ok, 3 = Mails zur manuellen Prüfung vorhanden (nichts gelöscht), 1 = Fehler.
 - Manuelle Fälle wie bisher nach Abschnitt 9 bearbeiten.

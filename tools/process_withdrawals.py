@@ -119,6 +119,14 @@ def echtheit_fehler(msg, addr: str) -> str | None:
     return None
 
 
+def absender_ok() -> bool:
+    """Bestaetigungen muessen von der Betreiberadresse kommen; sonst lehnt der
+    SMTP-Server ab (und die Loeschung waere unbestaetigt)."""
+    soll = os.environ.get("FOERDER_WIDERRUF_FROM_DOMAIN", "foerdora.cloud").lower()
+    von = os.environ.get("FOERDER_FROM", "").strip().lower()
+    return bool(von) and von.rsplit("@", 1)[-1] == soll
+
+
 def mail_schluessel(msg, raw: bytes) -> str:
     mid = str(msg.get("Message-ID") or "").strip()
     basis = mid.encode() if mid else raw
@@ -225,6 +233,11 @@ def main() -> int:
     ap.add_argument("--db", default=LIVE_DB_NAME, help="erwarteter Datenbankname")
     ap.add_argument("--state", type=Path, default=STATE_DEFAULT)
     args = ap.parse_args()
+
+    if args.apply and not absender_ok():
+        print("FEHLER: FOERDER_FROM fehlt oder ist nicht die Betreiberadresse - "
+              "ohne gueltigen Absender wird nichts geloescht.", file=sys.stderr)
+        return 2
 
     erledigt = status_laden(args.state)
     zeilen, fehler, pruefen = [], 0, 0

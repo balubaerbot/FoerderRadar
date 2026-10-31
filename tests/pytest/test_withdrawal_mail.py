@@ -85,3 +85,12 @@ def test_status_einmalig(tmp_path):
     assert pw.status_laden(pfad) == set()
     pw.status_merken(pfad, "abc")
     assert pw.status_laden(pfad) == {"abc"}
+
+
+def test_absender_muss_betreiberadresse_sein(monkeypatch):
+    monkeypatch.delenv("FOERDER_FROM", raising=False)
+    assert not pw.absender_ok()
+    monkeypatch.setenv("FOERDER_FROM", "baluopenclaw@gmail.com")
+    assert not pw.absender_ok()
+    monkeypatch.setenv("FOERDER_FROM", "team@foerdora.cloud")
+    assert pw.absender_ok()
