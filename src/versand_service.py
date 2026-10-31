@@ -18,6 +18,7 @@ import os
 import re
 import subprocess
 from email.message import EmailMessage
+from email.utils import formataddr, formatdate, make_msgid
 
 from src import ki_mapping
 
@@ -27,6 +28,32 @@ from src import ki_mapping
 def absender():
     """Absenderadresse aus FOERDER_FROM (Default: Testpostfach)."""
     return os.environ.get("FOERDER_FROM", "baluopenclaw@gmail.com")
+
+
+def absender_name():
+    """Anzeigename im From-Header aus FOERDER_FROM_NAME (Default: Fördora)."""
+    return os.environ.get("FOERDER_FROM_NAME", "Fördora")
+
+
+def setze_kopfzeilen(msg, to_addr, betreff):
+    """Kopfzeilen fuer gute Zustellbarkeit.
+
+    - From mit Anzeigename
+    - Date und Message-ID mit eigener Domain (statt der des Relays)
+    - List-Unsubscribe als mailto an das Betreiberpostfach, Betreff "Widerruf":
+      Der Klick auf "Abbestellen" erzeugt eine Mail von der beim Kunden
+      gespeicherten Adresse - das ist der dokumentierte Widerrufsweg
+      (docs/privacy-retention.md).
+    """
+    adresse = absender()
+    domain = adresse.rsplit("@", 1)[-1]
+    msg["From"] = formataddr((absender_name(), adresse))
+    msg["To"] = to_addr
+    msg["Subject"] = betreff
+    msg["Date"] = formatdate(localtime=True)
+    msg["Message-ID"] = make_msgid(domain=domain)
+    msg["List-Unsubscribe"] = f"<mailto:{adresse}?subject=Widerruf>"
+    return msg
 
 
 def himalaya_account():
@@ -300,9 +327,7 @@ def offene_entwuerfe(conn):
 def _senden_email(to_addr, betreff, body):
     """Echter Versand ueber die himalaya-CLI (nutzt deren Auth; kein Passwort hier)."""
     msg = EmailMessage()
-    msg["From"] = absender()
-    msg["To"] = to_addr
-    msg["Subject"] = betreff
+    setze_kopfzeilen(msg, to_addr, betreff)
     msg.set_content(body)
 
     cmd = ["himalaya", "--account", himalaya_account(), "message", "send", "--save", "sent"]
