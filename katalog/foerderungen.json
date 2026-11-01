@@ -1,6 +1,6 @@
 {
   "meta": {
-    "stand": "2026-10-15",
+    "stand": "2026-11-01",
     "hinweis": "TESTDATEN-Prototyp. Betraege/Fristen aus Live-Recherche, vor echtem Einsatz verifizieren.",
     "quellen": [
       "aws.at",
@@ -338,8 +338,8 @@
           "eigenheim"
         ]
       },
-      "frist": "Call-basiert (3. Call: 8.10.-22.10.2026)",
-      "status": "offen",
+      "frist": "Call-basiert (3. Call 2026: 8.10.-22.10.2026, geschlossen am 22.10.2026)",
+      "status": "fenster_zu",
       "quelle": "https://www.eag-abwicklungsstelle.at"
     },
     {
@@ -664,7 +664,7 @@
       ],
       "betrag": "k.A. (einkommens- und haushaltsgrößenabhängig, siehe Online-Zuschussrechner)",
       "frist": "01.05.2026 – 31.10.2026",
-      "status": "offen",
+      "status": "fenster_zu",
       "quelle": "https://www.tirol.gv.at/gesellschaft-soziales/soziales/heizkostenzuschuss/",
       "region": "Tirol"
     },
