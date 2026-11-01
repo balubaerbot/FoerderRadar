@@ -205,9 +205,9 @@ alt_key2 = os.environ.pop("FOERDER_LLM_API_KEY", None)
 try:
     betreff_fb, body_fb = vs.nachricht_bauen(PROFIL, TREFFER_ROH, KATALOG, transport=None)
     check("nachricht_bauen faellt ohne Key/Transport auf die Vorlage zurueck",
-          betreff_fb == f"Ihre passenden Foerderungen ({len(TREFFER_ROH)})")
+          betreff_fb == f"Ihre passenden Förderungen ({len(TREFFER_ROH)})")
     check("Fallback-Body entspricht der unveraenderten Phase-1-Vorlage",
-          "auf Basis Ihrer Angaben koennen folgende Foerderungen fuer Sie relevant sein" in body_fb)
+          "auf Basis Ihrer Angaben können folgende Förderungen für Sie relevant sein" in body_fb)
 finally:
     if alt_key2 is not None:
         os.environ["FOERDER_LLM_API_KEY"] = alt_key2

@@ -21,6 +21,7 @@ from email.message import EmailMessage
 from email.utils import formataddr, formatdate, make_msgid
 
 from src import ki_mapping
+from src import mail_texte
 
 # Absender und Himalaya-Account bewusst LAZY ueber Funktionen lesen:
 # Der Worker laedt die .env erst in main() - also NACH dem Import dieses
@@ -203,7 +204,7 @@ def _nachricht_bauen_roh(profil, treffer, katalog, transport=None):
         marker = "[sehr passend]" if t["kategorie"] == "top" else "[evtl. relevant]"
         zeilen.append(
             f"- {marker} {f['name']} ({f['stelle']})\n"
-            f"  Leistung: {f['betrag']}\n"
+            f"  Leistung: {mail_texte.betrag_anzeige(f['betrag'])}\n"
             f"  Frist/Status: {f['frist']} (Status: {f['status']})\n"
             f"  Details: {f['quelle']}"
         )
@@ -212,24 +213,25 @@ def _nachricht_bauen_roh(profil, treffer, katalog, transport=None):
             "kategorie": t["kategorie"],
             "name": f["name"],
             "stelle": f["stelle"],
-            "betrag": f["betrag"],
+            "betrag": mail_texte.betrag_anzeige(f["betrag"]),
             "frist": f["frist"],
             "status": f["status"],
             "quelle": f["quelle"],
         })
 
-    ki_mail = ki_mapping.formuliere_mail(profil, fakten, transport=transport)
+    schluss = mail_texte.schluss(absender())
+    ki_mail = ki_mapping.formuliere_mail(profil, fakten, transport=transport, schluss=schluss)
     if ki_mail:
         return ki_mail["betreff"], ki_mail["body"]
 
-    betreff = f"Ihre passenden Foerderungen ({len(zeilen)})"
+    betreff = f"Ihre passenden Förderungen ({len(zeilen)})"
     body = (
         "Guten Tag,\n\n"
-        "auf Basis Ihrer Angaben koennen folgende Foerderungen fuer Sie relevant sein:\n\n"
+        "auf Basis Ihrer Angaben können folgende Förderungen für Sie relevant sein:\n\n"
         + "\n".join(zeilen)
-        + "\n\nBitte pruefen Sie alle Angaben anhand der jeweiligen Quelle. "
-        "Diese Zusammenstellung ist keine Rechts- oder Steuerberatung und ohne Gewaehr.\n\n"
-        "Freundliche Gruesse\nIhr Foerdora-Team"
+        + "\n\nBitte prüfen Sie alle Angaben anhand der jeweiligen Quelle. "
+        "Diese Zusammenstellung ist keine Rechts- oder Steuerberatung und ohne Gewähr.\n\n"
+        + schluss
     )
     return betreff, body
 
@@ -257,10 +259,7 @@ def keine_treffer_body():
         "Solange Ihre Daten bei uns gespeichert sind, gleichen wir sie regelmäßig mit "
         "neu aufgenommenen Förderungen ab. Finden wir eine passende, melden wir uns "
         "per E-Mail.\n\n"
-        "Möchten Sie keine weiteren Nachrichten erhalten, schreiben Sie von dieser "
-        f"Adresse eine E-Mail mit dem Betreff „Widerruf“ an {absender()}. "
-        "Ihre Daten werden dann gelöscht.\n\n"
-        "Freundliche Grüße\nIhr Fördora-Team"
+        + mail_texte.schluss(absender())
     )
 
 

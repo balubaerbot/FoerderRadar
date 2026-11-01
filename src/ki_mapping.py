@@ -40,6 +40,7 @@ import re
 import urllib.error
 import urllib.request
 
+from src import mail_texte
 from src import vokabular as vok
 
 # Kanonische Allowlists - dieselben Werte wie Validator und Katalog.
@@ -416,7 +417,7 @@ def _ohne_anrede(text):
     return text.lstrip()
 
 
-def _mail_body_bauen(rahmen, treffer):
+def _mail_body_bauen(rahmen, treffer, schluss=None):
     """Baut den finalen Mailtext: LLM-Rahmung drumherum, Katalogfakten in der
     Mitte ausschliesslich aus dem Code (identisches Zeilenformat wie die
     Phase-1-Vorlage in versand_service.nachricht_bauen)."""
@@ -425,7 +426,7 @@ def _mail_body_bauen(rahmen, treffer):
         marker = "[sehr passend]" if t.get("kategorie") == "top" else "[evtl. relevant]"
         zeile = (
             f"- {marker} {t.get('name', '')} ({t.get('stelle', '')})\n"
-            f"  Leistung: {t.get('betrag', '')}\n"
+            f"  Leistung: {mail_texte.betrag_anzeige(t.get('betrag', ''))}\n"
             f"  Frist/Status: {t.get('frist', '')} (Status: {t.get('status', '')})\n"
             f"  Details: {t.get('quelle', '')}"
         )
@@ -440,12 +441,12 @@ def _mail_body_bauen(rahmen, treffer):
         + "\n".join(zeilen)
         + "\n\nBitte prüfen Sie alle Angaben anhand der jeweiligen Quelle. "
         "Diese Zusammenstellung ist keine Rechts- oder Steuerberatung und ohne Gewähr.\n\n"
-        + rahmen["abschluss"] + "\n"
-        "Freundliche Grüße\nIhr Foerdora-Team"
+        + rahmen["abschluss"] + "\n\n"
+        + (schluss or mail_texte.GRUSS)
     )
 
 
-def formuliere_mail(profil, treffer, transport=None):
+def formuliere_mail(profil, treffer, transport=None, schluss=None):
     """Profil + Treffer -> {'betreff', 'body'} oder None (fail-soft).
 
     STRICT GROUNDING: Das LLM bekommt AUSSCHLIESSLICH das pseudonyme Profil
@@ -499,4 +500,4 @@ def formuliere_mail(profil, treffer, transport=None):
     rahmen = _validiere_mail_antwort(_json_aus_text(inhalt), treffer)
     if rahmen is None:
         return None
-    return {"betreff": rahmen["betreff"], "body": _mail_body_bauen(rahmen, treffer)}
+    return {"betreff": rahmen["betreff"], "body": _mail_body_bauen(rahmen, treffer, schluss)}
