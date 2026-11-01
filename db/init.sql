@@ -62,6 +62,10 @@ ALTER TABLE kontakt ADD COLUMN IF NOT EXISTS einwilligung_version TEXT;
 ALTER TABLE kontakt ADD COLUMN IF NOT EXISTS einwilligung_besondere_daten BOOLEAN NOT NULL DEFAULT FALSE;
 ALTER TABLE kontakt ADD COLUMN IF NOT EXISTS einwilligung_widerrufen_am TIMESTAMPTZ;
 ALTER TABLE kontakt ALTER COLUMN loeschdatum SET DEFAULT ((CURRENT_DATE + INTERVAL '2 years')::date);
+-- Eingangsbestaetigung (siehe db/migrations/20261101_eingangsmail.sql)
+ALTER TABLE kontakt ADD COLUMN IF NOT EXISTS eingang_mail_status TEXT
+    CHECK (eingang_mail_status IN ('sendet','gesendet','uebersprungen','fehler'));
+ALTER TABLE kontakt ADD COLUMN IF NOT EXISTS eingang_mail_am TIMESTAMPTZ;
 
 CREATE TABLE IF NOT EXISTS match (
     id             BIGSERIAL PRIMARY KEY,

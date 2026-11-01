@@ -632,3 +632,117 @@ def versenden(conn, versand_id, dry_run=True, test_recipient=None):
             )
     conn.commit()
     return {"ok": True, "dry_run": False, "versand_id": versand_id, "ziel": ziel}
+
+
+# --------------------------------------------------------------------------
+# Eingangsbestaetigung (kurze Mail direkt nach dem Formular)
+# --------------------------------------------------------------------------
+# Fester Text, keine Profildaten (insb. keine besonderen Kategorien) in der Mail.
+# Die Web-App versendet selbst NICHTS - sie hat weder Postfachzugang noch
+# Leserechte auf `kontakt`. Ein eigener, haeufig laufender Worker
+# (worker/eingang_worker.py) arbeitet die offenen Bestaetigungen ab.
+EINGANG_BETREFF = "Ihre Anfrage bei Fördora ist eingegangen"
+EINGANG_FENSTER_STUNDEN = 48   # aeltere Kontakte bekommen nie eine Eingangsmail
+EINGANG_SPERRE_STUNDEN = 24    # gleiche Adresse hoechstens 1x pro Zeitraum
+EINGANG_MAX_PRO_LAUF = 20      # darueber: Andrang melden (-> Double-Opt-in erwaegen)
+
+
+def eingang_body():
+    return (
+        "Guten Tag,\n\n"
+        "vielen Dank für Ihre Anfrage bei Fördora. Ihre Angaben sind bei uns "
+        "eingegangen.\n\n"
+        "Wir gleichen sie nun mit unserem Förderkatalog ab. Das Ergebnis erhalten "
+        "Sie in der Regel innerhalb von 24 Stunden per E-Mail - entweder die für "
+        "Sie passenden Förderungen oder die Information, dass derzeit keine passt.\n\n"
+        "Haben Sie das Formular nicht selbst ausgefüllt, nutzen Sie bitte den "
+        "unten beschriebenen Widerrufsweg - wir löschen die Angaben dann.\n\n"
+        + mail_texte.schluss(absender())
+    )
+
+
+_EINGANG_OFFEN_WHERE = f"""
+    kanal = 'email'
+    AND email IS NOT NULL AND email <> ''
+    AND eingang_mail_status IS NULL
+    AND einwilligung_widerrufen_am IS NULL
+    AND einwilligung_am >= now() - interval '{EINGANG_FENSTER_STUNDEN} hours'
+"""
+
+
+def eingang_offen_anzahl(conn):
+    with conn.cursor() as cur:
+        cur.execute(f"SELECT count(*) FROM kontakt WHERE {_EINGANG_OFFEN_WHERE}")
+        return cur.fetchone()[0]
+
+
+def eingang_kandidaten(conn, limit=EINGANG_MAX_PRO_LAUF):
+    """Offene Eingangsbestaetigungen, aelteste zuerst: [(kunde_id, email), ...]."""
+    with conn.cursor() as cur:
+        cur.execute(
+            f"SELECT kunde_id, email FROM kontakt WHERE {_EINGANG_OFFEN_WHERE} "
+            "ORDER BY einwilligung_am LIMIT %s",
+            (limit,),
+        )
+        return cur.fetchall()
+
+
+def _eingang_adresse_kuerzlich_bestaetigt(conn, kunde_id, email):
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT 1 FROM kontakt WHERE lower(email) = lower(%s) AND kunde_id <> %s "
+            "AND eingang_mail_status IN ('sendet','gesendet') "
+            f"AND eingang_mail_am >= now() - interval '{EINGANG_SPERRE_STUNDEN} hours' LIMIT 1",
+            (email, kunde_id),
+        )
+        return cur.fetchone() is not None
+
+
+def _eingang_status(conn, kunde_id, status, nur_wenn=None):
+    """Setzt den Status; mit nur_wenn='offen' nur, wenn noch kein Status da ist (Claim)."""
+    bedingung = " AND eingang_mail_status IS NULL" if nur_wenn == "offen" else ""
+    with conn.cursor() as cur:
+        cur.execute(
+            "UPDATE kontakt SET eingang_mail_status = %s, eingang_mail_am = now() "
+            f"WHERE kunde_id = %s{bedingung}",
+            (status, kunde_id),
+        )
+        n = cur.rowcount
+    conn.commit()
+    return n == 1
+
+
+def eingang_verarbeiten(conn, senden=False, sender=None, limit=EINGANG_MAX_PRO_LAUF):
+    """Arbeitet offene Eingangsbestaetigungen ab.
+
+    Rueckgabe: dict mit offen (vor dem Lauf), gesendet, uebersprungen, fehler,
+    andrang (bool) und zeilen (nur maskierte Adressen). Ohne senden=True
+    passiert nichts in der DB (Dry-Run).
+    """
+    sender = sender or _senden_email
+    offen = eingang_offen_anzahl(conn)
+    erg = {"offen": offen, "gesendet": 0, "uebersprungen": 0, "fehler": 0,
+           "andrang": offen > limit, "zeilen": []}
+    for kunde_id, email in eingang_kandidaten(conn, limit):
+        ziel = maskiere_email(email)
+        if not senden:
+            erg["zeilen"].append(f"[dry-run] {ziel}")
+            continue
+        if _eingang_adresse_kuerzlich_bestaetigt(conn, kunde_id, email):
+            _eingang_status(conn, kunde_id, "uebersprungen", nur_wenn="offen")
+            erg["uebersprungen"] += 1
+            erg["zeilen"].append(f"[uebersprungen] {ziel} (Adresse < {EINGANG_SPERRE_STUNDEN} h bestaetigt)")
+            continue
+        if not _eingang_status(conn, kunde_id, "sendet", nur_wenn="offen"):
+            continue  # parallel schon geclaimt
+        try:
+            sender(email, EINGANG_BETREFF, eingang_body())
+        except Exception as e:  # noqa: BLE001 - Fehler zaehlen, Lauf fortsetzen
+            _eingang_status(conn, kunde_id, "fehler")
+            erg["fehler"] += 1
+            erg["zeilen"].append(f"[fehler] {ziel}: {_redigiere(str(e), {'email': email})[:200]}")
+            continue
+        _eingang_status(conn, kunde_id, "gesendet")
+        erg["gesendet"] += 1
+        erg["zeilen"].append(f"[gesendet] {ziel}")
+    return erg

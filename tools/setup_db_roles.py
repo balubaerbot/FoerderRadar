@@ -64,6 +64,8 @@ GRANTS = {
         "GRANT SELECT, INSERT, UPDATE, DELETE ON match TO {r}",
         "GRANT USAGE ON SEQUENCE match_id_seq TO {r}",
         "GRANT SELECT ON kontakt TO {r}",
+        # nur Eingangsmail-Status, keine Kontaktdaten (Migration 20261101)
+        "GRANT UPDATE (eingang_mail_status, eingang_mail_am) ON kontakt TO {r}",
         "GRANT SELECT, INSERT, UPDATE ON versand TO {r}",
         "GRANT USAGE ON SEQUENCE versand_id_seq TO {r}",
     ],

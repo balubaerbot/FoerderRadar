@@ -43,6 +43,7 @@ Nicht belegt / offen:
 
 - [ ] Widerruf-Automatik live: Migration `20261031_withdraw_by_email.sql` + GRANT auf Live-DB, täglicher Job `tools/process_withdrawals.py --apply` aktiv, ein Ende-zu-Ende-Test (Testprofil → Widerrufsmail → gelöscht + Bestätigung). Code/Tests: develop, 31.10.
 - [ ] Widerrufsweg steht im Datenschutztext und in jeder Mail
+- [ ] Eingangsmail nach dem Formular live: Migration `20261101_eingangsmail.sql` auf Live-DB, Job `worker/eingang_worker.py --send` alle 10 min. Bei Andrang (Exit 2 / Telegram) auf Bestätigungslink (Double-Opt-in) umstellen.
 - [ ] Postfach wird mindestens wöchentlich gelesen
 - [ ] Löschablauf bekannt: `tools/delete_profile_on_request.py --live --confirm-id <uuid> --confirm-db foerderradar` mit `DATABASE_URL_RETENTION` (siehe `docs/operator-deletion-runbook.md`)
 - [x] Löschtool am 30.10.2026 live mit zwei Testprofilen und der Rolle `app_retention` durchgespielt (inkl. Kaskade und Audit); vor dem Live-Gang bei Bedarf wiederholen
