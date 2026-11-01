@@ -72,7 +72,7 @@ Nicht belegt / offen:
 - [ ] `FOERDER_INTAKE_ENABLED` als letzter Schalter
 
 ## 8. Live-Check über die Domain
-- [ ] Footer "© 2026 Fördora · v1.0 alpha (Testversion)" und Header-Badge sichtbar (Optik im Browser prüfen)
+- [ ] Footer "© 2026 Fördora · v1.1 alpha (Testversion)" und Header-Badge sichtbar (Optik im Browser prüfen)
 - [ ] `/datenschutz`, `/impressum` erreichbar
 - [ ] `/formular` antwortet nicht mehr mit 503
 - [x] Realtest mit Testkonto, danach Testdaten per Widerruf-Workflow entfernt (2026-10-31)

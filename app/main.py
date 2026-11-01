@@ -59,7 +59,8 @@ def _lade_env_datei():
 
 _lade_env_datei()
 
-app = FastAPI(title="FoerderRadar API", version="0.1.0")
+APP_VERSION = "1.1.0-alpha"
+app = FastAPI(title="FoerderRadar API", version=APP_VERSION)
 
 
 def _intake_freigegeben() -> bool:
