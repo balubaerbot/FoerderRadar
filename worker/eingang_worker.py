@@ -24,6 +24,10 @@ from src import versand_service as vs          # noqa: E402
 from worker import versand_worker as vw         # noqa: E402
 
 
+# Erfundenes Beispielprofil fuer --muster-an (keine DB, keine echten Daten).
+MUSTER_PROFIL = {"typ": "betrieb", "region_grob": "Tirol", "branche": "Handel",
+                 "mitarbeiterklasse": "5\u20139", "vorhaben": ["Digitalisierung", "Photovoltaik"]}
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--send", action="store_true", help="ECHT versenden")
@@ -35,7 +39,8 @@ def main(argv=None):
     vw._lade_env_datei()
 
     if args.muster_an:
-        vs._senden_email(args.muster_an, vs.EINGANG_BETREFF, vs.eingang_body())
+        beispiel = vs.eingang_zusammenfassung(MUSTER_PROFIL)
+        vs._senden_email(args.muster_an, vs.EINGANG_BETREFF, vs.eingang_body(beispiel))
         print(f"Mustermail gesendet an {vs.maskiere_email(args.muster_an)}")
         return 0
 

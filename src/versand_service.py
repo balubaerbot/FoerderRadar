@@ -22,6 +22,7 @@ from email.utils import formataddr, formatdate, make_msgid
 
 from src import ki_mapping
 from src import mail_texte
+from src import region as region_mod
 
 # Absender und Himalaya-Account bewusst LAZY ueber Funktionen lesen:
 # Der Worker laedt die .env erst in main() - also NACH dem Import dieses
@@ -647,12 +648,95 @@ EINGANG_SPERRE_STUNDEN = 24    # gleiche Adresse hoechstens 1x pro Zeitraum
 EINGANG_MAX_PRO_LAUF = 20      # darueber: Andrang melden (-> Double-Opt-in erwaegen)
 
 
-def eingang_body():
+# Zusammenfassung in der Eingangsmail: NUR unkritische Angaben (Whitelist).
+# Die Adresse ist nicht bestaetigt (Tippfehler -> fremdes Postfach). Deshalb nie
+# Einkommen, Gesundheit, Familie/Haushalt, Wohnen, Heizung, Lebenslage, Freitext,
+# Telefon und keine Bedarfs-Themen (Heizkostenzuschuss, Sozialhilfe, Pflege ...).
+EINGANG_TYP_ANZEIGE = {"betrieb": "Unternehmen", "privat": "Privatperson",
+                       "sozial": "Privatperson"}
+EINGANG_BUNDESLAENDER = frozenset({
+    "Burgenland", "Kärnten", "Niederösterreich", "Oberösterreich", "Salzburg",
+    "Steiermark", "Tirol", "Vorarlberg", "Wien"})
+EINGANG_BRANCHEN = frozenset({
+    "Handwerk / Gewerbe", "IT / Digitalisierung", "Handel", "Produktion",
+    "Tourismus / Gastronomie", "Sonstiges"})
+EINGANG_MITARBEITERKLASSEN = frozenset({"1\u20134", "5\u20139", "10\u201349", "50\u2013249", "250+"})
+EINGANG_VORHABEN = frozenset({
+    "Digitalisierung", "Investition", "Schulung", "Energieeffizienz", "Gründung",
+    "Mobilität", "Photovoltaik", "Sanierung", "Weiterbildung"})
+_EINGANG_PROFIL_SPALTEN = ("typ", "region_grob", "branche", "mitarbeiterklasse", "vorhaben")
+
+
+def eingang_profil(conn, kunde_id):
+    """Nur die Spalten, die in der Eingangsmail stehen duerfen (oder None)."""
+    with conn.cursor() as cur:
+        cur.execute(
+            f"SELECT {', '.join(_EINGANG_PROFIL_SPALTEN)} FROM profil_agent WHERE kunde_id = %s",
+            (kunde_id,),
+        )
+        row = cur.fetchone()
+    if row is None:
+        return None
+    if isinstance(row, dict):
+        return {k: row.get(k) for k in _EINGANG_PROFIL_SPALTEN}
+    return dict(zip(_EINGANG_PROFIL_SPALTEN, row))
+
+
+_EINGANG_KUERZEL = {"OÖ": "Oberösterreich", "NÖ": "Niederösterreich"}
+
+
+def _eingang_bundesland(wert):
+    """Formularwert oder Kuerzel ('OÖ', 'ooe' ...) -> Bundesland-Name; sonst None."""
+    if not wert:
+        return None
+    try:
+        kanon = region_mod.normalisiere_region(wert)
+    except Exception:  # noqa: BLE001 - lieber weglassen als falsch anzeigen
+        return None
+    name = _EINGANG_KUERZEL.get(kanon, kanon)
+    return name if name in EINGANG_BUNDESLAENDER else None
+
+
+def eingang_zusammenfassung(profil):
+    """Profil -> [(Feld, Wert), ...]; unbekannte Werte werden weggelassen."""
+    if not profil:
+        return []
+    z = []
+    typ = EINGANG_TYP_ANZEIGE.get(profil.get("typ"))
+    if typ:
+        z.append(("Anfrage als", typ))
+    bundesland = _eingang_bundesland(profil.get("region_grob"))
+    if bundesland:
+        z.append(("Bundesland", bundesland))
+    if profil.get("typ") == "betrieb":
+        if profil.get("branche") in EINGANG_BRANCHEN:
+            z.append(("Branche", profil["branche"]))
+        if profil.get("mitarbeiterklasse") in EINGANG_MITARBEITERKLASSEN:
+            z.append(("Mitarbeitende", profil["mitarbeiterklasse"]))
+    vorhaben = []
+    for v in profil.get("vorhaben") or []:
+        if v in EINGANG_VORHABEN and v not in vorhaben:
+            vorhaben.append(v)
+    if vorhaben:
+        z.append(("Vorhaben", ", ".join(vorhaben)))
+    return z
+
+
+def eingang_body(zusammenfassung=None):
+    ueberblick = ""
+    if zusammenfassung:
+        ueberblick = (
+            "Ihre Anfrage im Überblick:\n"
+            + "".join(f"- {feld}: {wert}\n" for feld, wert in zusammenfassung)
+            + "\nIhre weiteren Angaben zeigen wir aus Datenschutzgründen hier nicht an. "
+            "Stimmt etwas nicht, antworten Sie einfach auf diese E-Mail.\n\n"
+        )
     return (
         "Guten Tag,\n\n"
         "vielen Dank für Ihre Anfrage bei Fördora. Ihre Angaben sind bei uns "
         "eingegangen.\n\n"
-        "Wir gleichen sie nun mit unserem Förderkatalog ab. Das Ergebnis erhalten "
+        + ueberblick
+        + "Wir gleichen Ihre Angaben nun mit unserem Förderkatalog ab. Das Ergebnis erhalten "
         "Sie in der Regel innerhalb von 24 Stunden per E-Mail - entweder die für "
         "Sie passenden Förderungen oder die Information, dass derzeit keine passt.\n\n"
         "Haben Sie das Formular nicht selbst ausgefüllt, nutzen Sie bitte den "
@@ -733,10 +817,11 @@ def eingang_verarbeiten(conn, senden=False, sender=None, limit=EINGANG_MAX_PRO_L
             erg["uebersprungen"] += 1
             erg["zeilen"].append(f"[uebersprungen] {ziel} (Adresse < {EINGANG_SPERRE_STUNDEN} h bestaetigt)")
             continue
+        zusammenfassung = eingang_zusammenfassung(eingang_profil(conn, kunde_id))
         if not _eingang_status(conn, kunde_id, "sendet", nur_wenn="offen"):
             continue  # parallel schon geclaimt
         try:
-            sender(email, EINGANG_BETREFF, eingang_body())
+            sender(email, EINGANG_BETREFF, eingang_body(zusammenfassung))
         except Exception as e:  # noqa: BLE001 - Fehler zaehlen, Lauf fortsetzen
             _eingang_status(conn, kunde_id, "fehler")
             erg["fehler"] += 1
