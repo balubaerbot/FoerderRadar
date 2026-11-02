@@ -108,6 +108,7 @@ body:has(input[name="typ"][value="sozial"]:checked) .nur-betrieb{display:none}
 body:has(input[name="typ"][value="sozial"]:checked) .nur-sozial{display:block}
 .nur-besondere-daten{display:none}
 body:has(input[name="besondere_daten_einwilligung"]:checked) .nur-besondere-daten{display:grid}
+body:not(:has(input[name="besondere_daten_einwilligung"]:checked)) .nur-besondere-option{display:none}
 body:has(input[name="typ"][value="sozial"]:checked) .nicht-sozial{display:none}
 
 /* Mobil */

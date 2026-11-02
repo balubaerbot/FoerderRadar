@@ -178,6 +178,7 @@ def _formular_kontext(werte=None, fehler=None, typ="betrieb"):
         "heizungen": HEIZUNGEN, "familienstaende": FAMILIENSTAENDE,
         "vorhaben_optionen": VORHABEN_OPTIONEN,
         "lebenssituationen": LEBENSSITUATIONEN, "bedarf_optionen": BEDARF_OPTIONEN,
+        "gesundheits_lebenssituationen": GESUNDHEITS_LEBENSSITUATIONEN, "gesundheits_bedarf": GESUNDHEITS_BEDARF,
     }
 
 

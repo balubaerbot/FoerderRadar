@@ -106,20 +106,6 @@
               <option value="{{ x }}" {% if x == werte.heizung %}selected{% endif %}>{{ x }}</option>
               {% endfor %}
             </select></div>
-          <div class="field nur-sozial"><label for="pflegestufe">Pflegestufe</label>
-            <select id="pflegestufe" name="pflegestufe">
-              <option value="">– keine –</option>
-              <option value="0" {% if werte.pflegestufe == "0" %}selected{% endif %}>Keine</option>
-              {% for n in [1,2,3,4,5,6,7] %}
-              <option value="{{ n }}" {% if werte.pflegestufe == n|string %}selected{% endif %}>Stufe {{ n }}</option>
-              {% endfor %}
-            </select></div>
-          <div class="field nur-sozial"><label for="behinderung">Behinderung / Beeinträchtigung</label>
-            <select id="behinderung" name="behinderung">
-              <option value="">– keine Angabe –</option>
-              <option value="ja" {% if werte.behinderung == "ja" %}selected{% endif %}>Ja (bei mir oder Kind im Haushalt)</option>
-              <option value="nein" {% if werte.behinderung == "nein" %}selected{% endif %}>Nein</option>
-            </select></div>
         </div>
         <div class="grid2">
           <div class="field"><label for="familienstand">Familienstand</label>
@@ -153,6 +139,22 @@
           </label>
         </div>
         <div class="grid2 nur-besondere-daten">
+          <div class="field"><label for="pflegestufe">Pflegestufe</label>
+            <select id="pflegestufe" name="pflegestufe">
+              <option value="">– keine –</option>
+              <option value="0" {% if werte.pflegestufe == "0" %}selected{% endif %}>Keine</option>
+              {% for n in [1,2,3,4,5,6,7] %}
+              <option value="{{ n }}" {% if werte.pflegestufe == n|string %}selected{% endif %}>Stufe {{ n }}</option>
+              {% endfor %}
+            </select></div>
+          <div class="field"><label for="behinderung">Behinderung / Beeinträchtigung</label>
+            <select id="behinderung" name="behinderung">
+              <option value="">– keine Angabe –</option>
+              <option value="ja" {% if werte.behinderung == "ja" %}selected{% endif %}>Ja (bei mir oder Kind im Haushalt)</option>
+              <option value="nein" {% if werte.behinderung == "nein" %}selected{% endif %}>Nein</option>
+            </select></div>
+        </div>
+        <div class="grid2">
           <div class="field"><label for="bundesland_s">Bundesland *</label>
             <select id="bundesland_s" name="region_grob_s">
               <option value="" disabled {% if not werte.region_grob_s %}selected{% endif %}>– bitte wählen –</option>
@@ -164,7 +166,7 @@
             <select id="lebenssituation" name="lebenssituation">
               <option value="">– bitte wählen –</option>
               {% for x in lebenssituationen %}
-              <option value="{{ x }}" {% if x == werte.lebenssituation %}selected{% endif %}>{{ x }}</option>
+              <option value="{{ x }}" {% if x in gesundheits_lebenssituationen %}data-besondere="1" {% endif %}{% if x == werte.lebenssituation %}selected{% endif %}>{{ x }}</option>
               {% endfor %}
             </select></div>
         </div>
@@ -188,7 +190,7 @@
           <legend>Förderungen suchen, bei denen …</legend>
           <div class="chips bedarf-chips">
             {% for v in bedarf_optionen %}
-            <label class="chip"><input type="checkbox" name="bedarf" value="{{ v }}"
+            <label class="chip{% if v in gesundheits_bedarf %} nur-besondere-option{% endif %}"><input type="checkbox" name="bedarf" value="{{ v }}"
               {% if v in werte.bedarf %}checked{% endif %}>{{ v }}</label>
             {% endfor %}
           </div>
@@ -226,7 +228,26 @@
           u.searchParams.set("typ", sel.value);
           history.replaceState(null, "", u.toString());
         }
-        document.addEventListener("DOMContentLoaded", sync);
+        function syncBesondere() {
+    var cb = document.querySelector('input[name="besondere_daten_einwilligung"]');
+    var ok = !!(cb && cb.checked);
+    Array.prototype.forEach.call(document.querySelectorAll('#lebenssituation option[data-besondere]'), function (o) {
+      o.disabled = !ok; o.hidden = !ok;
+      if (!ok && o.selected) { o.selected = false; document.getElementById("lebenssituation").value = ""; }
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.nur-besondere-option input'), function (i) {
+      if (!ok) { i.checked = false; }
+      i.disabled = !ok;
+    });
+    if (!ok) {
+      ["pflegestufe", "behinderung"].forEach(function (id) { var s = document.getElementById(id); if (s) { s.value = ""; } });
+    }
+  }
+  document.addEventListener("DOMContentLoaded", sync);
+  document.addEventListener("DOMContentLoaded", syncBesondere);
+  document.addEventListener("change", function (e) {
+    if (e.target && e.target.name === "besondere_daten_einwilligung") { syncBesondere(); }
+  });
         Array.prototype.forEach.call(
           document.querySelectorAll('input[name="typ"]'),
           function (r) { r.addEventListener("change", function () { sync(); syncUrl(); }); }

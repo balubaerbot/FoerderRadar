@@ -92,8 +92,13 @@ def test_privacy_contact_and_optional_sensitive_field_scope_are_visible():
     assert "INTERVAL '2 years'" in (root / "db/init.sql").read_text()
     assert "INTERVAL '2 years'" in (root / "db/migrations/20261018_consent_retention_metadata.sql").read_text()
     assert 'name="besondere_daten_einwilligung" value="ja"' in form
-    assert 'class="field nur-sozial"><label for="pflegestufe"' in form
-    assert 'class="field nur-sozial"><label for="behinderung"' in form
+    # Pflegestufe/Behinderung nur im Einwilligungs-Block; Bundesland und
+    # Lebenssituation muessen auch ohne Gesundheits-Einwilligung sichtbar sein.
+    besondere = form.split('<div class="grid2 nur-besondere-daten">', 1)[1].split("</div>\n        <div", 1)[0]
+    assert 'id="pflegestufe"' in besondere and 'id="behinderung"' in besondere
+    assert 'id="bundesland_s"' not in besondere and 'id="lebenssituation"' not in besondere
+    assert form.count("nur-besondere-daten") == 1
+    assert 'data-besondere="1"' in form and "nur-besondere-option" in form
     assert 'body:has(input[name="typ"][value="sozial"]:checked) .nur-sozial{display:block}' in css
     assert 'body:has(input[name="besondere_daten_einwilligung"]:checked) .nur-besondere-daten{display:grid}' in css
 
