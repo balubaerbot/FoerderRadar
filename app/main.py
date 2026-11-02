@@ -59,7 +59,7 @@ def _lade_env_datei():
 
 _lade_env_datei()
 
-APP_VERSION = "1.1.0-alpha"
+APP_VERSION = "1.2.0-alpha"
 app = FastAPI(title="FoerderRadar API", version=APP_VERSION)
 
 
