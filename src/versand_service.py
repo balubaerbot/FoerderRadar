@@ -728,8 +728,7 @@ def eingang_body(zusammenfassung=None):
         ueberblick = (
             "Ihre Anfrage im Überblick:\n"
             + "".join(f"- {feld}: {wert}\n" for feld, wert in zusammenfassung)
-            + "\nIhre weiteren Angaben zeigen wir aus Datenschutzgründen hier nicht an. "
-            "Stimmt etwas nicht, antworten Sie einfach auf diese E-Mail.\n\n"
+            + "\nIhre weiteren Angaben zeigen wir aus Datenschutzgründen hier nicht an.\n\n"
         )
     return (
         "Guten Tag,\n\n"
