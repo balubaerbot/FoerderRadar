@@ -1,6 +1,6 @@
 {
   "meta": {
-    "stand": "2026-11-01",
+    "stand": "2026-11-05",
     "hinweis": "TESTDATEN-Prototyp. Betraege/Fristen aus Live-Recherche, vor echtem Einsatz verifizieren.",
     "quellen": [
       "aws.at",
@@ -27,7 +27,9 @@
       "foerderungen.wko.at/ooe/gc",
       "foerderungen.wko.at/ooe/betriebsanlagen2026",
       "foerderungen.wko.at/ooe/oeko-plus",
-      "www.eag-abwicklungsstelle.at"
+      "www.eag-abwicklungsstelle.at",
+      "www.sanierungsoffensive.gv.at/kesseltausch/neuauflage-ein-/zweifamilienhaus-oder-reihenhaus",
+      "www.umweltfoerderung.at/betriebe/energieeffizienz-2-2026"
     ]
   },
   "foerderungen": [
@@ -51,10 +53,10 @@
           "cybersecurity"
         ]
       },
-      "frist": "Antrag 1.6.-2.11.2026",
-      "status": "offen",
+      "frist": "Antrag 1.6.-2.11.2026 (Antragsfrist abgelaufen)",
+      "status": "fenster_zu",
       "hinweise": [
-        "Ausschoepfungsgrad 85% (Stand 12.10.2026); Budget koennte vor Fristende ausgeschoepft sein."
+        "Antragsfrist am 02.11.2026 abgelaufen; Abrechnung bewilligter Projekte 01.10.2026-31.03.2027."
       ],
       "quelle": "https://foerderungen.wko.at/ooe/digitalplus26"
     },
@@ -167,8 +169,8 @@
           "umwelt"
         ]
       },
-      "frist": "Ausschreibung 1.7.-12.10.2026",
-      "status": "offen",
+      "frist": "Ausschreibung 1.7.-12.10.2026 (Einreichfrist abgelaufen)",
+      "status": "fenster_zu",
       "quelle": "https://www.umweltfoerderung.at/betriebe"
     },
     {
@@ -222,7 +224,7 @@
     },
     {
       "id": "raus_aus_oel_gas",
-      "name": "Raus aus Oel und Gas (Heizungstausch)",
+      "name": "Raus aus Oel und Gas / Kesseltausch (Heizungstausch)",
       "stelle": "Bund (Klimaministerium)",
       "zielgruppe": "privat",
       "thema": [
@@ -230,7 +232,7 @@
         "wohnen"
       ],
       "region": null,
-      "betrag": "30 % Grundfoerderung + Boni (Klimageschwindigkeit 16 %, Einkommensbonus je Einkommen), max. 80 %, foerderfaehig bis 28.000 EUR",
+      "betrag": "Pauschale je neuer Heizung: Nah-/Fernwaerme max. 4.000 EUR, Waermepumpe max. 5.000 EUR, Holzzentralheizung max. 6.000 EUR; Bonus thermische Solaranlage +2.500 EUR, Bonus Tiefenbohrung/Brunnen +5.000 EUR",
       "voraussetzungen": {
         "heizung_alt": [
           "oel",
@@ -240,9 +242,12 @@
           "eigenheim"
         ]
       },
-      "frist": "Registrierung 2026 beendet (Budget ausgeschoepft)",
-      "status": "ausgeschoepft",
-      "quelle": "https://www.sanierungsoffensive.gv.at"
+      "frist": "Neuauflage Kesseltausch: Registrierung/Antrag ab 02.11.2026 bis Budgetende, laengstens 31.12.2026 (Leistungen ab 07.10.2026)",
+      "status": "offen",
+      "quelle": "https://www.sanierungsoffensive.gv.at",
+      "hinweise": [
+        "Gilt fuer Privatpersonen im Ein-/Zweifamilienhaus oder Reihenhaus; keine Einkommenspruefung; Energieberatungsprotokoll fuer die Registrierung erforderlich."
+      ]
     },
     {
       "id": "ooe_heizungstausch",
