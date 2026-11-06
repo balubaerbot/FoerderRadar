@@ -226,9 +226,27 @@ def info():
     return {"message": "FoerderRadar API v0.1.0"}
 
 
+_MONATE = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August",
+           "September", "Oktober", "November", "Dezember"]
+
+
+def _katalog_stand_text():
+    """Katalog-Stand fuer die Startseite, z. B. '5. November 2026'.
+
+    Liest meta.stand aus dem Katalog; faellt bei jedem Problem auf None zurueck,
+    damit die Startseite nie an einer Katalog-Panne scheitert.
+    """
+    try:
+        stand = ms.load_katalog()["meta"]["stand"]
+        jahr, monat, tag = (int(x) for x in stand.split("-"))
+        return f"{tag}. {_MONATE[monat - 1]} {jahr}"
+    except Exception:
+        return None
+
+
 @app.get("/")
 def startseite(request: Request):
-    return _render(request, "start.html")
+    return _render(request, "start.html", {"katalog_stand": _katalog_stand_text()})
 
 
 @app.get("/health")
