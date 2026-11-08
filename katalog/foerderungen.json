@@ -1,6 +1,6 @@
 {
   "meta": {
-    "stand": "2026-11-05",
+    "stand": "2026-11-08",
     "hinweis": "TESTDATEN-Prototyp. Betraege/Fristen aus Live-Recherche, vor echtem Einsatz verifizieren.",
     "quellen": [
       "aws.at",
@@ -29,7 +29,8 @@
       "foerderungen.wko.at/ooe/oeko-plus",
       "www.eag-abwicklungsstelle.at",
       "www.sanierungsoffensive.gv.at/kesseltausch/neuauflage-ein-/zweifamilienhaus-oder-reihenhaus",
-      "www.umweltfoerderung.at/betriebe/energieeffizienz-2-2026"
+      "www.umweltfoerderung.at/betriebe/energieeffizienz-2-2026",
+      "www.aws.at/aws-innovationsschutz/implementierung/schluesseltechnologien"
     ]
   },
   "foerderungen": [
@@ -731,6 +732,23 @@
       "frist": "Geltungsdauer 01.01.2025–31.12.2026",
       "status": "offen",
       "quelle": "https://www.wko.at/foerderungen/breitband-glasfaser-betriebe-oberoesterreich"
+    },
+    {
+      "id": "aws_innovationsschutz_schluesseltechnologien",
+      "name": "aws Innovationsschutz advanced.IP (Schlüsseltechnologien)",
+      "stelle": "Austria Wirtschaftsservice (aws)",
+      "zielgruppe": "betrieb",
+      "thema": [
+        "wirtschaft"
+      ],
+      "betrag": "Zuschuss bis max. 75.000 Euro; max. 50 % der förderbaren Kosten (förderbare Kosten max. 150.000 Euro pro Vorhaben)",
+      "frist": "Antragsannahme der Periode 2024–2026 war bis 30.10.2026, 12 Uhr; Fortführung geplant, Antragstellung voraussichtlich ab Anfang 2027",
+      "status": "fenster_zu",
+      "quelle": "https://www.aws.at/aws-innovationsschutz/implementierung/schluesseltechnologien/",
+      "region": "Bund",
+      "hinweise": [
+        "Zielgruppe: Personen- oder Kapitalgesellschaften (KMU nach EU-Definition) mit Betriebsstandort in Österreich; Vorhaben aus Schlüsseltechnologiefeldern; Programmdesign ab 2027 wird angepasst."
+      ]
     }
   ]
 }
