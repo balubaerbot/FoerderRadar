@@ -9,10 +9,12 @@ Trennung: `profil` = pseudonym (Agent darf lesen), `kontakt` = Klartext
 (nur Versand-Worker). Der Agent sieht Kontaktdaten NIE.
 """
 import hmac
+import logging
 import os
 import re
 import sys
 import time
+import unicodedata
 from collections import defaultdict, deque
 
 from urllib.parse import urlencode
@@ -26,7 +28,6 @@ from fastapi.templating import Jinja2Templates
 # Einfache, bewusst grosszuegige Formatpruefung (kein RFC-Vollparser):
 # verhindert offensichtlichen Muell, endgueltige Zustellbarkeit zeigt erst der Versand.
 EMAIL_RE = re.compile(r"[^@\s]+@[^@\s]+\.[^@\s]+")
-
 from pydantic import BaseModel
 from typing import Optional
 
@@ -39,22 +40,52 @@ from src import vokabular as vok  # noqa: E402
 
 # Anmelde-Spam: Domains, die nachweislich automatisiert angemeldet wurden.
 # Erweiterbar ohne Code-Aenderung ueber FOERDER_BLOCKED_EMAIL_DOMAINS (kommagetrennt).
-BLOCKED_EMAIL_DOMAINS = {"fldubai.com"}
+BLOCKED_EMAIL_DOMAINS = frozenset({"fldubai.com"})
 # Verstecktes Formularfeld (Honeypot): Menschen sehen es nicht, Bots fuellen es aus.
-HONEYPOT_FELD = "website"
+# Bewusst kein Name wie "website"/"url": Passwortmanager und Autofill fuellen die gern aus.
+HONEYPOT_FELD = "kontakt_ref"
+
+_spam_log = logging.getLogger("foerder.spam")
+
+
+def _norm_domain(d):
+    """Domain vergleichbar machen: NFKC, ohne Zero-Width-Zeichen, Kleinschreibung,
+    ohne Port/Klammern/fuehrende '@*.'/Trailing-Dot, IDNA (Punycode)."""
+    d = unicodedata.normalize("NFKC", str(d or ""))
+    d = "".join(c for c in d if unicodedata.category(c) != "Cf")
+    d = re.sub(r":\d+$", "", d.strip().lower())
+    d = d.strip("[] ").lstrip("@*.").rstrip(".")
+    try:
+        d = d.encode("idna").decode("ascii")
+    except UnicodeError:
+        pass
+    return d
 
 
 def _gesperrte_domains():
     extra = os.environ.get("FOERDER_BLOCKED_EMAIL_DOMAINS", "")
-    return BLOCKED_EMAIL_DOMAINS | {d.strip().lower() for d in extra.split(",") if d.strip()}
+    eintraege = {_norm_domain(d) for d in extra.split(",")}
+    return (BLOCKED_EMAIL_DOMAINS | eintraege) - {""}
 
 
 def _email_domain_gesperrt(email):
     if not email or "@" not in email:
         return False
-    domain = email.rsplit("@", 1)[1].strip().lower()
+    domain = _norm_domain(email.rsplit("@", 1)[1])
+    if not domain:
+        return False
     gesperrt = _gesperrte_domains()
     return domain in gesperrt or any(domain.endswith("." + d) for d in gesperrt)
+
+
+def _spam_grund(form, email):
+    """'honeypot' | 'domain' | None. Ein Nicht-Text-Wert (z. B. Datei-Upload) im Honeypot zaehlt als Treffer."""
+    wert = form.get(HONEYPOT_FELD)
+    if wert is not None and (not isinstance(wert, str) or wert.strip()):
+        return "honeypot"
+    if _email_domain_gesperrt(email):
+        return "domain"
+    return None
 
 
 def _lade_env_datei():
@@ -122,6 +153,7 @@ def _pruefe_intake_freigabe() -> None:
 
 BASIS = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 templates = Jinja2Templates(directory=os.path.join(BASIS, "app", "templates"))
+templates.env.globals["honeypot_feld"] = HONEYPOT_FELD
 app.mount("/static", StaticFiles(directory=os.path.join(BASIS, "app", "static")), name="static")
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
@@ -327,7 +359,9 @@ def _speichere_profil(p: ProfilIn) -> str:
     if p.email and not EMAIL_RE.fullmatch(p.email):
         raise HTTPException(status_code=400, detail="Ungueltige E-Mail-Adresse.")
     if _email_domain_gesperrt(p.email):
-        raise HTTPException(status_code=400, detail="Diese E-Mail-Domain wird nicht akzeptiert.")
+        # Bewusst dieselbe Meldung wie bei ungueltigem Format: kein Orakel fuer die Sperrliste.
+        _spam_log.info("signup_discarded reason=domain via=api")
+        raise HTTPException(status_code=400, detail="Ungueltige E-Mail-Adresse.")
     # Der Versand unterstützt derzeit ausschließlich E-Mail.
     if p.kanal == "email" and not p.email:
         raise HTTPException(status_code=400, detail="Fuer den Kanal 'email' wird eine E-Mail-Adresse benoetigt.")
@@ -518,11 +552,6 @@ async def formular_post(request: Request):
     _pruefe_intake_freigabe()
     form = await request.form()
     p = _profil_aus_formular(form)
-    # Bot-Abwehr: Honeypot gefuellt oder gesperrte Domain -> nichts speichern,
-    # aber die normale Danke-Seite zeigen (der Bot lernt nichts aus einer Ablehnung).
-    if (form.get(HONEYPOT_FELD) or "").strip() or _email_domain_gesperrt(p.email):
-        vorname = (p.name or "").split(" ")[0]
-        return RedirectResponse("/danke?" + urlencode({"n": vorname, "e": _maske_email(p.email)}), status_code=303)
     if p.typ != "sozial":
         p.pflegestufe = None
         p.behinderung = None
@@ -547,6 +576,14 @@ async def formular_post(request: Request):
         return _zurueck("Ohne Einwilligung koennen wir Ihre Angaben nicht verarbeiten.")
     if p.region_grob not in BUNDESLAENDER:
         return _zurueck("Bitte ein Bundesland auswaehlen.")
+    # Bot-Abwehr erst nach den Pflichtfeld-Pruefungen: Spam- und Normalpfad antworten
+    # bei ungueltigen Eingaben identisch (kein Orakel). Nichts speichern, aber die normale
+    # Danke-Seite zeigen. Geloggt wird nur der Grund, keine personenbezogenen Daten.
+    grund = _spam_grund(form, p.email)
+    if grund:
+        _spam_log.info("signup_discarded reason=%s via=form", grund)
+        vorname = (p.name or "").split(" ")[0]
+        return RedirectResponse("/danke?" + urlencode({"n": vorname, "e": _maske_email(p.email)}), status_code=303)
     try:
         _speichere_profil(p)
     except HTTPException as e:
