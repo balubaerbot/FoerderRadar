@@ -26,6 +26,7 @@ from fastapi.templating import Jinja2Templates
 # Einfache, bewusst grosszuegige Formatpruefung (kein RFC-Vollparser):
 # verhindert offensichtlichen Muell, endgueltige Zustellbarkeit zeigt erst der Versand.
 EMAIL_RE = re.compile(r"[^@\s]+@[^@\s]+\.[^@\s]+")
+
 from pydantic import BaseModel
 from typing import Optional
 
@@ -35,6 +36,25 @@ from src import ki_mapping as ki  # noqa: E402
 from src import matching_service as ms  # noqa: E402
 from src import region as regionmod  # noqa: E402
 from src import vokabular as vok  # noqa: E402
+
+# Anmelde-Spam: Domains, die nachweislich automatisiert angemeldet wurden.
+# Erweiterbar ohne Code-Aenderung ueber FOERDER_BLOCKED_EMAIL_DOMAINS (kommagetrennt).
+BLOCKED_EMAIL_DOMAINS = {"fldubai.com"}
+# Verstecktes Formularfeld (Honeypot): Menschen sehen es nicht, Bots fuellen es aus.
+HONEYPOT_FELD = "website"
+
+
+def _gesperrte_domains():
+    extra = os.environ.get("FOERDER_BLOCKED_EMAIL_DOMAINS", "")
+    return BLOCKED_EMAIL_DOMAINS | {d.strip().lower() for d in extra.split(",") if d.strip()}
+
+
+def _email_domain_gesperrt(email):
+    if not email or "@" not in email:
+        return False
+    domain = email.rsplit("@", 1)[1].strip().lower()
+    gesperrt = _gesperrte_domains()
+    return domain in gesperrt or any(domain.endswith("." + d) for d in gesperrt)
 
 
 def _lade_env_datei():
@@ -306,6 +326,8 @@ def _speichere_profil(p: ProfilIn) -> str:
         raise HTTPException(status_code=400, detail="SMS-Versand ist derzeit nicht verfügbar")
     if p.email and not EMAIL_RE.fullmatch(p.email):
         raise HTTPException(status_code=400, detail="Ungueltige E-Mail-Adresse.")
+    if _email_domain_gesperrt(p.email):
+        raise HTTPException(status_code=400, detail="Diese E-Mail-Domain wird nicht akzeptiert.")
     # Der Versand unterstützt derzeit ausschließlich E-Mail.
     if p.kanal == "email" and not p.email:
         raise HTTPException(status_code=400, detail="Fuer den Kanal 'email' wird eine E-Mail-Adresse benoetigt.")
@@ -496,6 +518,11 @@ async def formular_post(request: Request):
     _pruefe_intake_freigabe()
     form = await request.form()
     p = _profil_aus_formular(form)
+    # Bot-Abwehr: Honeypot gefuellt oder gesperrte Domain -> nichts speichern,
+    # aber die normale Danke-Seite zeigen (der Bot lernt nichts aus einer Ablehnung).
+    if (form.get(HONEYPOT_FELD) or "").strip() or _email_domain_gesperrt(p.email):
+        vorname = (p.name or "").split(" ")[0]
+        return RedirectResponse("/danke?" + urlencode({"n": vorname, "e": _maske_email(p.email)}), status_code=303)
     if p.typ != "sozial":
         p.pflegestufe = None
         p.behinderung = None
