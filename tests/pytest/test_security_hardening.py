@@ -97,3 +97,77 @@ def test_formular_ohne_inline_script(m, monkeypatch):
 def test_formular_js_ausgeliefert(m):
     r = TestClient(m.app).get("/static/formular.js")
     assert r.status_code == 200 and "anliegen-platzhalter" in r.text
+
+
+def test_trusted_proxies_env_schraenkt_ein(monkeypatch):
+    monkeypatch.setenv("FOERDER_TESTING", "1")
+    monkeypatch.setenv("FOERDER_TRUSTED_PROXIES", "172.18.0.1, kaputt")
+    import app.main as api
+    api = importlib.reload(api)
+    assert api._client_ip(_Req("172.18.0.1", {"x-real-ip": "203.0.113.7"})) == "203.0.113.7"
+    # anderer Container im selben Netz darf den Header nicht setzen
+    assert api._client_ip(_Req("172.18.0.3", {"x-real-ip": "203.0.113.7"})) == "172.18.0.3"
+    monkeypatch.delenv("FOERDER_TRUSTED_PROXIES")
+    importlib.reload(api)
+
+
+def test_ipv4_mapped(m):
+    assert m._client_ip(_Req("::ffff:203.0.113.7")) == "203.0.113.7"
+    assert m._client_ip(_Req("::ffff:172.18.0.1", {"x-real-ip": "203.0.113.9"})) == "203.0.113.9"
+    assert m._client_ip(_Req("172.18.0.1", {"x-real-ip": "::ffff:203.0.113.9"})) == "203.0.113.9"
+
+
+def test_leerer_und_mehrwertiger_header(m):
+    assert m._client_ip(_Req("127.0.0.1", {"x-real-ip": ""})) == "127.0.0.1"
+    assert m._client_ip(_Req("127.0.0.1", {"x-real-ip": "1.2.3.4, 5.6.7.8"})) == "127.0.0.1"
+
+
+def test_pflegestufe_und_nul(m):
+    with pytest.raises(Exception):
+        m.ProfilIn(typ="privat", pflegestufe=10**30)
+    with pytest.raises(Exception):
+        m.ProfilIn(typ="privat", pflegestufe=8)
+    with pytest.raises(m.HTTPException):
+        m._pruefe_laengen(m.ProfilIn(typ="privat", branche="a\x00b"))
+    with pytest.raises(m.HTTPException):
+        m._pruefe_laengen(m.ProfilIn(typ="privat", vorhaben=["a\x00"]))
+
+
+def test_429_und_500_haben_header(m, monkeypatch):
+    monkeypatch.setattr(m, "_speichere_profil", lambda p: "x")
+    c = TestClient(m.app, client=("127.0.0.1", 1), raise_server_exceptions=False)
+    body = {"typ": "privat", "einwilligung": True}
+    h = {"X-Real-IP": "203.0.113.77"}
+    r = None
+    for _ in range(m.RATE_LIMIT + 1):
+        r = c.post("/profile", json=body, headers=h)
+    assert r.status_code == 429
+    assert "content-security-policy" in r.headers and "permissions-policy" in r.headers
+
+    @m.app.get("/__boom")
+    def boom():
+        raise RuntimeError("x")
+    m.PUBLIC.add(("GET", "/__boom"))
+    r = c.get("/__boom")
+    assert r.status_code == 500
+    assert "content-security-policy" in r.headers and "strict-transport-security" in r.headers
+
+
+def test_alle_proxy_configs_setzen_x_real_ip():
+    import pathlib
+    d = pathlib.Path(__file__).resolve().parents[2] / "deploy"
+    for f in ("nginx.conf", "Caddyfile"):
+        t = (d / f).read_text(encoding="utf-8")
+        if "proxy_pass" in t or "reverse_proxy" in t:
+            assert "X-Real-IP" in t, f
+
+
+def test_cleanup_nur_einmal_pro_fenster(m):
+    import time
+    m._hits.clear()
+    for i in range(6000):
+        m._hits[f"x{i}"].append(time.monotonic() - 1000)
+    m._letzter_cleanup = 0.0
+    c = TestClient(m.app)
+    c.get("/info")
+    assert len(m._hits) < 100

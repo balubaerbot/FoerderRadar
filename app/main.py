@@ -29,7 +29,7 @@ from fastapi.templating import Jinja2Templates
 # Einfache, bewusst grosszuegige Formatpruefung (kein RFC-Vollparser):
 # verhindert offensichtlichen Muell, endgueltige Zustellbarkeit zeigt erst der Versand.
 EMAIL_RE = re.compile(r"[^@\s]+@[^@\s]+\.[^@\s]+")
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 
 # Projekt-Root auf den Importpfad, damit `src.*` importierbar ist
@@ -239,16 +239,42 @@ def db():
     return psycopg.connect(DATABASE_URL, connect_timeout=5)
 
 
-_PROXY_NETZE = [ipaddress.ip_network(n) for n in ("10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16")]
+_STANDARD_PROXIES = "127.0.0.0/8,::1/128,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+
+
+def _lade_proxy_netze():
+    """FOERDER_TRUSTED_PROXIES (kommagetrennt, IP oder CIDR) schraenkt das Vertrauen ein,
+    z. B. auf das Docker-Gateway (172.18.0.1). Ungueltige Eintraege werden ignoriert."""
+    roh = os.environ.get("FOERDER_TRUSTED_PROXIES") or _STANDARD_PROXIES
+    netze = []
+    for eintrag in roh.split(","):
+        try:
+            netze.append(ipaddress.ip_network(eintrag.strip(), strict=False))
+        except ValueError:
+            continue
+    return netze
+
+
+_PROXY_NETZE = _lade_proxy_netze()
+
+
+def _normalisiere_ip(host):
+    """IPv4-mapped IPv6 (::ffff:a.b.c.d) -> IPv4; sonst unveraendert. None bei Muell."""
+    try:
+        a = ipaddress.ip_address(host)
+    except ValueError:
+        return None
+    if a.version == 6 and a.ipv4_mapped:
+        a = a.ipv4_mapped
+    return a
 
 
 def _vertrauenswuerdiger_proxy(host):
     """True nur fuer Loopback/private Adressen (nginx auf dem Host bzw. Docker-Gateway)."""
-    try:
-        ip = ipaddress.ip_address(host)
-    except ValueError:
+    ip = _normalisiere_ip(host)
+    if ip is None:
         return False
-    return ip.is_loopback or any(ip in n for n in _PROXY_NETZE)
+    return any(ip.version == n.version and ip in n for n in _PROXY_NETZE)
 
 
 def _client_ip(request):
@@ -264,18 +290,15 @@ def _client_ip(request):
     peer = request.client.host if request.client else "?"
     ip = peer
     if _vertrauenswuerdiger_proxy(peer):
-        real = request.headers.get("x-real-ip", "").strip()
-        try:
-            ip = str(ipaddress.ip_address(real))
-        except ValueError:
-            ip = peer
-    try:
-        a = ipaddress.ip_address(ip)
-        if a.version == 6:
-            return str(ipaddress.ip_network(f"{a}/64", strict=False))
-    except ValueError:
-        pass
-    return ip
+        real = _normalisiere_ip(request.headers.get("x-real-ip", "").strip())
+        if real is not None:
+            ip = str(real)
+    a = _normalisiere_ip(ip)
+    if a is None:
+        return ip
+    if a.version == 6:
+        return str(ipaddress.ip_network(f"{a}/64", strict=False))
+    return str(a)
 
 
 @app.middleware("http")
@@ -300,11 +323,16 @@ async def guard(request: Request, call_next):
         if len(q) >= RATE_LIMIT:
             return JSONResponse({"detail": "zu viele Anfragen"}, status_code=429)
         q.append(now)
-    if len(_hits) > 5000:
-        for k in [k for k, v in _hits.items() if not v or time.monotonic() - v[-1] > RATE_WINDOW]:
+    global _letzter_cleanup
+    now = time.monotonic()
+    if len(_hits) > 5000 and now - _letzter_cleanup > RATE_WINDOW:
+        _letzter_cleanup = now
+        for k in [k for k, v in _hits.items() if not v or now - v[-1] > RATE_WINDOW]:
             _hits.pop(k, None)
     return await call_next(request)
 
+
+_letzter_cleanup = 0.0
 
 SICHERHEITSHEADER = {
     "Strict-Transport-Security": "max-age=31536000",
@@ -322,7 +350,11 @@ SICHERHEITSHEADER = {
 
 @app.middleware("http")
 async def sicherheitsheader(request: Request, call_next):
-    response = await call_next(request)
+    try:
+        response = await call_next(request)
+    except Exception:  # noqa: BLE001 - nie Details an den Client
+        logging.getLogger("foerderradar").exception("Unbehandelter Fehler")
+        response = JSONResponse({"detail": "Interner Fehler."}, status_code=500)
     for k, v in SICHERHEITSHEADER.items():
         if k not in response.headers:
             response.headers[k] = v
@@ -378,7 +410,7 @@ class ProfilIn(BaseModel):
     haushaltsgroesse: Optional[str] = None
     einkommen_spanne: Optional[str] = None
     heizung: Optional[str] = None
-    pflegestufe: Optional[int] = None
+    pflegestufe: Optional[int] = Field(None, ge=0, le=7)
     behinderung: Optional[bool] = None   # Bedarfs-Trigger (Behinderung/Beeintraechtigung)
     familienstand: Optional[str] = None
     kinder_im_haushalt: Optional[bool] = None
@@ -410,11 +442,11 @@ def _pruefe_laengen(p: ProfilIn):
     for name, wert in vars(p).items():
         if name == "vorhaben":
             if len(wert) > MAX_VORHABEN or any(
-                not isinstance(v, str) or len(v) > MAX_VORHABEN_LAENGE for v in wert
+                not isinstance(v, str) or len(v) > MAX_VORHABEN_LAENGE or "\x00" in v for v in wert
             ):
                 raise zu_lang
         elif isinstance(wert, str):
-            if len(wert) > (MAX_ANLIEGEN if name == "anliegen" else MAX_FELD):
+            if len(wert) > (MAX_ANLIEGEN if name == "anliegen" else MAX_FELD) or "\x00" in wert:
                 raise zu_lang
 
 
@@ -594,7 +626,7 @@ def _profil_aus_formular(form) -> ProfilIn:
         einkommen_spanne=((form.get("einkommen_spanne_s") if sozial
                            else form.get("einkommen_spanne")) or None) if privat else None,
         heizung=(form.get("heizung") or None) if (privat and not sozial) else None,
-        pflegestufe=(int(pf) if pf.isdigit() else None) if besondere_daten_ok else None,
+        pflegestufe=(int(pf) if re.fullmatch(r"[0-7]", pf) else None) if besondere_daten_ok else None,
         behinderung=_ja_nein(form.get("behinderung")) if besondere_daten_ok else None,
         familienstand=(form.get("familienstand") or None) if (privat and not sozial) else None,
         kinder_im_haushalt=_ja_nein(form.get("kinder_im_haushalt")) if (privat and not sozial) else None,

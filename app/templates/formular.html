@@ -207,13 +207,13 @@
 
       <div class="field"><label for="anliegen">Beschreiben Sie kurz Ihr Anliegen
         <span class="small" style="font-weight:400">(optional)</span></label>
-        <textarea id="anliegen" name="anliegen" rows="4"
+        <textarea id="anliegen" name="anliegen" rows="4" maxlength="2000"
           placeholder="{{ anliegen_platzhalter.get(typ, anliegen_platzhalter['betrieb']) }}">{{ werte.anliegen or '' }}</textarea>
         <p class="small" style="margin-top:6px">In eigenen Worten – die KI erkennt daraus Standbein
           und Themen. Die Prüfung selbst machen weiterhin die Regeln.</p></div>
 
       <script type="application/json" id="anliegen-platzhalter">{{ anliegen_platzhalter | tojson }}</script>
-      <script src="/static/formular.js" defer></script>
+      <script src="/static/formular.js?v=1" defer></script>
 
       <hr style="border:0;border-top:1px solid var(--line);margin:24px 0">
 

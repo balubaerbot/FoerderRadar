@@ -23,6 +23,7 @@ foerdora.cloud {
 	reverse_proxy 127.0.0.1:8100 {
 		# Discard client-supplied forwarding chains.
 		header_up X-Forwarded-For {http.request.remote.host}
+		header_up X-Real-IP {http.request.remote.host}
 	}
 
 	# ------------------------------------------------------------------

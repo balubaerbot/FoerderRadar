@@ -116,19 +116,17 @@ die Middleware ist Default-Deny (siehe `PUBLIC` in `app/main.py`).
 
 ## Proxy-Header und Rate-Limit
 
-Uvicorn startet absichtlich **ohne** `--proxy-headers`. Die App ignoriert
-`X-Forwarded-For` fuer die Rate-Limit-Identitaet, bis die tatsaechliche
-Proxy-Kette auf dem Host verifiziert und eine eng begrenzte Trust-Konfiguration
-eingerichtet ist. Andernfalls koennte ein Client den Header faelschen und das
-Limit umgehen. Die Beispielkonfigurationen ueberschreiben den eingehenden
-`X-Forwarded-For`-Wert mit der jeweiligen Peer-IP; das allein aktiviert noch
-kein Vertrauen in Uvicorn.
-
-**Wichtig:** Hinter Docker kann `request.client` fuer alle externen Nutzer dieselbe
-Proxy-/Bridge-Adresse anzeigen. Bis die Host-Kette verifiziert ist, ist das
-Rate-Limit daher moeglicherweise gemeinsam statt pro Endnutzer-IP. Das ist die
-sichere, aber restriktivere Voreinstellung; nicht als per-IP-Limit bewerben.
-`--forwarded-allow-ips=*` darf nicht wieder aktiviert werden.
+Uvicorn startet absichtlich **ohne** \`--proxy-headers\`; \`request.client.host\` ist
+immer der echte Socket-Peer. Die Rate-Limit-Identitaet (\`_client_ip\` in
+\`app/main.py\`) liest \`X-Real-IP\` **nur**, wenn der Peer ein vertrauenswuerdiger
+Proxy ist. Standard: Loopback und private Netze. Mit
+\`FOERDER_TRUSTED_PROXIES\` (kommagetrennt, IP oder CIDR, z. B. \`172.18.0.1\`)
+laesst sich das auf das Docker-Gateway einschraenken. Voraussetzung: **jeder**
+Reverse-Proxy in \`deploy/\` ueberschreibt \`X-Real-IP\` mit der echten Client-IP
+(nginx: \`$remote_addr\`, Caddy: \`{http.request.remote.host}\`). IPv6 wird auf
+/64 zusammengefasst, IPv4-mapped IPv6 auf IPv4. \`--forwarded-allow-ips=*\` darf
+nicht wieder aktiviert werden. Zusaetzlich begrenzt nginx \`POST /formular\` und
+\`POST /profile\` pro IP (\`limit_req\`) und auf 64 KB Body.
 
 **Container neu erstellen** (vom Host, kein Rebuild noetig):
 
