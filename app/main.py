@@ -9,6 +9,7 @@ Trennung: `profil` = pseudonym (Agent darf lesen), `kontakt` = Klartext
 (nur Versand-Worker). Der Agent sieht Kontaktdaten NIE.
 """
 import hmac
+import ipaddress
 import logging
 import os
 import re
@@ -238,14 +239,43 @@ def db():
     return psycopg.connect(DATABASE_URL, connect_timeout=5)
 
 
+_PROXY_NETZE = [ipaddress.ip_network(n) for n in ("10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16")]
+
+
+def _vertrauenswuerdiger_proxy(host):
+    """True nur fuer Loopback/private Adressen (nginx auf dem Host bzw. Docker-Gateway)."""
+    try:
+        ip = ipaddress.ip_address(host)
+    except ValueError:
+        return False
+    return ip.is_loopback or any(ip in n for n in _PROXY_NETZE)
+
+
 def _client_ip(request):
     """Client-IP fuer das Rate-Limit.
 
-    Forwarding-Header werden bis zur Verifikation der tatsächlichen Host-
-    Proxy-Kette nicht ausgewertet. So kann ein Client das Limit nicht über
-    einen selbst gesetzten X-Forwarded-For-Wert umgehen.
+    X-Real-IP wird nur ausgewertet, wenn die direkte Gegenstelle ein vertrauens-
+    wuerdiger Proxy ist (Loopback/privates Netz: nginx ueberschreibt den Header
+    immer mit $remote_addr; der Container-Port ist nur an 127.0.0.1 gebunden).
+    Bei anderen Gegenstellen zaehlt allein die Socket-Adresse. IPv6 wird auf das
+    /64-Praefix zusammengefasst, damit Adresswechsel innerhalb eines Anschlusses
+    das Limit nicht umgehen.
     """
-    return request.client.host if request.client else "?"
+    peer = request.client.host if request.client else "?"
+    ip = peer
+    if _vertrauenswuerdiger_proxy(peer):
+        real = request.headers.get("x-real-ip", "").strip()
+        try:
+            ip = str(ipaddress.ip_address(real))
+        except ValueError:
+            ip = peer
+    try:
+        a = ipaddress.ip_address(ip)
+        if a.version == 6:
+            return str(ipaddress.ip_network(f"{a}/64", strict=False))
+    except ValueError:
+        pass
+    return ip
 
 
 @app.middleware("http")
@@ -270,7 +300,33 @@ async def guard(request: Request, call_next):
         if len(q) >= RATE_LIMIT:
             return JSONResponse({"detail": "zu viele Anfragen"}, status_code=429)
         q.append(now)
+    if len(_hits) > 5000:
+        for k in [k for k, v in _hits.items() if not v or time.monotonic() - v[-1] > RATE_WINDOW]:
+            _hits.pop(k, None)
     return await call_next(request)
+
+
+SICHERHEITSHEADER = {
+    "Strict-Transport-Security": "max-age=31536000",
+    "Content-Security-Policy": (
+        "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
+        "img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; "
+        "base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+    ),
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "no-referrer",
+}
+
+
+@app.middleware("http")
+async def sicherheitsheader(request: Request, call_next):
+    response = await call_next(request)
+    for k, v in SICHERHEITSHEADER.items():
+        if k not in response.headers:
+            response.headers[k] = v
+    return response
 
 
 @app.get("/info")
@@ -342,9 +398,30 @@ class ProfilIn(BaseModel):
     besondere_daten_einwilligung: bool = False
 
 
+MAX_FELD = 200
+MAX_ANLIEGEN = 2000
+MAX_VORHABEN = 20
+MAX_VORHABEN_LAENGE = 100
+
+
+def _pruefe_laengen(p: ProfilIn):
+    """Begrenzt Feldlaengen (Speicher-/LLM-Missbrauch ueber den oeffentlichen Schreibpfad)."""
+    zu_lang = HTTPException(status_code=400, detail="Eingabe zu lang oder ungueltig.")
+    for name, wert in vars(p).items():
+        if name == "vorhaben":
+            if len(wert) > MAX_VORHABEN or any(
+                not isinstance(v, str) or len(v) > MAX_VORHABEN_LAENGE for v in wert
+            ):
+                raise zu_lang
+        elif isinstance(wert, str):
+            if len(wert) > (MAX_ANLIEGEN if name == "anliegen" else MAX_FELD):
+                raise zu_lang
+
+
 def _speichere_profil(p: ProfilIn) -> str:
     """Validiert und speichert ein Profil (pseudonym + Kontakt getrennt)."""
     _pruefe_intake_freigabe()
+    _pruefe_laengen(p)
     if p.typ not in ("betrieb", "privat", "sozial"):
         raise HTTPException(status_code=400, detail="typ muss 'betrieb', 'privat' oder 'sozial' sein")
     if not p.einwilligung:
