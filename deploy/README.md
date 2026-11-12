@@ -19,8 +19,9 @@ einzige, was nach aussen auf 80/443 lauscht.
 ## Variante A: nginx + certbot (empfohlen)
 
 Alle Pakete kommen aus den offiziellen Ubuntu-Quellen - kein Drittanbieter-Repo,
-kein Fremdschluessel. `nginx.conf` ist die **Phase-1-Fassung** (nur Port 80) und
-laedt fehlerfrei, bevor ein Zertifikat existiert; certbot ergaenzt TLS danach selbst.
+kein Fremdschluessel. `nginx.conf` ist der **Live-Stand** (Port 80 Redirect, Port 443 mit
+Zertifikat, Proxy auf 127.0.0.1:8100). Fuer eine frische Installation ohne
+Zertifikat zuerst nur den Port-80-Block verwenden; certbot ergaenzt TLS danach.
 
 ```bash
 apt install -y nginx certbot python3-certbot-nginx
