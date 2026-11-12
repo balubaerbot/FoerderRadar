@@ -155,6 +155,10 @@ def _pruefe_intake_freigabe() -> None:
 BASIS = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 templates = Jinja2Templates(directory=os.path.join(BASIS, "app", "templates"))
 templates.env.globals["honeypot_feld"] = HONEYPOT_FELD
+# Footer-Anzeige aus APP_VERSION ableiten ("1.3.0-alpha" -> "1.3 alpha"), damit sie nicht auseinanderlaeuft.
+_v_zahl, _, _v_zusatz = APP_VERSION.partition("-")
+templates.env.globals["app_version_label"] = " ".join(
+    p for p in (".".join(_v_zahl.split(".")[:2]), _v_zusatz) if p)
 app.mount("/static", StaticFiles(directory=os.path.join(BASIS, "app", "static")), name="static")
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
